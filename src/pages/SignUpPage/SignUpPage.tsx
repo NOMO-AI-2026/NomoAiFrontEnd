@@ -1,4 +1,3 @@
-import React from 'react';
 import { Mail, Lock, Eye, ArrowRight, User } from 'lucide-react';
 import styles from './SignUpPage.module.css';
 

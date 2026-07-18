@@ -1,0 +1,288 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  background-color: #FFFFFF;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 280px;
+  background-color: #F4F0FF;
+  border-right: 2px solid #581C87;
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem 1.5rem;
+}
+
+.brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+
+.logoIconWrapper {
+  background-color: #FACC15;
+  padding: 0.6rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoIcon {
+  color: #1E1B4B;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.brandTitle {
+  color: #581C87;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.brandSubtitle {
+  color: #1E1B4B;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin: 0.25rem 0 0 0;
+}
+
+.navMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 9999px;
+  color: #1E1B4B;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.navItem:hover {
+  background-color: #e9d5ff;
+}
+
+.navItem.active {
+  background-color: #664d00;
+  color: #FFFFFF;
+}
+
+.sidebarFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: auto;
+}
+
+.newSessionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FACC15;
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 0.875rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.newSessionBtn:hover {
+  transform: translateY(-2px);
+}
+
+.bottomLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footerBtn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem;
+  background: none;
+  border: none;
+  color: #1E1B4B;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.footerBtn:hover {
+  color: #581C87;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+}
+
+.topHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  border-bottom: 2px solid #581C87;
+  background-color: #FFFFFF;
+}
+
+.headerTabs {
+  display: flex;
+  gap: 2rem;
+}
+
+.tab {
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.activeTab {
+  color: #664d00;
+  font-weight: 800;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -0.75rem;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #664d00;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  width: 300px;
+}
+
+.searchIcon {
+  color: #581C87;
+}
+
+.searchInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.875rem;
+  color: #1E1B4B;
+}
+
+.searchInput::placeholder {
+  color: #581C87;
+  font-weight: 600;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  color: #581C87;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid #581C87;
+  object-fit: cover;
+}
+
+.pageContent {
+  padding: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+}
+
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1E1B4B;
+  margin: 0 0 0.5rem 0;
+}
+
+.pageSubtitle {
+  color: #1E1B4B;
+  font-size: 1.125rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #FACC15;
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 1.125rem;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  border: 3px solid #581C87;
+  box-shadow: 4px 4px 0px #581C87;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.addBtn:hover {
+  transform: translateY(-2px);
+}
+
+.patientsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}

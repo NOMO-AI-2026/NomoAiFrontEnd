@@ -1,4 +1,3 @@
-import React from 'react';
 import { Mail, Lock, Eye, ArrowRight } from 'lucide-react';
 import styles from './LoginPage.module.css';
 

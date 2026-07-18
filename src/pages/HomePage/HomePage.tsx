@@ -1,9 +1,9 @@
 import { AudioLines, Brain, Gamepad2, LineChart } from "lucide-react";
 import styles from "./HomePage.module.css";
-
+import { Link } from "react-router-dom";
 const HomePage = () => {
   return (
-    <div className={styles.container}>
+    <div className={styles.container} dir="rtl">
       <nav className={styles.navbar}>
         <div className={styles.logoGroup}>
           <div className={styles.logoIconWrapper}>
@@ -13,24 +13,32 @@ const HomePage = () => {
         </div>
 
         <div className={styles.navActions}>
-          <button className={styles.loginBtn}>Login</button>
-          <button className={styles.signupBtn}>Sign Up</button>
+          <Link to="/login" className={styles.loginBtn} style={{ textDecoration: 'none' }}>
+            تسجيل الدخول
+          </Link>
+          <Link to="/signup" className={styles.signupBtn} style={{ textDecoration: 'none' }}>
+            حساب جديد
+          </Link>
         </div>
       </nav>
 
       <section className={styles.hero}>
         <div className={styles.heroTextContent}>
           <h1 className={styles.heroTitle}>
-            Speech therapy that <br />
-            <span className={styles.highlightText}>feels like play.</span>
+             علاج تخاطب 
+            <span className={styles.highlightText}> ممتع كاللعب.</span>
           </h1>
           <p className={styles.heroDescription}>
-            Helping children with Down syndrome improve speech through AI-powered sessions. No reading, no typing—just talking and having fun with an animated friend.
+            نساعد الأطفال المصابين بمتلازمة داون على تحسين النطق من خلال جلسات مدعومة بالذكاء الاصطناعي. لا حاجة للقراءة أو الكتابة — فقط التحدث والمرح مع صديق تفاعلي.
           </p>
 
           <div className={styles.ctaGroup}>
-            <button className={styles.primaryBtn}>Start Session</button>
-            <button className={styles.secondaryBtn}>Watch Demo</button>
+            <Link to="/login" className={styles.primaryBtn} style={{ textDecoration: 'none' }}>
+              ابدأ الجلسة
+            </Link>
+            <Link to="/demo" className={styles.secondaryBtn} style={{ textDecoration: 'none' }}>
+              شاهد العرض التوضيحي
+            </Link>
           </div>
         </div>
 
@@ -40,7 +48,7 @@ const HomePage = () => {
             <div className={styles.imageIconWrapper}>
               <AudioLines className={styles.imageIcon} />
             </div>
-            <p className={styles.imageText}>3D AI Character<br />Space</p>
+            <p className={styles.imageText}>بيئة شخصيات ذكية<br />ثلاثية الأبعاد</p>
           </div>
         </div>
       </section>
@@ -50,9 +58,9 @@ const HomePage = () => {
           <div className={styles.cardIconYellow}>
             <LineChart className={styles.cardIcon} />
           </div>
-          <h3 className={styles.cardTitle}>Doctor Dashboard</h3>
+          <h3 className={styles.cardTitle}>لوحة تحكم الطبيب</h3>
           <p className={styles.cardText}>
-            Monitor progress, set target words, and track success rates after every single session.
+            مراقبة التقدم، تحديد الكلمات المستهدفة، وتتبع معدلات النجاح بعد كل جلسة بدقة.
           </p>
         </div>
 
@@ -60,9 +68,9 @@ const HomePage = () => {
           <div className={styles.cardIconPurple}>
             <Gamepad2 className={styles.cardIcon} />
           </div>
-          <h3 className={styles.cardTitle}>Child-Friendly</h3>
+          <h3 className={styles.cardTitle}>بيئة صديقة للطفل</h3>
           <p className={styles.cardText}>
-            Short, 5 to 10 minute conversations with animated AI characters that celebrate every success.
+            محادثات قصيرة من 5 إلى 10 دقائق مع شخصيات ذكية تفاعلية تحتفل بكل نجاح يحققه الطفل.
           </p>
         </div>
 
@@ -70,39 +78,39 @@ const HomePage = () => {
           <div className={styles.cardIconYellow}>
             <Brain className={styles.cardIcon} />
           </div>
-          <h3 className={styles.cardTitle}>Smart Adaptation</h3>
+          <h3 className={styles.cardTitle}>تكيف ذكي</h3>
           <p className={styles.cardText}>
-            The AI automatically evaluates attempts and adjusts session difficulty without human intervention.
+            يقوم الذكاء الاصطناعي بتقييم المحاولات تلقائياً وتعديل صعوبة الجلسة دون أي تدخل بشري.
           </p>
         </div>
       </section>
 
       <section className={styles.howItWorks}>
-        <h2 className={styles.sectionTitle}>How it Works</h2>
+        <h2 className={styles.sectionTitle}>كيف يعمل النظام؟</h2>
         <div className={styles.stepsContainer}>
           <div className={styles.stepsLine}></div>
           
           <div className={styles.stepItem}>
             <div className={styles.stepNumberPurple}>1</div>
-            <h4 className={styles.stepTitle}>Doctor Sets Targets</h4>
+            <h4 className={styles.stepTitle}>الطبيب يحدد الأهداف</h4>
             <p className={styles.stepText}>
-              The speech therapist creates a customized learning path and assigns specific target words for the child.
+              يقوم أخصائي التخاطب بإنشاء مسار تعليمي مخصص وتحديد كلمات مستهدفة للطفل.
             </p>
           </div>
 
           <div className={styles.stepItem}>
             <div className={styles.stepNumberYellow}>2</div>
-            <h4 className={styles.stepTitle}>Practice with AI</h4>
+            <h4 className={styles.stepTitle}>التدريب مع الذكاء الاصطناعي</h4>
             <p className={styles.stepText}>
-              The child plays interactive games and converses with AI characters that provide real-time vocal feedback.
+              يلعب الطفل ألعاباً تفاعلية ويتحدث مع شخصيات ذكية تقدم له ملاحظات صوتية فورية.
             </p>
           </div>
 
           <div className={styles.stepItem}>
             <div className={styles.stepNumberPurple}>3</div>
-            <h4 className={styles.stepTitle}>Track Progress</h4>
+            <h4 className={styles.stepTitle}>تتبع التقدم</h4>
             <p className={styles.stepText}>
-              The AI adjusts difficulty automatically, while parents and doctors receive detailed progress reports.
+              يتم تعديل الصعوبة تلقائياً، بينما يتلقى الآباء والأطباء تقارير تقدم مفصلة.
             </p>
           </div>
         </div>
@@ -110,11 +118,13 @@ const HomePage = () => {
 
       <section className={styles.bottomCtaSection}>
         <div className={styles.bottomCtaCard}>
-          <h2 className={styles.bottomCtaTitle}>Start your journey today</h2>
+          <h2 className={styles.bottomCtaTitle}>ابدأ رحلتك اليوم</h2>
           <p className={styles.bottomCtaText}>
-            Join thousands of families who are unlocking their child's potential with AI-driven speech therapy.
+            انضم إلى آلاف العائلات التي تطلق العنان لقدرات أطفالها مع علاج التخاطب المدعوم بالذكاء الاصطناعي.
           </p>
-          <button className={styles.bottomCtaBtn}>Get Started Now</button>
+          <Link to="/login" className={styles.bottomCtaBtn} style={{ textDecoration: 'none' }}>
+            ابدأ الآن
+          </Link>
         </div>
       </section>
 
@@ -123,22 +133,22 @@ const HomePage = () => {
           <div className={styles.footerBrand}>
             <h3 className={styles.footerLogo}>NomoAI</h3>
             <p className={styles.footerCopyright}>
-              © 2026 NomoAI. Empowering children to find their voice through the power of AI.
+              © 2026 NomoAI. نمكّن الأطفال من إيجاد صوتهم من خلال قوة الذكاء الاصطناعي.
             </p>
           </div>
           
           <div className={styles.footerLinksWrapper}>
             <div className={styles.footerCol}>
-              <a href="#" className={styles.footerLink}>Privacy Policy</a>
-              <a href="#" className={styles.footerLink}>Clinical Studies</a>
+              <a href="#" className={styles.footerLink}>سياسة الخصوصية</a>
+              <a href="#" className={styles.footerLink}>الدراسات السريرية</a>
             </div>
             <div className={styles.footerCol}>
-              <a href="#" className={styles.footerLink}>Terms of Service</a>
-              <a href="#" className={styles.footerLink}>Accessibility</a>
+              <a href="#" className={styles.footerLink}>شروط الخدمة</a>
+              <a href="#" className={styles.footerLink}>إمكانية الوصول</a>
             </div>
             <div className={styles.footerCol}>
-              <a href="#" className={styles.footerLink}>Contact Us</a>
-              <a href="#" className={styles.footerLink}>FAQ</a>
+              <a href="#" className={styles.footerLink}>تواصل معنا</a>
+              <a href="#" className={styles.footerLink}>الأسئلة الشائعة</a>
             </div>
           </div>
         </div>

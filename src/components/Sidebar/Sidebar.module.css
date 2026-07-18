@@ -1,0 +1,128 @@
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background-color: #F4F0FF;
+  border-left: 2px solid #581C87; 
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+
+.logoIconWrapper {
+  background-color: #FACC15;
+  padding: 0.6rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoIcon {
+  color: #1E1B4B;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.brandTitle {
+  color: #581C87;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.brandSubtitle {
+  color: #1E1B4B;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin: 0.25rem 0 0 0;
+}
+
+.navMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 9999px;
+  color: #1E1B4B;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.navItem:hover {
+  background-color: #e9d5ff;
+}
+
+.navItem.active {
+  background-color: #664d00;
+  color: #FFFFFF;
+}
+
+.sidebarFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: auto;
+}
+
+.newSessionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FACC15;
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 0.875rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.newSessionBtn:hover {
+  transform: translateY(-2px);
+}
+
+.bottomLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footerBtn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem;
+  background: none;
+  border: none;
+  color: #1E1B4B;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: right;
+  transition: color 0.2s ease;
+}
+
+.footerBtn:hover {
+  color: #581C87;
+}
