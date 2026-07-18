@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage/HomePage";
 // استدعي صفحاتك التانية هنا (الـ Auth والـ Error)
@@ -7,10 +8,21 @@ import ErrorLayout from "./layouts/ErrorLayout/ErrorLayout";
 import AuthLayout from "./layouts/AuthLayout/AuthLayout";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import SignUpPage from "./pages/SignUpPage/SignUpPage";
+import AddChildModal from './components/Modals/AddChildModal/AddChildModal';
 
 function App() {
+  const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
+  useEffect(() => {
+    const handleOpen = () => setIsAddChildModalOpen(true);
+    
+    window.addEventListener('openAddChildModal', handleOpen);
+    
+    return () => window.removeEventListener('openAddChildModal', handleOpen);
+  }, []);
+
   return (
     <BrowserRouter>
+      {/* 3. الراوتر الطبيعي بتاعك */}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route element={<AuthLayout />}>
@@ -22,6 +34,11 @@ function App() {
         </Route>
         <Route path="*" element={<ErrorLayout />} />
       </Routes>
+
+      {/* 4. عرض البوب أب فوق كل الصفحات عند الحاجة */}
+      {isAddChildModalOpen && (
+        <AddChildModal onClose={() => setIsAddChildModalOpen(false)} />
+      )}
     </BrowserRouter>
   );
 }

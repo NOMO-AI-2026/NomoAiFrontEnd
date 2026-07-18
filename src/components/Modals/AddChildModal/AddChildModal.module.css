@@ -1,0 +1,48 @@
+/* src/components/Modals/AddChildModal/AddChildModal.module.css */
+
+.pageBackground {
+  background-color: #F8F7FF;
+}
+
+.inputContainer {
+  background-color: #F8F7FF;
+  border: 2px solid #EBE5F7;
+  transition: border-color 0.2s ease;
+}
+
+.inputContainer:focus-within {
+  border-color: #6C34AF;
+}
+
+.genderBtn {
+  background-color: #ffffff;
+  border: 2px solid #EBE5F7;
+  transition: all 0.2s ease;
+  color: #211A44;
+}
+
+.genderBtnActive {
+  background-color: #EBE5F7;
+  border: 2px solid #6C34AF;
+  box-shadow: 2px 2px 0px #6C34AF;
+  color: #6C34AF;
+}
+
+.infoAlert {
+  border: 2px dashed #d8b4fe;
+}
+
+.primaryBtn {
+  box-shadow: 4px 4px 0px #211A44;
+  transition: all 0.2s ease-in-out;
+}
+
+.primaryBtn:hover {
+  transform: translate(1px, -1px);
+  box-shadow: 5px 5px 0px #211A44;
+}
+
+.primaryBtn:active {
+  transform: translate(-2px, 2px);
+  box-shadow: 0px 0px 0px #211A44;
+}
