@@ -1,21 +1,40 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import ChildCard from "../../components/ChildCard/ChildCard";
 import styles from "./DoctorChildren.module.css";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { fetchChildren } from "../../store/slices/childrenSlice";
 
 const DoctorChildren = () => {
-  const [patients, setPatients] = useState([
-    { id: 1, name: "ليو سميث", age: "5 سنوات", status: "نشط", lastSession: "اليوم 2:00 م" },
-    { id: 2, name: "مايا تشين", age: "6 سنوات", status: "متأخر", lastSession: "غداً" },
-    { id: 3, name: "جيمس ويلسون", age: "4 سنوات", status: "نشط", lastSession: "11 أكتوبر 2023" },
-  ]);
+  const dispatch = useAppDispatch();
+  const { children, isLoading, error } = useAppSelector((state) => state.children);
+
+  useEffect(() => {
+    dispatch(fetchChildren());
+  }, [dispatch]);
 
   const handleDelete = (id: number) => {
-    setPatients(patients.filter(patient => patient.id !== id));
+    console.log("سيتم حذف الطفل رقم:", id);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="text-2xl font-extrabold text-[#6B21A8]">جاري تحميل بيانات الأطفال...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="text-xl font-bold text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.pageContent}>
+    <div className={styles.pageContent} dir="rtl">
       <div className={styles.pageHeader}>
         <div>
           <h1 className={styles.pageTitle}>سجل المرضى</h1>
@@ -28,17 +47,22 @@ const DoctorChildren = () => {
       </div>
 
       <div className={styles.patientsGrid}>
-        {patients.map((patient) => (
-          <ChildCard
-            key={patient.id}
-            id={patient.id}
-            name={patient.name}
-            age={patient.age}
-            status={patient.status}
-            lastSession={patient.lastSession}
-            onDelete={handleDelete}
-          />
-        ))}
+        {children && children.length > 0 ? (
+          children.map((child) => (
+            <ChildCard
+                key={child.id}
+                id={child.id}
+                name={child.fullName} 
+                age={`${child.age} سنوات`} 
+                gender={child.gender} 
+                onDelete={handleDelete}
+            />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-10 text-gray-500 font-bold">
+            لا يوجد أطفال مسجلين حالياً.
+          </div>
+        )}
       </div>
     </div>
   );

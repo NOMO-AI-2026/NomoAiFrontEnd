@@ -18,7 +18,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
         </Route>
         <Route element={<DashboardLayout role="doctor" />}>
-          <Route path="/doctor/patients" element={<DoctorChildren />} />
+          <Route path="/doctor/children" element={<DoctorChildren />} />
         </Route>
         <Route path="*" element={<ErrorLayout />} />
       </Routes>

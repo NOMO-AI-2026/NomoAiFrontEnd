@@ -52,6 +52,7 @@
   font-size: 1.35rem;
   font-weight: 800;
   color: #581C87;
+  text-transform: capitalize;
 }
 
 .patientSession {
