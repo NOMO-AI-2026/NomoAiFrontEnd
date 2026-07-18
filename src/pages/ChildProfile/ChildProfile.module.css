@@ -1,0 +1,246 @@
+.profileContainer {
+  padding: 2rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-sizing: border-box;
+  max-width: 100vw;
+  overflow-x: hidden; 
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.backBtn {
+  background: none;
+  border: 2px solid #1E1B4B;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1E1B4B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+  background-color: #F4F0FF;
+  transform: translateX(4px); 
+}
+
+.profileTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1E1B4B;
+  margin: 0;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .gridContainer {
+    grid-template-columns: 2fr 1fr; 
+  }
+}
+
+.cardsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border: 3px solid #1E1B4B;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 6px 6px 0px #581C87; 
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed #581C87;
+  padding-bottom: 1rem;
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #581C87;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.infoLabel {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #581C87;
+}
+
+.infoValue {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #1E1B4B;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FACC15; 
+  color: #1E1B4B;
+  font-weight: 800;
+  padding: 0.875rem 1.5rem;
+  border-radius: 9999px;
+  border: 2px solid #1E1B4B;
+  box-shadow: 4px 4px 0px #1E1B4B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px #1E1B4B;
+}
+
+.secondaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+  color: #581C87;
+  font-weight: 800;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: 2px solid #581C87;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryBtn:hover {
+  background-color: #F4F0FF;
+}
+
+.stageBadge {
+  background-color: #FDE047; 
+  color: #1E1B4B;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 1.25rem;
+  border: 2px solid #1E1B4B;
+  display: inline-block;
+  text-align: center;
+}
+
+/* =========================================
+   Responsive Design (الريسبونسيف للموبايل والتابلت)
+   ========================================= */
+
+/* شاشات التابلت والموبايل (أقل من 768px) */
+@media (max-width: 768px) {
+  .profileContainer {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .profileTitle {
+    font-size: 1.5rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+    gap: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .cardTitle {
+    font-size: 1.25rem;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr; 
+    gap: 1rem;
+  }
+
+  .secondaryBtn, 
+  .primaryBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stageBadge {
+    font-size: 1.125rem;
+    width: 100%; 
+    box-sizing: border-box;
+  }
+}
+
+/* شاشات الموبايل الصغيرة جداً (أقل من 480px) */
+@media (max-width: 480px) {
+  .titleWrapper {
+    gap: 0.5rem;
+  }
+  
+  .backBtn {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0; 
+  }
+  
+  .profileTitle {
+    font-size: 1.25rem;
+  }
+
+  .card {
+    box-shadow: 4px 4px 0px #581C87; 
+  }
+}

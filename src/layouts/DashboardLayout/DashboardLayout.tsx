@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Navbar from "../../components/Navbar/Navbar";
 import styles from "./DashboardLayout.module.css";
@@ -9,11 +10,21 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ role = 'doctor', activePage }: DashboardLayoutProps) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <div className={styles.layout} dir="rtl">
-      <Sidebar role={role} activePage={activePage} />
+      <Sidebar role={role} activePage={activePage} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      
+      {isSidebarOpen && (
+        <div 
+          className={styles.sidebarOverlay} 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       <div className={styles.mainWrapper}>
-        <Navbar />
+        <Navbar onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
         <main className={styles.scrollableContent}>
           <Outlet />
         </main>

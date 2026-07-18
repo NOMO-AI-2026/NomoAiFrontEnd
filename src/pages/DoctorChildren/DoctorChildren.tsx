@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { PlusCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom"; 
 import ChildCard from "../../components/ChildCard/ChildCard";
 import styles from "./DoctorChildren.module.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -7,6 +8,7 @@ import { fetchChildren } from "../../store/slices/childrenSlice";
 
 const DoctorChildren = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate(); 
   const { children, isLoading, error } = useAppSelector((state) => state.children);
 
   useEffect(() => {
@@ -15,6 +17,10 @@ const DoctorChildren = () => {
 
   const handleDelete = (id: number) => {
     console.log("سيتم حذف الطفل رقم:", id);
+  };
+
+  const handleView = (id: number) => {
+    navigate(`/child/${id}`);
   };
 
   if (isLoading) {
@@ -40,7 +46,7 @@ const DoctorChildren = () => {
           <h1 className={styles.pageTitle}>سجل المرضى</h1>
           <p className={styles.pageSubtitle}>إدارة ومتابعة جميع الأطفال المعينين لك.</p>
         </div>
-        <button className={styles.addBtn}>
+        <button className={styles.addBtn}  onClick={() => window.dispatchEvent(new Event('openAddChildModal'))}>
           <PlusCircle size={20} />
           إضافة طفل جديد
         </button>
@@ -56,6 +62,7 @@ const DoctorChildren = () => {
                 age={`${child.age} سنوات`} 
                 gender={child.gender} 
                 onDelete={handleDelete}
+                onView={handleView} // 4. تمرير الدالة للكارت
             />
           ))
         ) : (

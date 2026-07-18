@@ -1,16 +1,16 @@
 import { ChevronLeft, Trash2 } from "lucide-react";
 import styles from "./ChildCard.module.css";
 
-// شيلنا الحقول الوهمية وضفنا gender بناءً على الداتابيز
 interface ChildCardProps {
   id: number;
   name: string;
   age: string | number;
   gender: number; 
   onDelete: (id: number) => void;
+  onView: (id: number) => void; 
 }
 
-const ChildCard = ({ id, name, age, gender, onDelete }: ChildCardProps) => {
+const ChildCard = ({ id, name, age, gender, onDelete, onView }: ChildCardProps) => {
   return (
     <div className={styles.patientCard}>
       <div className={styles.cardInfo}>
@@ -30,7 +30,7 @@ const ChildCard = ({ id, name, age, gender, onDelete }: ChildCardProps) => {
       </div>
       
       <div className={styles.cardActions}>
-        <button className={styles.viewBtn} title="عرض التفاصيل">
+        <button onClick={() => onView(id)} className={styles.viewBtn} title="عرض التفاصيل">
           <ChevronLeft size={20} />
         </button>
         <button onClick={() => onDelete(id)} className={styles.deleteBtn} title="حذف الطفل">

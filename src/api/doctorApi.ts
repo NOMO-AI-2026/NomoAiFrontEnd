@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { type ChildProfileData } from '../types/child.types';
 export const axiosInstance = axios.create({
   baseURL: 'https://nomoai.runasp.net/api',
 });
@@ -11,7 +11,10 @@ axiosInstance.interceptors.request.use((config) => {
   }
   return config;
 });
-
+export const getChildProfileApi = async (id: number) => {
+  const response = await axiosInstance.get<ChildProfileData>(`/children/${id}`);
+  return response.data;
+};
 export interface Child {
   id: number;
   fullName: string;
