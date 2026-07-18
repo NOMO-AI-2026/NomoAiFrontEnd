@@ -1,15 +1,17 @@
 import { 
   AudioLines, LayoutDashboard, LineChart, Users, Calendar, BookOpen, 
-  HelpCircle, LogOut, PlusCircle, Gamepad2, Activity, Settings 
+  HelpCircle, LogOut, PlusCircle, Gamepad2, Activity, Settings, X
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 
 interface SidebarProps {
   role?: 'doctor' | 'parent';
   activePage?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const Sidebar = ({ role = 'doctor', activePage = 'المرضى' }: SidebarProps) => {
+const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false, onClose }: SidebarProps) => {
   
   const doctorLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard },
@@ -29,14 +31,27 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى' }: SidebarProps)
   const currentLinks = role === 'doctor' ? doctorLinks : parentLinks;
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.brand}>
         <div className={styles.logoIconWrapper}>
           <AudioLines className={styles.logoIcon} />
         </div>
-        <div>
+        <div className={styles.brandText}>
           <h2 className={styles.brandTitle}>NomoAI</h2>
           <p className={styles.brandSubtitle}>مساعد التخاطب الذكي</p>
+        </div>
+        <button className={styles.closeBtn} onClick={onClose} aria-label="إغلاق القائمة">
+          <X className={styles.closeIcon} size={20} />
+        </button>
+      </div>
+
+      {/* Mobile-only perspective switcher (migrated from Navbar) */}
+      <div className={styles.mobileTabs}>
+        <div className={styles.mobileTabsTitle}>تبديل الحساب</div>
+        <div className={styles.mobileTabsList}>
+          <span className={`${styles.mobileTab} ${styles.activeMobileTab}`}>الطبيب</span>
+          <span className={styles.mobileTab}>ولي الأمر</span>
+          <span className={styles.mobileTab}>جلسة الطفل</span>
         </div>
       </div>
 

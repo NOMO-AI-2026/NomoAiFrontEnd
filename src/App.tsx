@@ -8,6 +8,7 @@ import ErrorLayout from "./layouts/ErrorLayout/ErrorLayout";
 import AuthLayout from "./layouts/AuthLayout/AuthLayout";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import SignUpPage from "./pages/SignUpPage/SignUpPage";
+import ChildProfile from "./pages/ChildProfile/ChildProfile";
 import AddChildModal from './components/Modals/AddChildModal/AddChildModal';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
         </Route>
         <Route element={<DashboardLayout role="doctor" />}>
           <Route path="/doctor/children" element={<DoctorChildren />} />
+          <Route path="/child/:id" element={<ChildProfile />} />
         </Route>
         <Route path="*" element={<ErrorLayout />} />
       </Routes>

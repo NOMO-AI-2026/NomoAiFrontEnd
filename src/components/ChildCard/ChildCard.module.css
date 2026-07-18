@@ -18,6 +18,8 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .avatarWrapper {
@@ -26,6 +28,7 @@
   border-radius: 50%;
   border: 2px solid #FACC15;
   padding: 3px;
+  flex-shrink: 0;
 }
 
 .patientAvatar {
@@ -45,6 +48,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .patientName {
@@ -53,6 +58,7 @@
   font-weight: 800;
   color: #581C87;
   text-transform: capitalize;
+  word-wrap: break-word;
 }
 
 .patientSession {
@@ -98,6 +104,7 @@
 .cardActions {
   display: flex;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .viewBtn {
@@ -136,4 +143,74 @@
 .deleteBtn:hover {
   background-color: #fef2f2;
   transform: scale(1.05);
+}
+
+@media (max-width: 1023px) {
+  .patientCard {
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+  }
+
+  .avatarWrapper {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .patientAvatar {
+    font-size: 1.2rem;
+  }
+
+  .patientName {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .patientCard {
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  .avatarWrapper {
+    width: 3rem;
+    height: 3rem;
+    padding: 2px;
+  }
+
+  .patientAvatar {
+    font-size: 1.05rem;
+  }
+
+  .patientName {
+    font-size: 1rem;
+  }
+
+  .viewBtn, .deleteBtn {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  
+  .cardInfo {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .patientCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .patientName {
+    font-size: 0.9rem;
+  }
+
+  .cardActions {
+    justify-content: flex-end;
+    border-top: 2px dashed #F4F0FF;
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+  }
 }

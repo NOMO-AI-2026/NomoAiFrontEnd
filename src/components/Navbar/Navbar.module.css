@@ -5,6 +5,28 @@
   padding: 1.5rem 3rem;
   border-bottom: 2px solid #581C87;
   background-color: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.headerStart {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.menuBtn {
+  display: none;
+  background: none;
+  border: none;
+  color: #581C87;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.menuBtn:hover {
+  background-color: #F4F0FF;
 }
 
 .headerTabs {
@@ -87,4 +109,55 @@
   border-radius: 50%;
   border: 2px solid #581C87;
   object-fit: cover;
+}
+
+@media (max-width: 1023px) {
+  .menuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .topHeader {
+    padding: 1.25rem 2rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .topHeader {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .headerTabs {
+    gap: 1rem;
+  }
+
+  .tab, .activeTab {
+    font-size: 0.75rem;
+  }
+
+  .searchBar {
+    width: 150px;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .headerActions {
+    gap: 0.75rem;
+  }
+
+  .avatar {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerTabs {
+    display: none;
+  }
+  
+  .searchBar {
+    width: 120px;
+  }
 }

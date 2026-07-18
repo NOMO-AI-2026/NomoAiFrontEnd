@@ -1,7 +1,7 @@
 import axios from 'axios';
-
+import { type ChildProfileData } from '../types/child.types';
 export const axiosInstance = axios.create({
-  baseURL: 'https://nomoai.runasp.net', 
+  baseURL: 'https://nomoai.runasp.net/api', 
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -11,7 +11,10 @@ axiosInstance.interceptors.request.use((config) => {
   }
   return config;
 });
-
+export const getChildProfileApi = async (id: number) => {
+  const response = await axiosInstance.get<ChildProfileData>(`/children/${id}`);
+  return response.data;
+};
 export interface Child {
   id: number;
   fullName: string;
@@ -36,11 +39,11 @@ export interface AddChildPayload {
 }
 
 export const getDoctorChildrenApi = async () => {
-  const response = await axiosInstance.get<ApiResponse>('/api/Doctor/Children');
+  const response = await axiosInstance.get<ApiResponse>('/Doctor/Children');
   return response.data;
 };
 export const addChildApi = async (childData: AddChildPayload) => {
   // رجعنا للمسار الصحيح المكتوب في السواجر
-  const response = await axiosInstance.post('/api/children', childData);
+  const response = await axiosInstance.post('/children', childData);
   return response.data;
 };

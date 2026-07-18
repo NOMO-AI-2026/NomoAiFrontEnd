@@ -1,13 +1,22 @@
-import { Search, Bell, Settings } from "lucide-react";
+import { Search, Bell, Settings, Menu } from "lucide-react";
 import styles from "./Navbar.module.css";
 
-const Navbar = () => {
+interface NavbarProps {
+  onMenuToggle?: () => void;
+}
+
+const Navbar = ({ onMenuToggle }: NavbarProps) => {
   return (
     <header className={styles.topHeader}>
-      <div className={styles.headerTabs}>
-        <span className={styles.activeTab}>الطبيب</span>
-        <span className={styles.tab}>ولي الأمر</span>
-        <span className={styles.tab}>جلسة الطفل</span>
+      <div className={styles.headerStart}>
+        <button className={styles.menuBtn} onClick={onMenuToggle} aria-label="فتح القائمة">
+          <Menu size={24} />
+        </button>
+        <div className={styles.headerTabs}>
+          <span className={styles.activeTab}>الطبيب</span>
+          <span className={styles.tab}>ولي الأمر</span>
+          <span className={styles.tab}>جلسة الطفل</span>
+        </div>
       </div>
 
       <div className={styles.headerActions}>
