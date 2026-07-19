@@ -6,15 +6,16 @@ import { fetchChildProfile, clearProfileData, fetchSpeechHistory } from '../../s
 import styles from './ChildProfile.module.css';
 import { useModal } from '../../context/ModalContext';
 import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/SpeechHistoryModal';
-import UpdateSpeechLevelModal from '../../components/Modals/UpdateSpeechLevelModal/UpdateSpeechLevelModal'; 
+import UpdateSpeechLevelModal from '../../components/Modals/UpdateSpeechLevelModal/UpdateSpeechLevelModal';
+
 const ChildProfile = () => {
-  const { openAssignParentModal } = useModal();
+  const { openAssignParentModal, openAddChildModal } = useModal();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { profileData, isLoading, error } = useAppSelector((state) => state.childProfile);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false); 
+  const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
   useEffect(() => {
     if (id) {
       dispatch(fetchChildProfile(Number(id)));
@@ -51,12 +52,15 @@ const ChildProfile = () => {
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>بيانات الطفل</h2>
-              <button className={styles.secondaryBtn}>
+              <button
+                className={styles.primaryBtn}
+                onClick={() => openAddChildModal({ ...profileData, id: Number(id) })}
+              >
                 <Edit2 size={18} />
                 تعديل
               </button>
             </div>
-            
+
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>الاسم بالكامل</span>
@@ -109,7 +113,7 @@ const ChildProfile = () => {
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>بيانات ولي الأمر</h2>
             </div>
-            
+
             {profileData.parentFullName ? (
               <div className="flex flex-col gap-4">
                 <div className={styles.infoItem}>
@@ -124,7 +128,10 @@ const ChildProfile = () => {
                   <span className={styles.infoLabel}>رقم الهاتف</span>
                   <span className={styles.infoValue}>{profileData.parentPhoneNumber || 'غير مسجل'}</span>
                 </div>
-                <button className={styles.secondaryBtn}>
+                <button
+                  onClick={() => openAssignParentModal(Number(id))}
+                  className={styles.primaryBtn}
+                >
                   تغيير ولي الأمر
                 </button>
               </div>
@@ -134,9 +141,9 @@ const ChildProfile = () => {
                   <LinkIcon size={48} />
                 </div>
                 <p className="font-bold text-[#1E1B4B]">لم يتم ربط الطفل بولي أمر حتى الآن.</p>
-                <button 
-                  onClick={() => openAssignParentModal(Number(id))} 
-                  className={styles.primaryBtn} 
+                <button
+                  onClick={() => openAssignParentModal(Number(id))}
+                  className={styles.primaryBtn}
                   style={{ width: '100%' }}
                 >
                   <LinkIcon size={18} />
@@ -147,10 +154,10 @@ const ChildProfile = () => {
           </div>
         </div>
       </div>
-      
-      <SpeechHistoryModal 
-        isOpen={isHistoryModalOpen} 
-        onClose={() => setIsHistoryModalOpen(false)} 
+
+      <SpeechHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
       />
       <UpdateSpeechLevelModal
         isOpen={isUpdateLevelModalOpen}

@@ -51,7 +51,9 @@ export const addChildApi = async (childData: AddChildPayload) => {
   const response = await axiosInstance.post('/children', childData);
   return response.data;
 };
-
+export const updateChildApi = async (childId: number, data: any) => {
+  return await axiosInstance.put(`/children/${childId}`, data);
+};
 export const searchParentByPhoneApi = async (searchTerm: string) => {
   const response = await axiosInstance.get('/parents/api/parents/search', {
     params: {
@@ -91,12 +93,14 @@ export interface SpeechLevelsResponse {
   isFailure?: boolean;
 }
 
-export const getSpeechLevelsApi = async () => {
-  const response = await axiosInstance.get<SpeechLevelsResponse>('/speech-levels');
-  return response.data;
-};
+
 
 export const deleteChildApi = async (childId: number) => {
   const response = await axiosInstance.delete(`/children/${childId}`);
   return response.data;
+};
+
+export const getSpeechLevelsApi = async () => {
+  const response = await axios.get('https://nomoai.runasp.net/api/speech-levels');
+  return response.data; // عشان نرجع الداتا مباشرة
 };

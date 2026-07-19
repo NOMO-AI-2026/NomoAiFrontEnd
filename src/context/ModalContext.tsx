@@ -4,9 +4,8 @@ import AddChildModal from '../components/Modals/AddChildModal/AddChildModal';
 import AssignParentModal from '../components/Modals/AssignParentModal/AssignParentModal';
 
 interface ModalContextType {
-  openAddChildModal: () => void;
+  openAddChildModal: (childData?: any) => void; // 👈 التعديل: تقبل بيانات
   closeAddChildModal: () => void;
-  // 1. التعديل هنا: الدالة تستقبل رقم
   openAssignParentModal: (childId: number) => void; 
   closeAssignParentModal: () => void; 
 }
@@ -15,16 +14,23 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
+  const [editChildData, setEditChildData] = useState<any>(null); // 👈 ستيت جديدة لحفظ بيانات التعديل
+  
   const [isAssignParentOpen, setIsAssignParentOpen] = useState(false);
-  // 2. التعديل هنا: ستيت تحفظ الرقم
   const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
 
   return (
     <ModalContext.Provider 
       value={{
-        openAddChildModal: () => setIsAddChildModalOpen(true),
-        closeAddChildModal: () => setIsAddChildModalOpen(false),
-        // 3. التعديل هنا: الدالة تحفظ الرقم وتفتح المودال
+        // 👈 التعديل: الدالة بتاخد البيانات، تحفظها، وتفتح المودال
+        openAddChildModal: (childData?: any) => {
+          setEditChildData(childData || null);
+          setIsAddChildModalOpen(true);
+        },
+        closeAddChildModal: () => {
+          setIsAddChildModalOpen(false);
+          setEditChildData(null); // تفريغ البيانات عند الإغلاق
+        },
         openAssignParentModal: (childId: number) => { 
           setSelectedChildId(childId);
           setIsAssignParentOpen(true);
@@ -37,11 +43,17 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
     >
       {children}
       
+      {/* 👈 التعديل: تمرير البيانات للمودال */}
       {isAddChildModalOpen && (
-        <AddChildModal onClose={() => setIsAddChildModalOpen(false)} />
+        <AddChildModal 
+          editData={editChildData} 
+          onClose={() => {
+            setIsAddChildModalOpen(false);
+            setEditChildData(null);
+          }} 
+        />
       )}
       
-      {/* 4. التعديل هنا: بنمرر الـ ID للمودال كـ Prop */}
       {isAssignParentOpen && selectedChildId !== null && (
         <AssignParentModal childId={selectedChildId} onClose={() => {
           setIsAssignParentOpen(false);
