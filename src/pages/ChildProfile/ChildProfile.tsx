@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchChildProfile, clearProfileData } from '../../store/slices/childProfileSlice';
 import styles from './ChildProfile.module.css';
 import { useModal } from '../../context/ModalContext';
+
 const ChildProfile = () => {
   const { openAssignParentModal } = useModal();
   const { id } = useParams<{ id: string }>();
@@ -27,7 +28,7 @@ const ChildProfile = () => {
 
   return (
     <div className={styles.profileContainer} dir="rtl">
-
+      
       {/* الهيدر وزر الرجوع */}
       <div className={styles.pageHeader}>
         <div className={styles.titleWrapper}>
@@ -49,7 +50,7 @@ const ChildProfile = () => {
                 تعديل
               </button>
             </div>
-
+            
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>الاسم بالكامل</span>
@@ -102,7 +103,7 @@ const ChildProfile = () => {
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>بيانات ولي الأمر</h2>
             </div>
-
+            
             {profileData.parentFullName ? (
               <div className="flex flex-col gap-4">
                 <div className={styles.infoItem}>
@@ -127,9 +128,9 @@ const ChildProfile = () => {
                   <LinkIcon size={48} />
                 </div>
                 <p className="font-bold text-[#1E1B4B]">لم يتم ربط الطفل بولي أمر حتى الآن.</p>
-                <button
+                <button 
                   onClick={() => openAssignParentModal(Number(id))} 
-                  className={styles.primaryBtn}
+                  className={styles.primaryBtn} 
                   style={{ width: '100%' }}
                 >
                   <LinkIcon size={18} />

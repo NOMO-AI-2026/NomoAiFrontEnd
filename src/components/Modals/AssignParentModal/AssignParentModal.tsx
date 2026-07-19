@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, Search, Phone, Link, CheckCircle } from 'lucide-react'; // 1. أضفنا CheckCircle
+import { X, Search, Phone, Link, CheckCircle } from 'lucide-react';
 import styles from './AssignParentModal.module.css';
 import { searchParentByPhoneApi, assignParentToChildApi } from '../../../api/doctorApi';
+import { useAppDispatch } from '../../../store/hooks'; // 1. استيراد الـ hook الخاص بـ Redux
+import { fetchChildProfile } from '../../../store/slices/childProfileSlice'; // 2. استيراد دالة التحديث
 
 interface AssignParentModalProps {
   childId: number;
@@ -13,8 +15,10 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [assigningId, setAssigningId] = useState<string | number | null>(null);
-  const [assignedParentId, setAssignedParentId] = useState<string | number | null>(null); // 2. ستيت لتعقب الربط الناجح
+  const [assignedParentId, setAssignedParentId] = useState<string | number | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  
+  const dispatch = useAppDispatch(); // 3. تهيئة الـ dispatch
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +51,11 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
     
     try {
       await assignParentToChildApi(childId, parentId);
-      setAssignedParentId(parentId); // 3. تسجيل نجاح الربط
+      setAssignedParentId(parentId);
+      
+      // 4. السحر هنا: تحديث بيانات البروفايل فوراً بعد الربط
+      dispatch(fetchChildProfile(childId)); 
+      
     } catch (error: any) {
       console.error("خطأ في الربط:", error);
       if (error.response && error.response.data) {
@@ -114,7 +122,6 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
                     </div>
                   </div>
                   
-                  {/* 4. تعديل شكل الزرار بناءً على حالة الربط */}
                   <button 
                     onClick={() => handleAssign(parent.parentId)} 
                     disabled={assigningId === parent.parentId || assignedParentId === parent.parentId}
