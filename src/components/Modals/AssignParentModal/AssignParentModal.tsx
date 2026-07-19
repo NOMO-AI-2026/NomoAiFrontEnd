@@ -18,7 +18,7 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
   const [assignedParentId, setAssignedParentId] = useState<string | number | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   
-  const dispatch = useAppDispatch(); // 3. تهيئة الـ dispatch
+  const dispatch = useAppDispatch(); 
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,13 +53,12 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
       await assignParentToChildApi(childId, parentId);
       setAssignedParentId(parentId);
       
-      // 4. السحر هنا: تحديث بيانات البروفايل فوراً بعد الربط
       dispatch(fetchChildProfile(childId)); 
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("خطأ في الربط:", error);
-      if (error.response && error.response.data) {
-        alert(`رفض من السيرفر: ${JSON.stringify(error.response.data)}`);
+      if (error instanceof Error) {
+        alert(`رفض من السيرفر: ${error.message}`);
       } else {
         alert("حدث خطأ أثناء الربط، يرجى المحاولة مرة أخرى.");
       }
@@ -145,11 +144,7 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
           )}
         </div>
 
-        <div className={styles.footer}>
-          <button onClick={onClose} className={styles.cancelBtn}>
-            {assignedParentId ? 'إغلاق' : 'إلغاء'}
-          </button>
-        </div>
+        
       </div>
     </div>
   );

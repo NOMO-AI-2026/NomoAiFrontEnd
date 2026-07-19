@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom"; 
 import ChildCard from "../../components/ChildCard/ChildCard";
@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchChildren } from "../../store/slices/childrenSlice";
 import styles from "./DoctorChildren.module.css";
 import { useModal } from '../../context/ModalContext'; 
+import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/DeleteConfirmModal";
 
 const DoctorChildren = () => {
   const { openAddChildModal } = useModal();
@@ -13,12 +14,14 @@ const DoctorChildren = () => {
   const navigate = useNavigate(); 
   const { children, isLoading, error } = useAppSelector((state) => state.children);
 
+  const [childToDelete, setChildToDelete] = useState<number | null>(null);
+
   useEffect(() => {
     dispatch(fetchChildren());
   }, [dispatch]);
 
-  const handleDelete = (id: number) => {
-    console.log("سيتم حذف الطفل رقم:", id);
+  const handleDeleteClick = (id: number) => {
+    setChildToDelete(id);
   };
 
   const handleView = (id: number) => {
@@ -63,8 +66,8 @@ const DoctorChildren = () => {
                 name={child.fullName} 
                 age={`${child.age} سنوات`} 
                 gender={child.gender} 
-                onDelete={handleDelete}
-                onView={handleView} // 4. تمرير الدالة للكارت
+                onDelete={handleDeleteClick} 
+                onView={handleView} 
             />
           ))
         ) : (
@@ -73,6 +76,13 @@ const DoctorChildren = () => {
           </div>
         )}
       </div>
+
+      <DeleteConfirmModal 
+        isOpen={childToDelete !== null}
+        childId={childToDelete}
+        onClose={() => setChildToDelete(null)}
+        onSuccess={() => dispatch(fetchChildren())}
+      />
     </div>
   );
 };

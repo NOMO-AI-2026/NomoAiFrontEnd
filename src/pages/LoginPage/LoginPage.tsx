@@ -1,4 +1,4 @@
-import { Mail, Lock, Eye, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, Eye, ArrowLeft } from 'lucide-react';
 import styles from './LoginPage.module.css';
 
 export default function LoginPage() {

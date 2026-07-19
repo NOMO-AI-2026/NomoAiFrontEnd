@@ -67,3 +67,36 @@ export const assignParentToChildApi = async (childId: number, parentId: string |
   });
   return response.data;
 };
+
+export const getSpeechLevelHistoryApi = async (childId: number, pageNumber = 1, pageSize = 10) => {
+  const response = await axiosInstance.get(`/children/${childId}/speech-level-history`, {
+    params: { PageNumber: pageNumber, PageSize: pageSize }
+  });
+  return response.data; 
+};
+
+export const updateSpeechLevelApi = async (childId: number, payload: unknown) => {
+  const response = await axiosInstance.put(`/children/${childId}`, payload);
+  return response.data;
+};
+
+export interface SpeechLevel {
+  id: number;
+  levelName: string;
+}
+
+export interface SpeechLevelsResponse {
+  value: SpeechLevel[];
+  isSuccess?: boolean;
+  isFailure?: boolean;
+}
+
+export const getSpeechLevelsApi = async () => {
+  const response = await axiosInstance.get<SpeechLevelsResponse>('/speech-levels');
+  return response.data;
+};
+
+export const deleteChildApi = async (childId: number) => {
+  const response = await axiosInstance.delete(`/children/${childId}`);
+  return response.data;
+};

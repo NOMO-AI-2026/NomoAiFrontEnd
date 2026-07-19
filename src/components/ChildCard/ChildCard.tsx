@@ -11,6 +11,15 @@ interface ChildCardProps {
 }
 
 const ChildCard = ({ id, name, age, gender, onDelete, onView }: ChildCardProps) => {
+  const nameLength = name.length;
+  const nameClass = `${styles.patientName} ${
+    nameLength > 20 
+      ? styles.nameVeryLong 
+      : nameLength > 14 
+        ? styles.nameLong 
+        : ''
+  }`;
+
   return (
     <div className={styles.patientCard}>
       <div className={styles.cardInfo}>
@@ -18,7 +27,7 @@ const ChildCard = ({ id, name, age, gender, onDelete, onView }: ChildCardProps) 
           <div className={styles.patientAvatar}>{name.charAt(0)}</div>
         </div>
         <div className={styles.patientDetails}>
-          <h3 className={styles.patientName}>
+          <h3 className={nameClass}>
             {name}
           </h3>
           <div className="flex gap-3 text-sm text-gray-500 font-bold mt-1">

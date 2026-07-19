@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// 👇 1. استدعينا الـ Provider هنا (تأكدي من المسار لو الفولدر في مكان تاني)
 import { ModalProvider } from "./context/ModalContext"; 
 
 import HomePage from "./pages/HomePage/HomePage";
@@ -14,7 +13,6 @@ import ChildProfile from "./pages/ChildProfile/ChildProfile";
 
 function App() {
   return (
-    // 👇 2. غلفنا التطبيق كله بالـ Provider
     <ModalProvider>
       <BrowserRouter>
         <Routes>

@@ -5,8 +5,9 @@
   padding: 1.5rem;
   box-shadow: 6px 6px 0px #581C87;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
   transition: transform 0.2s ease;
 }
 
@@ -54,11 +55,19 @@
 
 .patientName {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #581C87;
   text-transform: capitalize;
-  word-wrap: break-word;
+  white-space: nowrap;
+}
+
+.nameLong {
+  font-size: 1.1rem;
+}
+
+.nameVeryLong {
+  font-size: 0.95rem;
 }
 
 .patientSession {
@@ -105,6 +114,10 @@
   display: flex;
   gap: 0.75rem;
   flex-shrink: 0;
+  justify-content: flex-end;
+  border-top: 2px dashed #F4F0FF;
+  padding-top: 0.875rem;
+  margin-top: 0.25rem;
 }
 
 .viewBtn {
@@ -161,7 +174,15 @@
   }
 
   .patientName {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
+  }
+
+  .nameLong {
+    font-size: 1rem;
+  }
+
+  .nameVeryLong {
+    font-size: 0.85rem;
   }
 }
 
@@ -182,7 +203,15 @@
   }
 
   .patientName {
-    font-size: 1rem;
+    font-size: 1.15rem;
+  }
+
+  .nameLong {
+    font-size: 0.9rem;
+  }
+
+  .nameVeryLong {
+    font-size: 0.8rem;
   }
 
   .viewBtn, .deleteBtn {
@@ -196,21 +225,15 @@
 }
 
 @media (max-width: 540px) {
-  .patientCard {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
   .patientName {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
   }
 
-  .cardActions {
-    justify-content: flex-end;
-    border-top: 2px dashed #F4F0FF;
-    padding-top: 0.75rem;
-    margin-top: 0.25rem;
+  .nameLong {
+    font-size: 0.8rem;
+  }
+
+  .nameVeryLong {
+    font-size: 0.72rem;
   }
 }

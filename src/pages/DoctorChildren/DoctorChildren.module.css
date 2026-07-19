@@ -284,7 +284,63 @@
 
 .patientsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 1.5rem;
   width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .pageContent {
+    padding: 2rem 1.5rem;
+  }
+
+  .pageHeader {
+    margin-bottom: 2rem;
+  }
+
+  .pageTitle {
+    font-size: 2rem;
+  }
+
+  .patientsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .pageContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+
+  .pageSubtitle {
+    font-size: 1rem;
+  }
+
+  .patientsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .addBtn {
+    width: auto;
+    align-self: flex-start;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+    border: 2px solid #581C87;
+    box-shadow: 2px 2px 0px #581C87;
+  }
 }
