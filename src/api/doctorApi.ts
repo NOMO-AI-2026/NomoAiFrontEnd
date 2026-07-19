@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { type ChildProfileData } from '../types/child.types';
+
 export const axiosInstance = axios.create({
   baseURL: 'https://nomoai.runasp.net/api', 
 });
+
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token'); 
@@ -11,10 +13,12 @@ axiosInstance.interceptors.request.use((config) => {
   }
   return config;
 });
+
 export const getChildProfileApi = async (id: number) => {
   const response = await axiosInstance.get<ChildProfileData>(`/children/${id}`);
   return response.data;
 };
+
 export interface Child {
   id: number;
   fullName: string;
@@ -42,8 +46,24 @@ export const getDoctorChildrenApi = async () => {
   const response = await axiosInstance.get<ApiResponse>('/Doctor/Children');
   return response.data;
 };
+
 export const addChildApi = async (childData: AddChildPayload) => {
-  // رجعنا للمسار الصحيح المكتوب في السواجر
   const response = await axiosInstance.post('/children', childData);
+  return response.data;
+};
+
+export const searchParentByPhoneApi = async (searchTerm: string) => {
+  const response = await axiosInstance.get('/parents/api/parents/search', {
+    params: {
+      SearchTerm: searchTerm
+    }
+  });
+  return response; 
+};
+
+export const assignParentToChildApi = async (childId: number, parentId: string | number) => {
+  const response = await axiosInstance.put(`/children/${childId}/parent`, { 
+    parentId: Number(parentId) 
+  });
   return response.data;
 };

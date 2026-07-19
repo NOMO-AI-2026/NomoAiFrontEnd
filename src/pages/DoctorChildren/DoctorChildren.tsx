@@ -5,8 +5,10 @@ import ChildCard from "../../components/ChildCard/ChildCard";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchChildren } from "../../store/slices/childrenSlice";
 import styles from "./DoctorChildren.module.css";
+import { useModal } from '../../context/ModalContext'; 
 
 const DoctorChildren = () => {
+  const { openAddChildModal } = useModal();
   const dispatch = useAppDispatch();
   const navigate = useNavigate(); 
   const { children, isLoading, error } = useAppSelector((state) => state.children);
@@ -46,7 +48,7 @@ const DoctorChildren = () => {
           <h1 className={styles.pageTitle}>سجل المرضى</h1>
           <p className={styles.pageSubtitle}>إدارة ومتابعة جميع الأطفال المعينين لك.</p>
         </div>
-        <button className={styles.addBtn}  onClick={() => window.dispatchEvent(new Event('openAddChildModal'))}>
+        <button className={styles.addBtn} onClick={openAddChildModal}>
           <PlusCircle size={20} />
           إضافة طفل جديد
         </button>

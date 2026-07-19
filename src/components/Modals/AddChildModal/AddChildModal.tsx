@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { addChildApi } from '../../../api/doctorApi';
-// استيراد ملف الديزاين بتاعك
 import styles from './AddChildModal.module.css';
 
 interface AddChildModalProps {
