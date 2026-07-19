@@ -104,3 +104,16 @@ export const getSpeechLevelsApi = async () => {
   const response = await axios.get('https://nomoai.runasp.net/api/speech-levels');
   return response.data; // عشان نرجع الداتا مباشرة
 };
+
+export const getChildActivitiesApi = async (childId: number) => {
+  // شيلنا كلمة /api من هنا لأن الـ axiosInstance بيضيفها تلقائي
+  const response = await axiosInstance.get(`/children/${childId}/activities`); 
+  return response.data;
+};
+
+
+
+export const deleteActivityApi = async (activityId: number) => {
+  const response = await axiosInstance.delete(`/activities/${activityId}`);
+  return response.data;
+};

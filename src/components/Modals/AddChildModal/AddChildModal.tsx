@@ -63,6 +63,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ onClose, editData }) => {
   // تحديث البيانات عند فتح المودال
   useEffect(() => {
     if (editData) {
+      console.log("البيانات القادمة للتعديل:", editData);
       setFullName(editData.fullName || '');
       setGender(editData.gender ?? 0);
       setSpeechLevelId(''); 
@@ -79,33 +80,40 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ onClose, editData }) => {
   }, [editData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const payload: any = {
-        fullName,
-        dateOfBirth,
-        gender,
-        therapyStartDate,
-        age: Number(age),
-        speechLevelId: isEditMode ? (editData.speechLevelId || 5) : Number(speechLevelId),
-        speechLevelChangeReasons: "" 
-      };
+  e.preventDefault();
+  setIsLoading(true);
+  try {
+    const payload: any = {
+      fullName,
+      dateOfBirth,
+      gender,
+      therapyStartDate,
+      age: Number(age),
+      // تأكدي إن القيمة دايماً رقم
+      speechLevelId: isEditMode 
+        ? (editData.speechLevelId || (editData.speechLevel?.id) || 5) 
+        : Number(speechLevelId),
+      speechLevelChangeReasons: "" 
+    };
 
-      if (isEditMode) {
-        await updateChildApi(editData.id, payload); 
-        dispatch(fetchChildProfile(editData.id)); 
-      } else {
-        await addChildApi(payload);
-        window.dispatchEvent(new Event('refreshChildrenList'));
-      }
-      onClose(); 
-    } catch (error: any) {
-      alert("حدث خطأ أثناء حفظ البيانات.");
-    } finally {
-      setIsLoading(false);
+    console.log("الـ Payload النهائي:", payload);
+
+    if (isEditMode) {
+      await updateChildApi(editData.id, payload); 
+      dispatch(fetchChildProfile(editData.id)); 
+    } else {
+      await addChildApi(payload);
+      window.dispatchEvent(new Event('refreshChildrenList'));
     }
-  };
+    onClose(); 
+  } catch (error: any) {
+    console.log("الخطأ:", error);
+    alert("حدث خطأ أثناء حفظ البيانات.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className={styles.overlay} dir="rtl">

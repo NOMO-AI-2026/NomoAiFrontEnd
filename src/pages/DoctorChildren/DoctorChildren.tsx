@@ -51,7 +51,6 @@ const DoctorChildren = () => {
           <h1 className={styles.pageTitle}>سجل المرضى</h1>
           <p className={styles.pageSubtitle}>إدارة ومتابعة جميع الأطفال المعينين لك.</p>
         </div>
-// ليكون كده:
 <button className={styles.addBtn} onClick={() => openAddChildModal(null)}>
   <PlusCircle size={20} />
   إضافة طفل جديد
