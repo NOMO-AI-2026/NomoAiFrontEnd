@@ -4,7 +4,7 @@ import styles from './ActivityModal.module.css';
 import { 
   createActivityApi, 
   updateActivityApi, 
-  ActivityItem 
+  type ActivityItem 
 } from '../../../api/doctorApi';
 
 interface ActivityModalProps {
@@ -30,6 +30,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const [errorMsg, setErrorMsg] = useState('');
 
   // التأكد من ملء البيانات عند فتح المودال في وضع التعديل، أو تفريغها في وضع الإضافة
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isOpen) {
       if (activityToEdit) {
@@ -44,6 +45,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       setErrorMsg('');
     }
   }, [isOpen, activityToEdit]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!isOpen) return null;
 
@@ -74,9 +76,10 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       
       onSuccess(); // لتحديث قائمة الأنشطة في الصفحة الأساسية
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error saving activity:", err);
-      setErrorMsg(err.response?.data?.message || "حدث خطأ أثناء حفظ النشاط. يرجى المحاولة لاحقاً.");
+      const errorResponse = err as { response?: { data?: { message?: string } } };
+      setErrorMsg(errorResponse.response?.data?.message || "حدث خطأ أثناء حفظ النشاط. يرجى المحاولة لاحقاً.");
     } finally {
       setIsLoading(false);
     }
@@ -119,16 +122,20 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>الهدف من النشاط (Activity Target ID)</label>
+              <label className={styles.inputLabel}>الهدف من النشاط</label>
               <div className={styles.inputContainer}>
-                <input 
-                  type="number" 
-                  required min="0"
+                <select 
+                  required
                   value={activityTarget}
                   onChange={(e) => setActivityTarget(Number(e.target.value))}
                   className={styles.input}
-                  placeholder="أدخل رقم الهدف المقترن بالنشاط"
-                />
+                  style={{ border: 'none', outline: 'none', background: 'transparent' }}
+                >
+                  <option value="" disabled>اختر الهدف...</option>
+                  <option value={0}>حرف </option>
+                  <option value={1}>كلمة </option>
+                  <option value={2}>جملة </option>
+                </select>
               </div>
             </div>
 

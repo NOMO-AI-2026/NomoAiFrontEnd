@@ -138,9 +138,15 @@ export const updateActivityApi = async (activityId: number, payload: UpdateActiv
   return response.data;
 };
 
+export type ActivitiesResponse = ActivityItem[] | {
+  value: ActivityItem[];
+  isSuccess?: boolean;
+  isFailure?: boolean;
+};
+
 export const getChildActivitiesApi = async (childId: number) => {
   // شيلنا كلمة /api من هنا لأن الـ axiosInstance بيضيفها تلقائي
-  const response = await axiosInstance.get(`/children/${childId}/activities`); 
+  const response = await axiosInstance.get<ActivitiesResponse>(`/children/${childId}/activities`); 
   return response.data;
 };
 

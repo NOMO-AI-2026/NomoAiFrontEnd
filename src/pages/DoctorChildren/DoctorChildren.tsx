@@ -18,6 +18,15 @@ const DoctorChildren = () => {
 
   useEffect(() => {
     dispatch(fetchChildren());
+
+    const handleRefresh = () => {
+      dispatch(fetchChildren());
+    };
+
+    window.addEventListener('refreshChildrenList', handleRefresh);
+    return () => {
+      window.removeEventListener('refreshChildrenList', handleRefresh);
+    };
   }, [dispatch]);
 
   const handleDeleteClick = (id: number) => {

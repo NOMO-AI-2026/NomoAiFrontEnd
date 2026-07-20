@@ -10,9 +10,16 @@ interface AssignParentModalProps {
   onClose: () => void;
 }
 
+interface ParentSearchResult {
+  parentId: string | number;
+  fullname: string;
+  phoneNumber: string;
+  email?: string;
+}
+
 const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<ParentSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [assigningId, setAssigningId] = useState<string | number | null>(null);
   const [assignedParentId, setAssignedParentId] = useState<string | number | null>(null);

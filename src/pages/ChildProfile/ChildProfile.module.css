@@ -163,23 +163,23 @@
   background-color: #F4F0FF;
 }
 
+/* تعديل الـ Badge لكي لا يظهر كزرار قابل للضغط */
 .stageBadge {
-  background-color: #FDE047; 
-  color: #1E1B4B;
+  background-color: #F4F0FF; 
+  color: #581C87;
   padding: 0.5rem 1.5rem;
   border-radius: 9999px;
   font-weight: 800;
-  font-size: 1.25rem;
-  border: 2px solid #1E1B4B;
+  font-size: 1.125rem;
+  border: 2px solid #581C87;
   display: inline-block;
   text-align: center;
 }
 
 /* =========================================
-   Responsive Design (الريسبونسيف للموبايل والتابلت)
+   Responsive Design 
    ========================================= */
 
-/* شاشات التابلت والموبايل (أقل من 768px) */
 @media (max-width: 768px) {
   .profileContainer {
     padding: 1.5rem 1rem;
@@ -224,7 +224,6 @@
   }
 }
 
-/* شاشات الموبايل الصغيرة جداً (أقل من 480px) */
 @media (max-width: 480px) {
   .titleWrapper {
     gap: 0.5rem;

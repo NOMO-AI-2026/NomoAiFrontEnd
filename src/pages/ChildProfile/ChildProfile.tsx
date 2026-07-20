@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronRight, Edit2, Link as LinkIcon, History, Activity, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -8,7 +8,8 @@ import { useModal } from '../../context/ModalContext';
 import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/SpeechHistoryModal';
 import UpdateSpeechLevelModal from '../../components/Modals/UpdateSpeechLevelModal/UpdateSpeechLevelModal';
 import DeleteActivityModal from "../../components/Modals/DeleteActivityModal/DeleteActivityModal";
-import { getChildActivitiesApi } from '../../api/doctorApi';
+import ActivityModal from '../../components/Modals/ActivityModal/ActivityModal';
+import { getChildActivitiesApi, type ActivityItem } from '../../api/doctorApi';
 
 const ChildProfile = () => {
   const { openAssignParentModal, openAddChildModal } = useModal();
@@ -20,35 +21,47 @@ const ChildProfile = () => {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<number | null>(null);
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+  const [activityToEdit, setActivityToEdit] = useState<ActivityItem | null>(null);
 
-  const [activities, setActivities] = useState<any[]>([]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchChildProfile(Number(id)));
-    }
-    return () => {
-      dispatch(clearProfileData());
-    };
-  }, [dispatch, id]);
+  const handleOpenAddActivity = () => {
+    setActivityToEdit(null);
+    setIsActivityModalOpen(true);
+  };
 
-  const fetchActivities = async () => {
+  const handleOpenEditActivity = (activity: ActivityItem) => {
+    setActivityToEdit(activity);
+    setIsActivityModalOpen(true);
+  };
+
+  // تم استخدام useCallback لمنع إعادة بناء الدالة وتفادي تحذيرات الـ useEffect
+  const fetchActivities = useCallback(async () => {
     if (!id) return;
     setIsLoadingActivities(true);
     try {
       const data = await getChildActivitiesApi(Number(id));
-      setActivities(data.value || data || []); 
+      const activitiesList = Array.isArray(data) ? data : (data?.value || []);
+      setActivities(activitiesList); 
     } catch (error) {
       console.error("خطأ في جلب الأنشطة:", error);
     } finally {
       setIsLoadingActivities(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
-    fetchActivities();
-  }, [id]);
+    if (id) {
+      dispatch(fetchChildProfile(Number(id)));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchActivities();
+    }
+    return () => {
+      dispatch(clearProfileData());
+    };
+  }, [dispatch, id, fetchActivities]);
 
   const handleOpenHistory = () => {
     if (id) {
@@ -138,60 +151,59 @@ const ChildProfile = () => {
       <div className={`${styles.card} mt-6`}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>الأنشطة الحالية</h2>
+          <button onClick={handleOpenAddActivity} className={styles.primaryBtn}>
+            إضافة نشاط
+          </button>
         </div>
 
         <div className="flex flex-col gap-3 mt-4">
           {isLoadingActivities ? (
             <div className="text-center py-4 text-[#6C34AF] font-bold">جاري تحميل الأنشطة...</div>
           ) : activities.length > 0 ? (
-            activities.map((activity: any) => (
+            activities.map((activity) => (
               <div 
                 key={activity.id} 
-                // 👇 التعديل هنا: خلينا الكارت عمودي في الموبايل وأفقي في الشاشات الكبيرة مع مسافات (gap)
-                className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl border border-[#EBE9F8] gap-4"
+                className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl border-2 border-[#1E1B4B] gap-4 transition hover:shadow-[4px_4px_0px_#1E1B4B]"
               >
                 
                 <div className="flex flex-col gap-3 w-full sm:w-auto">
                   {/* محتوى النشاط */}
-                  <span className="font-extrabold text-[#211A44] text-xl">
+                  <span className="font-extrabold text-[#1E1B4B] text-xl">
                     {activity.content}
                   </span>
                   
-                  {/* 👇 التعديل هنا: ضفنا flex-wrap عشان البادجات تنزل سطر جديد لو الشاشة صغيرة جداً */}
                   <div className="flex flex-wrap gap-2 sm:gap-3 text-sm font-bold">
-                    <span className="bg-[#EBE9F8] text-[#6C34AF] px-3 py-1 rounded-md whitespace-nowrap">
+                    <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
                       الهدف: {getActivityTargetText(activity.activityTarget)}
                     </span>
-                    <span className="bg-[#EBE9F8] text-[#6C34AF] px-3 py-1 rounded-md whitespace-nowrap">
+                    <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
                       المدة: {activity.estimatedDurationMinutes} دقائق
                     </span>
                   </div>
                 </div>
 
-                {/* 👇 التعديل هنا: خلينا الزراير تاخد العرض كله في الموبايل وتتحاذى للنهاية، وعملنا خط فاصل خفيف فوقها في الموبايل بس */}
-                <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 border-t sm:border-0 border-[#EBE9F8] mt-1 sm:mt-0">
-                  {/* زرار التعديل */}
+                {/* زراير الأكشن بستايل متناسق مع Brutalism وبسمك أيقونات واضح */}
+                <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
                   <button 
-                    onClick={() => console.log('زرار التعديل اضغط عليه لنشاط رقم:', activity.id)}
-                    className="p-2 text-[#6C34AF] hover:bg-[#EBE9F8] rounded-lg transition"
+                    onClick={() => handleOpenEditActivity(activity)}
+                    className="flex items-center justify-center p-2 rounded-lg bg-[#FACC15] border-2 border-[#1E1B4B] text-[#1E1B4B] hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
                     title="تعديل"
                   >
-                    <Edit2 size={20} />
+                    <Edit2 size={18} strokeWidth={2.5} />
                   </button>
                   
-                  {/* زرار الحذف */}
                   <button 
                     onClick={() => setActivityToDelete(activity.id)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                    className="flex items-center justify-center p-2 rounded-lg bg-[#EF4444] border-2 border-[#1E1B4B] text-white hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
                     title="حذف"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={18} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500 font-bold bg-gray-50 rounded-xl border border-dashed border-gray-300">
+            <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
               لا توجد أنشطة مضافة لهذا الطفل حالياً.
             </div>
           )}
@@ -202,7 +214,6 @@ const ChildProfile = () => {
       <SpeechHistoryModal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} />
       <UpdateSpeechLevelModal isOpen={isUpdateLevelModalOpen} onClose={() => setIsUpdateLevelModalOpen(false)} childId={Number(id)} profileData={profileData} />
       
-      {/* 👇 مودال الحذف الجديد المنفصل للأنشطة */}
       {activityToDelete !== null && (
         <DeleteActivityModal 
           isOpen={activityToDelete !== null}
@@ -214,6 +225,16 @@ const ChildProfile = () => {
           }}
         />
       )}
+
+      <ActivityModal
+        isOpen={isActivityModalOpen}
+        onClose={() => setIsActivityModalOpen(false)}
+        childId={Number(id)}
+        activityToEdit={activityToEdit}
+        onSuccess={() => {
+          fetchActivities();
+        }}
+      />
 
     </div>
   );

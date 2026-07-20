@@ -5,9 +5,11 @@ import styles from './AddChildModal.module.css';
 import { useAppDispatch } from '../../../store/hooks'; 
 import { fetchChildProfile } from '../../../store/slices/childProfileSlice'; 
 
+import { type ChildProfileData } from '../../../types/child.types';
+
 interface AddChildModalProps {
   onClose: () => void;
-  editData?: any; 
+  editData?: ChildProfileData | null; 
 }
 
 const AddChildModal: React.FC<AddChildModalProps> = ({ onClose, editData }) => {
@@ -45,6 +47,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ onClose, editData }) => {
   }, [isEditMode]);
 
   // حساب العمر تلقائياً
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (dateOfBirth) {
       const dob = new Date(dateOfBirth);
@@ -78,40 +81,49 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ onClose, editData }) => {
       setSpeechLevelId('');
     }
   }, [editData]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
-  try {
-    const payload: any = {
-      fullName,
-      dateOfBirth,
-      gender,
-      therapyStartDate,
-      age: Number(age),
-      // تأكدي إن القيمة دايماً رقم
-      speechLevelId: isEditMode 
-        ? (editData.speechLevelId || (editData.speechLevel?.id) || 5) 
-        : Number(speechLevelId),
-      speechLevelChangeReasons: "" 
-    };
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const payload = {
+        fullName,
+        dateOfBirth,
+        gender,
+        therapyStartDate,
+        age: Number(age),
+        // تأكدي إن القيمة دايماً رقم
+        speechLevelId: editData 
+          ? ((editData.speechLevel?.id) || 5) 
+          : Number(speechLevelId),
+        speechLevelChangeReasons: "" 
+      };
 
-    console.log("الـ Payload النهائي:", payload);
+      console.log("الـ Payload النهائي:", payload);
 
-    if (isEditMode) {
-      await updateChildApi(editData.id, payload); 
-      dispatch(fetchChildProfile(editData.id)); 
-    } else {
-      await addChildApi(payload);
-      window.dispatchEvent(new Event('refreshChildrenList'));
+      if (editData) {
+        await updateChildApi(editData.id, payload); 
+        dispatch(fetchChildProfile(editData.id)); 
+      } else {
+        await addChildApi(payload);
+        window.dispatchEvent(new Event('refreshChildrenList'));
+      }
+      onClose(); 
+    } catch (error: unknown) {
+      console.error("الخطأ عند حفظ الطفل:", error);
+      const err = error as { response?: { data?: { message?: string; error?: string; errors?: Record<string, string[]> } } };
+      let apiMessage = err.response?.data?.message || err.response?.data?.error || "حدث خطأ أثناء حفظ البيانات.";
+      if (err.response?.data?.errors) {
+        const validationErrors = Object.values(err.response.data.errors).flat().join('\n');
+        if (validationErrors) {
+          apiMessage = `${apiMessage}\n${validationErrors}`;
+        }
+      }
+      alert(apiMessage);
+    } finally {
+      setIsLoading(false);
     }
-    onClose(); 
-  } catch (error: any) {
-    console.log("الخطأ:", error);
-    alert("حدث خطأ أثناء حفظ البيانات.");
-  } finally {
-    setIsLoading(false);
-  }
 };
 
 
@@ -162,7 +174,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ onClose, editData }) => {
                     <select 
                       required 
                       value={speechLevelId} 
-                      onChange={(e) => setSpeechLevelId(Number(e.target.value))}
+                      onChange={(e) => setSpeechLevelId(e.target.value === '' ? '' : Number(e.target.value))}
                       className="w-full bg-transparent outline-none py-3 text-[#211A44] font-bold"
                     >
                       <option value="">اختر المستوى</option>
