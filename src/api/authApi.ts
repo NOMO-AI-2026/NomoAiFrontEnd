@@ -12,3 +12,8 @@ export const loginApi = async (payload: any) => {
   const response = await axiosInstance.post('/auth/login', payload);
   return response.data;
 };
+
+export const forgotPasswordApi = async (email: string) => {
+  const response = await axiosInstance.post('/auth/forgot-password', { email });
+  return response.data;
+};
