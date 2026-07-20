@@ -137,3 +137,16 @@ export const updateActivityApi = async (activityId: number, payload: UpdateActiv
   const response = await axiosInstance.put(`/activities/${activityId}`, payload);
   return response.data;
 };
+
+export const getChildActivitiesApi = async (childId: number) => {
+  // شيلنا كلمة /api من هنا لأن الـ axiosInstance بيضيفها تلقائي
+  const response = await axiosInstance.get(`/children/${childId}/activities`); 
+  return response.data;
+};
+
+
+
+export const deleteActivityApi = async (activityId: number) => {
+  const response = await axiosInstance.delete(`/activities/${activityId}`);
+  return response.data;
+};
