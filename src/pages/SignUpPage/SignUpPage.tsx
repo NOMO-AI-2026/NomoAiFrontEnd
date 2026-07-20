@@ -1,10 +1,23 @@
 import { useState } from 'react';
-import { Mail, Lock, Eye, ArrowLeft, User, Phone, Calendar, Users } from 'lucide-react';
+import { Mail, Lock, Eye, ArrowLeft, User, Phone, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import { registerApi } from '../../api/authApi'; 
 import styles from '../../layouts/AuthLayout/SharedAuth.module.css';
 import { validateSignup } from '../../utils/validations'; 
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      type?: string;
+      errors?: Record<string, string[]>;
+      detail?: string;
+      title?: string;
+      message?: string;
+    };
+  };
+}
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -57,12 +70,16 @@ export default function SignUpPage() {
       };
 
       await registerApi(payload);
-      navigate('/login'); 
-    } catch (err: any) {
-      console.error("Server Error Response:", err.response?.data);
       
-      const status = err.response?.status;
-      const responseData = err.response?.data;
+      // التعديل هنا: التوجيه لصفحة انتظار التأكيد مع تمرير الإيميل
+      navigate('/pending-verification', { state: { email: formData.email } }); 
+      
+    } catch (err: unknown) {
+      const error = err as ApiError;
+      console.error("Server Error Response:", error.response?.data);
+      
+      const status = error.response?.status;
+      const responseData = error.response?.data;
 
       // 1. مسكنا إيرور الإيميل المكرر
       if (status === 409 || responseData?.type === 'Auth.UserAlreadyExists') {
@@ -101,7 +118,6 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* 👇 هنا التعديل: شيلنا الـ grid وخليناها flex-col عشان يبقوا تحت بعض */}
           <div className="flex flex-col gap-5">
             
             {/* الاسم الكامل */}
@@ -134,7 +150,6 @@ export default function SignUpPage() {
               {errors.phoneNumber && <span className="text-red-500 text-xs font-bold">{errors.phoneNumber}</span>}
             </div>
 
-            {/* العمر والنوع (ممكن نخليهم جنب بعض عشان هما صغيرين، بس لو عايزاهم تحت بعض برضه هيفضلوا كده) */}
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-extrabold text-[#581C87] tracking-widest uppercase">العمر</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.age ? 'border-red-500' : ''}`}>

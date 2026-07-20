@@ -5,7 +5,7 @@ interface AuthLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AuthLayout({ children }: AuthLayoutProps) { // 👈 تأكدي من كلمة { children } هنا
+export default function AuthLayout({ children }: AuthLayoutProps) { 
   return (
     <div
       dir="rtl"
@@ -35,7 +35,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) { // 👈 تأ
 
         {/* الكارت (سواء كان تسجيل الدخول أو إنشاء الحساب) */}
        <div className="order-2 lg:order-1">
-          {children} {/* 👈 تأكدي إن الكلمة دي مكتوبة هنا */}
+          {children} 
         </div>
       </div>
 
