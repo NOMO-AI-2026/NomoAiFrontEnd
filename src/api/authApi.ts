@@ -13,6 +13,11 @@ export const loginApi = async (payload: unknown) => {
   return response.data;
 };
 
+export const forgotPasswordApi = async (email: string) => {
+  const response = await axiosInstance.post('/auth/forgot-password', { email });
+  return response.data;
+};
+
 export interface ConfirmEmailPayload {
   userId: string;
   token: string;
