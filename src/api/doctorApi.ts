@@ -51,7 +51,7 @@ export const addChildApi = async (childData: AddChildPayload) => {
   const response = await axiosInstance.post('/children', childData);
   return response.data;
 };
-export const updateChildApi = async (childId: number, data: any) => {
+export const updateChildApi = async (childId: number, data: Partial<AddChildPayload>) => {
   return await axiosInstance.put(`/children/${childId}`, data);
 };
 export const searchParentByPhoneApi = async (searchTerm: string) => {
@@ -101,6 +101,39 @@ export const deleteChildApi = async (childId: number) => {
 };
 
 export const getSpeechLevelsApi = async () => {
-  const response = await axios.get('https://nomoai.runasp.net/api/speech-levels');
-  return response.data; // عشان نرجع الداتا مباشرة
+  const response = await axiosInstance.get('/speech-levels');
+  return response.data; 
+};
+
+// تعريف البيانات المطلوبة لإضافة نشاط جديد (POST)
+export interface CreateActivityPayload {
+  childId: number;
+  activityTarget: number;
+  content: string;
+  estimatedDurationMinutes: number;
+}
+
+// تعريف البيانات المطلوبة لتعديل نشاط (PUT)
+export interface UpdateActivityPayload {
+  activityTarget: number;
+  content: string;
+  estimatedDurationMinutes: number;
+}
+
+// واجهة لتمثيل النشاط نفسه عند تمريره للمودال للتعديل
+export interface ActivityItem {
+  id: number;
+  activityTarget: number;
+  content: string;
+  estimatedDurationMinutes: number;
+}
+
+export const createActivityApi = async (payload: CreateActivityPayload) => {
+  const response = await axiosInstance.post('/activities', payload);
+  return response.data;
+};
+
+export const updateActivityApi = async (activityId: number, payload: UpdateActivityPayload) => {
+  const response = await axiosInstance.put(`/activities/${activityId}`, payload);
+  return response.data;
 };
