@@ -5,7 +5,6 @@ import HomePage from "./pages/HomePage/HomePage";
 import DashboardLayout from "./layouts/DashboardLayout/DashboardLayout";
 import DoctorChildren from "./pages/DoctorChildren/DoctorChildren";
 import ErrorLayout from "./layouts/ErrorLayout/ErrorLayout";
-import AuthLayout from "./layouts/AuthLayout/AuthLayout";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import SignUpPage from "./pages/SignUpPage/SignUpPage";
 import ChildProfile from "./pages/ChildProfile/ChildProfile";
@@ -16,14 +15,16 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-          </Route>
+          
+          {/* 👇 التعديل هنا: شيلنا الـ AuthLayout من هنا لأنك أصلاً مستخدماه جوه الصفحات دي */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          
           <Route element={<DashboardLayout role="doctor" />}>
             <Route path="/doctor/children" element={<DoctorChildren />} />
             <Route path="/child/:id" element={<ChildProfile />} />
           </Route>
+          
           <Route path="*" element={<ErrorLayout />} />
         </Routes>
       </BrowserRouter>

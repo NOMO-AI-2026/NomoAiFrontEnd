@@ -1,0 +1,36 @@
+.cardShadow {
+  box-shadow: 12px 12px 0px #581c87;
+  border-radius: 2.5rem;
+  border: 2px solid #581c87;
+  background: white;
+  position: relative;
+  z-index: 2;
+}
+
+.buttonShadow {
+  box-shadow: 4px 4px 0px #581c87;
+  border: 2px solid #581c87;
+  transition: all 0.2s ease;
+}
+
+.buttonShadow:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #581c87;
+}
+
+.buttonShadow:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.inputContainer {
+  border: 2px solid #581c87;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: white;
+  transition: 0.2s;
+}
+
+.inputContainer:focus-within {
+  box-shadow: 0 0 0 4px rgba(88, 28, 135, 0.15);
+}
