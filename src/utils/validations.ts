@@ -31,12 +31,14 @@ export const validateSignup = (formData: SignupFormData) => {
       errors.email = "يرجى استخدام بريد إلكتروني حقيقي (البريد الوهمي غير مقبول).";
     }
   }
-  // 3. رقم الهاتف
-  const phoneRegex = /^[0-9]{10,15}$/;
+
+  // 3. رقم الهاتف  
+  const phoneRegex = /^01[0-9]{9}$/;
+  
   if (!formData.phoneNumber) {
     errors.phoneNumber = "رقم الهاتف مطلوب.";
   } else if (!phoneRegex.test(formData.phoneNumber)) {
-    errors.phoneNumber = "يجب أن يحتوي على 10 أرقام على الأقل.";
+    errors.phoneNumber = "يجب أن يكون رقم الهاتف صحيحاً ومكوناً من 11 رقماً (يبدأ بـ 01).";
   }
 
   // 4. العمر
