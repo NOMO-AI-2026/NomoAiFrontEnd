@@ -74,10 +74,12 @@ export default function SignUpPage() {
         role: Number(formData.role)
       };
 
-      await registerApi(payload);
+      const response = await registerApi(payload);
       
+      // التعديل هنا: قراءة الـ userId من response.value بناءً على شكل الـ API
       navigate('/verify-otp', { 
         state: { 
+          userId: response.value.userId, 
           email: formData.email, 
           role: formData.role 
         } 
@@ -124,7 +126,6 @@ export default function SignUpPage() {
           
           <div className="flex flex-col gap-5">
             
-
             <div className="flex flex-col gap-1">
               <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">الاسم الكامل</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.fullName ? 'border-red-500' : ''}`}>
@@ -176,7 +177,6 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            {/* كلمة المرور */}
             <div className="flex flex-col gap-1">
               <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">كلمة المرور</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.password ? 'border-red-500' : ''}`}>
@@ -188,21 +188,20 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          
-            <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-extrabold text-[#581C87] tracking-widest uppercase">نوع الحساب</label>
-              <div className={`flex items-center justify-around bg-white px-4 py-3 ${styles.inputContainer}`}>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="role" value={1} checked={formData.role === 1} onChange={() => handleRoleChange(1)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
-                  <span className="text-sm font-bold text-[#1E1B4B]">ولي أمر</span>
-                </label>
-                <div className="w-px h-5 bg-gray-200"></div>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="role" value={0} checked={formData.role === 0} onChange={() => handleRoleChange(0)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
-                  <span className="text-sm font-bold text-[#1E1B4B]">طبيب</span>
-                </label>
-              </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-extrabold text-[#581C87] tracking-widest uppercase">نوع الحساب</label>
+            <div className={`flex items-center justify-around bg-white px-4 py-3 ${styles.inputContainer}`}>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="role" value={1} checked={formData.role === 1} onChange={() => handleRoleChange(1)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
+                <span className="text-sm font-bold text-[#1E1B4B]">ولي أمر</span>
+              </label>
+              <div className="w-px h-5 bg-gray-200"></div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="role" value={0} checked={formData.role === 0} onChange={() => handleRoleChange(0)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
+                <span className="text-sm font-bold text-[#1E1B4B]">طبيب</span>
+              </label>
             </div>
+          </div>
 
           <button disabled={isLoading} type="submit" className={`w-full bg-[#FACC15] text-[#581C87] font-extrabold rounded-full flex justify-center items-center gap-2 mt-6 ${styles.buttonShadow}`}>
             {isLoading ? 'جاري التسجيل...' : 'إنشاء حساب'}

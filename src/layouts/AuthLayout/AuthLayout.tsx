@@ -39,12 +39,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </div>
 
-      {/* Floating Help Button */}
-      <div className="fixed bottom-6 left-6">
-        <button className="bg-[#581C87] text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-900 transition-colors">
-          <span className="text-xl font-bold">؟</span>
-        </button>
-      </div>
+      
     </div>
   );
 }
