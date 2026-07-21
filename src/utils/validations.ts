@@ -1,4 +1,12 @@
-export const validateSignup = (formData: any) => {
+interface SignupFormData {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  age: string | number;
+  password: string;
+}
+
+export const validateSignup = (formData: SignupFormData) => {
   const errors: Record<string, string> = {};
 
   // 1. الاسم

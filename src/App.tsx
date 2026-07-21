@@ -10,8 +10,7 @@ import SignUpPage from "./pages/SignUpPage/SignUpPage";
 import ChildProfile from "./pages/ChildProfile/ChildProfile";
 
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword"; 
-import ConfirmEmail from "./pages/ConfirmEmail/ConfirmEmail";
-import PendingVerification from "./pages/ConfirmEmail/PendingVerification";
+import VerifyOTP from "./pages/VerifyOTP/VerifyOTP";
 
 function App() {
   return (
@@ -23,9 +22,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          
-          <Route path="/confirm-email" element={<ConfirmEmail />} />
-          <Route path="/pending-verification" element={<PendingVerification />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route element={<DashboardLayout role="doctor" />}>
             <Route path="/doctor/children" element={<DoctorChildren />} />
             <Route path="/child/:id" element={<ChildProfile />} />

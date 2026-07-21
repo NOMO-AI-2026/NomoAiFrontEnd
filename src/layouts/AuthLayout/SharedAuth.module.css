@@ -1,3 +1,4 @@
+/* ---------------- الكارت الأساسي ---------------- */
 .cardShadow {
   box-shadow: 12px 12px 0px #581c87;
   border-radius: 2.5rem;
@@ -5,12 +6,31 @@
   background: white;
   position: relative;
   z-index: 2;
+  /* مسافات داخلية متجاوبة */
+  padding: 2rem;
 }
 
+@media (min-width: 768px) {
+  .cardShadow {
+    padding: 3rem; /* تكبير المسافة في الشاشات الأكبر */
+  }
+}
+
+/* ---------------- الزراير ---------------- */
 .buttonShadow {
   box-shadow: 4px 4px 0px #581c87;
   border: 2px solid #581c87;
   transition: all 0.2s ease;
+  /* حجم الخط والمسافات الافتراضية (للموبايل) - تم التكبير */
+  font-size: 1.25rem;
+  padding: 1rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .buttonShadow {
+    font-size: 1.4rem; /* تكبير الخط في الشاشات الكبيرة - تم التكبير */
+    padding: 1.25rem 2rem;
+  }
 }
 
 .buttonShadow:hover {
@@ -23,14 +43,48 @@
   box-shadow: none;
 }
 
+/* ---------------- حقول الإدخال (Inputs) ---------------- */
 .inputContainer {
   border: 2px solid #581c87;
   border-radius: 9999px;
   overflow: hidden;
   background: white;
   transition: 0.2s;
+  /* حجم الخط الافتراضي - تم التكبير */
+  font-size: 1.15rem;
+}
+
+@media (min-width: 768px) {
+  .inputContainer {
+    font-size: 1.25rem; /* تكبير الخط في الشاشات الكبيرة - تم التكبير */
+  }
 }
 
 .inputContainer:focus-within {
   box-shadow: 0 0 0 4px rgba(88, 28, 135, 0.15);
+}
+
+/* ---------------- نصوص العناوين (جديد لتسهيل الاستخدام) ---------------- */
+.title {
+  font-size: 2.25rem; /* تم التكبير */
+  font-weight: 800;
+  color: #1E1B4B;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2.75rem; /* تكبير العنوان الرئيسي - تم التكبير */
+  }
+}
+
+.subtitle {
+  font-size: 1.15rem; /* تم التكبير */
+  font-weight: 700;
+  color: #4b5563;
+}
+
+@media (min-width: 768px) {
+  .subtitle {
+    font-size: 1.25rem; /* تكبير النص الفرعي - تم التكبير */
+  }
 }

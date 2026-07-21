@@ -1,13 +1,10 @@
-
 import { axiosInstance } from './axiosInstance'; 
 
-// دالة إنشاء حساب جديد
 export const registerApi = async (payload: unknown) => {
   const response = await axiosInstance.post('/auth/register', payload);
   return response.data;
 };
 
-// دالة تسجيل الدخول
 export const loginApi = async (payload: unknown) => {
   const response = await axiosInstance.post('/auth/login', payload);
   return response.data;
@@ -20,7 +17,7 @@ export const forgotPasswordApi = async (email: string) => {
 
 export interface ConfirmEmailPayload {
   userId: string;
-  token: string;
+  otp: string;
 }
 
 export const confirmEmailApi = async (payload: ConfirmEmailPayload) => {
@@ -29,8 +26,9 @@ export const confirmEmailApi = async (payload: ConfirmEmailPayload) => {
 };
 
 export interface ResendEmailPayload {
-  email: string;
+  userId: string;
 }
+
 export const resendEmailConfirmationApi = async (payload: ResendEmailPayload) => {
   const response = await axiosInstance.post('/auth/resend-email-confirmation', payload);
   return response.data;
