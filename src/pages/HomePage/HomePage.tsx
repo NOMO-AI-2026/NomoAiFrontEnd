@@ -157,18 +157,12 @@ const HomePage = () => {
           </div>
           
           <div className={styles.footerLinksWrapper}>
-            <div className={styles.footerCol}>
-              <a href="#" className={styles.footerLink}>سياسة الخصوصية</a>
-              <a href="#" className={styles.footerLink}>الدراسات السريرية</a>
-            </div>
-            <div className={styles.footerCol}>
-              <a href="#" className={styles.footerLink}>شروط الخدمة</a>
-              <a href="#" className={styles.footerLink}>إمكانية الوصول</a>
-            </div>
-            <div className={styles.footerCol}>
-              <a href="#" className={styles.footerLink}>تواصل معنا</a>
-              <a href="#" className={styles.footerLink}>الأسئلة الشائعة</a>
-            </div>
+            <a href="#" className={styles.footerLink}>سياسة الخصوصية</a>
+            <a href="#" className={styles.footerLink}>الدراسات السريرية</a>
+            <a href="#" className={styles.footerLink}>شروط الخدمة</a>
+            <a href="#" className={styles.footerLink}>إمكانية الوصول</a>
+            <a href="#" className={styles.footerLink}>تواصل معنا</a>
+            <a href="#" className={styles.footerLink}>الأسئلة الشائعة</a>
           </div>
         </div>
       </footer>

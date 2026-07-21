@@ -3,6 +3,7 @@ import {
   HelpCircle, LogOut, PlusCircle, Gamepad2, Activity, Settings, X
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   role?: 'doctor' | 'parent';
@@ -12,6 +13,12 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false, onClose }: SidebarProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
   
   const doctorLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard },
@@ -84,7 +91,7 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
             <HelpCircle className={styles.navIcon} size={20} />
             المساعدة
           </button>
-          <button className={styles.footerBtn}>
+          <button className={styles.footerBtn} onClick={handleLogout}>
             <LogOut className={styles.navIcon} size={20} />
             تسجيل الخروج
           </button>
