@@ -10,11 +10,21 @@ export default function PendingVerification() {
   const navigate = useNavigate();
   
   const emailFromSignup = location.state?.email || '';
+  const userRole = location.state?.role; // بنستقبل الـ role (0 للطبيب، 1 لولي الأمر)
 
   const [email, setEmail] = useState(emailFromSignup);
   const [timer, setTimer] = useState(60); 
   const [isResending, setIsResending] = useState(false);
   const [message, setMessage] = useState('');
+
+  // دالة لتوجيه المستخدم بعد التأكيد بناءً على الـ Role
+  const handleRedirectAfterVerification = () => {
+    if (userRole === 0) {
+      navigate('/pending-approval'); // لو طبيب، يروح لصفحة انتظار موافقة الأدمن
+    } else {
+      navigate('/login'); // لو ولي أمر، يروح لتسجيل الدخول مباشرة
+    }
+  };
 
   // 1. التايمر بتاع إعادة الإرسال
   useEffect(() => {
@@ -33,8 +43,8 @@ export default function PendingVerification() {
       if (e.key === 'email_verified_signal') {
         // نمسح الإشارة عشان النضافة
         localStorage.removeItem('email_verified_signal');
-        // نودي اليوزر لصفحة تسجيل الدخول فوراً
-        navigate('/login');
+        // نودي اليوزر للمكان المخصص حسب نوع حسابه
+        handleRedirectAfterVerification();
       }
     };
 
@@ -43,7 +53,7 @@ export default function PendingVerification() {
     
     // تنظيف المراقب لو اليوزر قفل الصفحة
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [navigate]);
+  }, [navigate, userRole]);
 
   const handleResend = async () => {
     if (!email) {
@@ -59,7 +69,6 @@ export default function PendingVerification() {
       setMessage('تم إرسال الرابط بنجاح! يرجى فحص صندوق الوارد.');
       setTimer(60); 
     } catch (err: unknown) {
-      // تم استبدال الـ any بتعريف هيكل الخطأ (Type Assertion آمن)
       const error = err as { response?: { data?: { message?: string } } };
       setMessage(error.response?.data?.message || 'حدث خطأ أثناء إرسال الرابط.');
     } finally {
@@ -76,7 +85,7 @@ export default function PendingVerification() {
         <div className="space-y-2">
           <h2 className="text-2xl lg:text-3xl font-extrabold text-[#1E1B4B]">تحقق من بريدك!</h2>
           <p className="text-gray-600 font-bold text-lg leading-relaxed">
-            لقد أرسلنا رابط تفعيل حسابك إلى البريد الإلكتروني. يرجى الضغط عليه لتتمكن من تسجيل الدخول. 
+            لقد أرسلنا رابط تفعيل حسابك إلى البريد الإلكتروني. يرجى الضغط عليه لتتمكن من المتابعة. 
             <br />
             <span className="text-[#581C87] text-sm">(هذه الصفحة ستنتقل تلقائياً عند التأكيد)</span>
           </p>
@@ -117,7 +126,7 @@ export default function PendingVerification() {
           onClick={() => navigate('/login')}
           className="flex items-center justify-center gap-2 text-[#581C87] font-extrabold hover:text-[#1E1B4B] transition-colors mt-2 cursor-pointer"
         >
-          الذهاب لتسجيل الدخول
+          العودة لتسجيل الدخول
           <ArrowRight size={18} />
         </button>
 

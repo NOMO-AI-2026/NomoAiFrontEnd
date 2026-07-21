@@ -12,6 +12,7 @@ import ChildProfile from "./pages/ChildProfile/ChildProfile";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword"; 
 import ConfirmEmail from "./pages/ConfirmEmail/ConfirmEmail";
 import PendingVerification from "./pages/ConfirmEmail/PendingVerification";
+import PendingApproval from "./pages/PendingApproval/PendingApproval"; // 👇 نقلنا الاستيراد هنا مع باقي الصفحات
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
           
           <Route path="/confirm-email" element={<ConfirmEmail />} />
           <Route path="/pending-verification" element={<PendingVerification />} />
+          <Route path="/pending-approval" element={<PendingApproval />} /> {/* 👇 المسار الجديد هنا */}
+          
           <Route element={<DashboardLayout role="doctor" />}>
             <Route path="/doctor/children" element={<DoctorChildren />} />
             <Route path="/child/:id" element={<ChildProfile />} />

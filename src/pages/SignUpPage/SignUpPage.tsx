@@ -33,7 +33,8 @@ export default function SignUpPage() {
     phoneNumber: '',
     password: '',
     age: '',
-    gender: 0 
+    gender: 0,
+    role: 1 // 1: ولي أمر (افتراضي)، 0: طبيب
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +47,10 @@ export default function SignUpPage() {
 
   const handleGenderChange = (value: number) => {
     setFormData({ ...formData, gender: value });
+  };
+
+  const handleRoleChange = (value: number) => {
+    setFormData({ ...formData, role: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,13 +71,18 @@ export default function SignUpPage() {
         ...formData,
         age: Number(formData.age),
         gender: Number(formData.gender),
-        role: 1 
+        role: Number(formData.role)
       };
 
       await registerApi(payload);
       
-      // التعديل هنا: التوجيه لصفحة انتظار التأكيد مع تمرير الإيميل
-      navigate('/pending-verification', { state: { email: formData.email } }); 
+      // التوجيه لصفحة انتظار تأكيد الإيميل مع تمرير الإيميل وكمان الـ role عشان نعرف نوجهه فين بعد الكونفيرم
+      navigate('/pending-verification', { 
+        state: { 
+          email: formData.email, 
+          role: formData.role 
+        } 
+      }); 
       
     } catch (err: unknown) {
       const error = err as ApiError;
@@ -81,21 +91,16 @@ export default function SignUpPage() {
       const status = error.response?.status;
       const responseData = error.response?.data;
 
-      // 1. مسكنا إيرور الإيميل المكرر
       if (status === 409 || responseData?.type === 'Auth.UserAlreadyExists') {
         setErrors({ email: 'هذا البريد الإلكتروني مسجل بالفعل، يرجى استخدام بريد آخر.' });
-      } 
-      // 2. لو في أخطاء تانية
-      else if (responseData?.errors) {
+      } else if (responseData?.errors) {
         const errorString = JSON.stringify(responseData.errors).toLowerCase();
         if (errorString.includes('password') || errorString.includes('مرور')) {
           setErrors({ password: 'كلمة المرور غير مقبولة من الخادم.' });
         } else {
           setServerError('يرجى مراجعة البيانات المدخلة.');
         }
-      } 
-      // 3. أي خطأ عام تاني
-      else {
+      } else {
         const genericMessage = responseData?.detail || responseData?.title || responseData?.message || 'حدث خطأ غير متوقع أثناء إنشاء الحساب.';
         setServerError(genericMessage);
       }
@@ -120,6 +125,7 @@ export default function SignUpPage() {
           
           <div className="flex flex-col gap-5">
             
+
             {/* الاسم الكامل */}
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-extrabold text-[#581C87] tracking-widest uppercase">الاسم الكامل</label>
@@ -186,6 +192,23 @@ export default function SignUpPage() {
               {errors.password && <span className="text-red-500 text-xs font-bold leading-relaxed">{errors.password}</span>}
             </div>
           </div>
+
+          
+            {/* اختيار نوع الحساب (ولي أمر / طبيب) */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-extrabold text-[#581C87] tracking-widest uppercase">نوع الحساب</label>
+              <div className={`flex items-center justify-around bg-white px-4 py-3 ${styles.inputContainer}`}>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="role" value={1} checked={formData.role === 1} onChange={() => handleRoleChange(1)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
+                  <span className="text-sm font-bold text-[#1E1B4B]">ولي أمر</span>
+                </label>
+                <div className="w-px h-5 bg-gray-200"></div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="role" value={0} checked={formData.role === 0} onChange={() => handleRoleChange(0)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
+                  <span className="text-sm font-bold text-[#1E1B4B]">طبيب</span>
+                </label>
+              </div>
+            </div>
 
           <button disabled={isLoading} type="submit" className={`w-full bg-[#FACC15] text-[#581C87] font-extrabold text-[15px] py-3.5 rounded-full flex justify-center items-center gap-2 mt-6 ${styles.buttonShadow}`}>
             {isLoading ? 'جاري التسجيل...' : 'إنشاء حساب'}
