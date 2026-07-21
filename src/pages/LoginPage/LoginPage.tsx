@@ -23,7 +23,6 @@ export default function LoginPage() {
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' });
     }
-    // مسح خطأ السيرفر لو المستخدم بدأ يعدل البيانات
     if (serverError) setServerError('');
     if (Object.keys(errors).length > 0) setErrors({});
   };
@@ -45,8 +44,12 @@ export default function LoginPage() {
     setServerError('');
 
     try {
-      await loginApi(formData);
-      navigate('/'); 
+      const data = (await loginApi(formData)) as { token?: string; value?: { token?: string } };
+      const token = data.token || data.value?.token;
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+      navigate('/doctor/children'); 
     } catch (err: unknown) {
       const apiError = err as { response?: { status?: number; data?: { message?: string; title?: string; detail?: string } } };
       console.error("Login Error Response:", apiError.response?.data); 
@@ -56,14 +59,11 @@ export default function LoginPage() {
       const errorString = JSON.stringify(responseData || "").toLowerCase();
 
       if (status === 401) {
-        // لو الباك إند موضح إن المشكلة في التأكيد
         if (errorString.includes('confirm') || errorString.includes('تأكيد')) {
           setErrors({ email: 'يرجى تأكيد بريدك الإلكتروني أولاً.' });
         } 
-        // الرد الأمني الموحد (البريد أو كلمة المرور غير صحيحة)
         else {
           setServerError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
-          // هنبعت مسافة فاضية عشان الحقول تنور أحمر بس من غير نص تحتها
           setErrors({ email: ' ', password: ' ' });
         }
       } else if (status === 404) {
@@ -79,10 +79,8 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
-      {/* تمت إزالة p-8 lg:p-10 لأن cardShadow يتحكم في المسافات الداخلية الآن */}
       <div className={`bg-white ${styles.cardShadow}`}>
         
-        {/* استخدام كلاسات title و subtitle من الستايل المشترك */}
         <h2 className={`${styles.title} mb-2`}>أهلاً بعودتك!</h2>
         <p className={`${styles.subtitle} mb-8`}>سجل الدخول لمتابعة تقدمك.</p>
 
@@ -98,7 +96,6 @@ export default function LoginPage() {
             <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">البريد الإلكتروني</label>
             <div className={`flex items-center bg-white px-4 py-3.5 ${styles.inputContainer} ${errors.email ? 'border-red-500' : ''}`}>
               <Mail className="w-5 h-5 text-[#581C87] flex-shrink-0" />
-              {/* تمت إزالة text-sm ليأخذ حجم الخط من inputContainer تلقائياً */}
               <input 
                 type="email" 
                 name="email" 
@@ -121,7 +118,6 @@ export default function LoginPage() {
             </div>
             <div className={`flex items-center bg-white px-4 py-3.5 ${styles.inputContainer} ${errors.password ? 'border-red-500' : ''}`}>
               <Lock className="w-5 h-5 text-[#581C87] flex-shrink-0" />
-              {/* تمت إزالة text-sm */}
               <input 
                 type={showPassword ? "text" : "password"} 
                 name="password" 
@@ -141,7 +137,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* تمت إزالة text-[15px] و py-3.5 لأن buttonShadow يتحكم فيها الآن */}
           <button 
             disabled={isLoading} 
             type="submit" 

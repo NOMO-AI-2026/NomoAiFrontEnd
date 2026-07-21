@@ -1,7 +1,16 @@
+import { useState } from "react";
 import { AudioLines, Brain, Gamepad2, LineChart } from "lucide-react";
 import styles from "./HomePage.module.css";
 import { Link } from "react-router-dom";
+
 const HomePage = () => {
+  const [isAuthenticated] = useState(() => {
+    const token = localStorage.getItem("token"); 
+    return !!token; 
+  });
+
+  const targetRoute = isAuthenticated ? "/doctor/children" : "/login";
+
   return (
     <div className={styles.container} dir="rtl">
       <nav className={styles.navbar}>
@@ -13,19 +22,27 @@ const HomePage = () => {
         </div>
 
         <div className={styles.navActions}>
-          <Link to="/login" className={styles.loginBtn} style={{ textDecoration: 'none' }}>
-            تسجيل الدخول
-          </Link>
-          <Link to="/signup" className={styles.signupBtn} style={{ textDecoration: 'none' }}>
-            حساب جديد
-          </Link>
+          {isAuthenticated ? (
+            <Link to="/doctor/children" className={styles.dashboardBtn} style={{ textDecoration: 'none' }}>
+              لوحة التحكم
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className={styles.loginBtn} style={{ textDecoration: 'none' }}>
+                تسجيل الدخول
+              </Link>
+              <Link to="/signup" className={styles.signupBtn} style={{ textDecoration: 'none' }}>
+                حساب جديد
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
       <section className={styles.hero}>
         <div className={styles.heroTextContent}>
           <h1 className={styles.heroTitle}>
-             علاج تخاطب 
+              علاج تخاطب 
             <span className={styles.highlightText}> ممتع كاللعب.</span>
           </h1>
           <p className={styles.heroDescription}>
@@ -33,11 +50,11 @@ const HomePage = () => {
           </p>
 
           <div className={styles.ctaGroup}>
-            <Link to="/login" className={styles.primaryBtn} style={{ textDecoration: 'none' }}>
-              ابدأ الجلسة
+            <Link to={targetRoute} className={styles.primaryBtn} style={{ textDecoration: 'none' }}>
+              امنح طفلك صوته اليوم
             </Link>
             <Link to="/demo" className={styles.secondaryBtn} style={{ textDecoration: 'none' }}>
-              شاهد العرض التوضيحي
+              اكتشف كيف يعمل النظام
             </Link>
           </div>
         </div>
@@ -53,6 +70,8 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* ... باقي الأقسام (Features, HowItWorks, etc.) هتفضل زي ما هي بدون تغيير ... */}
+      
       <section className={styles.features}>
         <div className={styles.featureCard}>
           <div className={styles.cardIconYellow}>
@@ -122,7 +141,7 @@ const HomePage = () => {
           <p className={styles.bottomCtaText}>
             انضم إلى آلاف العائلات التي تطلق العنان لقدرات أطفالها مع علاج التخاطب المدعوم بالذكاء الاصطناعي.
           </p>
-          <Link to="/login" className={styles.bottomCtaBtn} style={{ textDecoration: 'none' }}>
+          <Link to={targetRoute} className={styles.bottomCtaBtn} style={{ textDecoration: 'none' }}>
             ابدأ الآن
           </Link>
         </div>

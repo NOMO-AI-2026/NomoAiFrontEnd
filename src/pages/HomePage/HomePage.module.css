@@ -90,6 +90,32 @@
   color: #7e22ce;
 }
 
+.dashboardBtn {
+  background-color: #FACC15;
+  color: #581C87;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  border: 2px solid #581C87;
+  box-shadow: 3px 3px 0px #581C87;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .dashboardBtn {
+    font-size: 1.125rem;
+    padding: 0.6rem 1.75rem;
+  }
+}
+
+.dashboardBtn:hover {
+  transform: translateY(2px);
+  box-shadow: 1px 1px 0px #581C87;
+}
+
 .signupBtn {
   background-color: #FACC15;
   color: #581C87;
@@ -130,30 +156,30 @@
   .hero {
     flex-direction: row;
     padding: 5rem 4rem 5rem 10rem;
-    text-align: left;
+    text-align: center;
   }
   [dir="rtl"] .hero {
     padding: 5rem 10rem 5rem 4rem;
-    text-align: right;
+    text-align: center;
   }
   .heroTextContent {
     width: 50%;
-    align-items: flex-start !important;
-    text-align: left;
+    align-items: center !important;
+    text-align: center !important;
   }
   [dir="rtl"] .heroTextContent {
     align-items: center !important;
-    text-align: right;
+    text-align: center !important;
     margin-inline-start: 0;
   }
   .heroImageContainer {
     width: 50%;
   }
   .ctaGroup {
-    justify-content: flex-start !important;
+    justify-content: center !important;
   }
   [dir="rtl"] .ctaGroup {
-    justify-content: flex-end !important;
+    justify-content: center !important;
   }
 }
 
@@ -161,14 +187,9 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  align-items: center;
+  align-items: center !important;
   width: 100%;
-  text-align: center;
-}
-
-[dir="rtl"] .heroTextContent {
-  align-items: flex-end;
-  text-align: right;
+  text-align: center !important;
 }
 
 @media (min-width: 768px) {
