@@ -42,8 +42,8 @@ const HomePage = () => {
       <section className={styles.hero}>
         <div className={styles.heroTextContent}>
           <h1 className={styles.heroTitle}>
-              علاج تخاطب 
-            <span className={styles.highlightText}> ممتع كاللعب.</span>
+              حيث يتحول علاج النطق 
+            <span className={styles.highlightText}> إلى متعة اللعب!</span>
           </h1>
           <p className={styles.heroDescription}>
             نساعد الأطفال المصابين بمتلازمة داون على تحسين النطق من خلال جلسات مدعومة بالذكاء الاصطناعي. لا حاجة للقراءة أو الكتابة — فقط التحدث والمرح مع صديق تفاعلي.
