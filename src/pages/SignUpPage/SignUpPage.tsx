@@ -76,10 +76,14 @@ export default function SignUpPage() {
 
       const response = await registerApi(payload);
       
-      // التعديل هنا: قراءة الـ userId من response.value بناءً على شكل الـ API
+      // استخراج الـ ID بأمان لتجنب أي أخطاء لو شكل الرد اختلف
+      // (بيغطي احتمالات Axios والـ Fetch العادي)
+      const newUserId = response?.data?.value?.userId || response?.data?.id || response?.data?.userId || response?.value?.userId || '';
+
+      // التوجيه لصفحة الـ OTP مع البيانات المطلوبة
       navigate('/verify-otp', { 
         state: { 
-          userId: response.value.userId, 
+          userId: newUserId, 
           email: formData.email, 
           role: formData.role 
         } 
@@ -203,7 +207,7 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <button disabled={isLoading} type="submit" className={`w-full bg-[#FACC15] text-[#581C87] font-extrabold rounded-full flex justify-center items-center gap-2 mt-6 ${styles.buttonShadow}`}>
+          <button disabled={isLoading} type="submit" className={`w-full bg-[#FACC15] text-[#581C87] font-extrabold rounded-full flex justify-center items-center gap-2 mt-6 py-3.5 ${styles.buttonShadow}`}>
             {isLoading ? 'جاري التسجيل...' : 'إنشاء حساب'}
             {!isLoading && <ArrowLeft className="w-5 h-5" strokeWidth={3} />}
           </button>

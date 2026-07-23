@@ -19,8 +19,16 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+        
+        // التعديل هنا 👇: 
+        // بنشوف لو الـ API اللي انضرب مكنش بتاع اللوجين، ساعتها بس نعمل تسجيل خروج
+        const requestUrl = error.config?.url?.toLowerCase() || '';
+        
+        if (!requestUrl.includes('login')) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
+
       } else if (error.response.status === 403) {
         window.location.href = '/'; 
       }

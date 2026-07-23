@@ -18,13 +18,17 @@ export default function LoginPage() {
     password: ''
   });
 
+  // التعديل هنا: تحسين دالة التغيير عشان متعملش مسح عشوائي للأخطاء
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
-    }
+    
+    // إخفاء خطأ السيرفر العام لو اليوزر بدأ يكتب من جديد
     if (serverError) setServerError('');
-    if (Object.keys(errors).length > 0) setErrors({});
+    
+    // مسح الخطأ الخاص بالحقل الحالي فقط
+    if (errors[e.target.name]) {
+      setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
