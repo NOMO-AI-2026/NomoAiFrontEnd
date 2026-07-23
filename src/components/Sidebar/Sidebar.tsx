@@ -17,6 +17,7 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     navigate("/login");
   };
   

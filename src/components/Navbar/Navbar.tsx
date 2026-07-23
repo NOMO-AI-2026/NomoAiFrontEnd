@@ -1,4 +1,5 @@
-import { Search, Bell, Settings, Menu } from "lucide-react";
+import { Search, Bell, Settings, Menu, User } from "lucide-react";
+import { Link } from "react-router-dom"; 
 import styles from "./Navbar.module.css";
 
 interface NavbarProps {
@@ -30,7 +31,10 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
         <button className={styles.iconBtn}>
           <Settings size={20} />
         </button>
-        <img src="https://i.pravatar.cc/150?img=47" alt="الطبيب" className={styles.avatar} />
+        
+          <Link to="/profile" className={styles.iconBtn} aria-label="الصفحة الشخصية">
+          <User size={24} />
+        </Link>
       </div>
     </header>
   );

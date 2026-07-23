@@ -13,6 +13,8 @@ import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 import PendingApproval from "./pages/PendingApproval/PendingApproval"; 
 import VerifyOTP from "./pages/VerifyOTP/VerifyOTP";
+import Profile from "./pages/Profile/Profile";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
   return (
@@ -28,9 +30,18 @@ function App() {
           <Route path="/pending-approval" element={<PendingApproval />} /> 
           
           <Route path="/verify-otp" element={<VerifyOTP />} />
-          <Route element={<DashboardLayout role="doctor" />}>
-            <Route path="/doctor/children" element={<DoctorChildren />} />
-            <Route path="/child/:id" element={<ChildProfile />} />
+
+          <Route element={<ProtectedRoute />}>
+            
+            <Route element={<DashboardLayout />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/child/:id" element={<ChildProfile />} />
+            </Route>
+
+            <Route element={<DashboardLayout role="doctor" />}>
+              <Route path="/doctor/children" element={<DoctorChildren />} />
+            </Route>
+
           </Route>
           
           <Route path="*" element={<ErrorLayout />} />

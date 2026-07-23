@@ -7,9 +7,9 @@ import styles from './ChildProfile.module.css';
 import { useModal } from '../../context/ModalContext';
 import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/SpeechHistoryModal';
 import UpdateSpeechLevelModal from '../../components/Modals/UpdateSpeechLevelModal/UpdateSpeechLevelModal';
-import DeleteActivityModal from "../../components/Modals/DeleteActivityModal/DeleteActivityModal";
+import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/DeleteConfirmModal";
 import ActivityModal from '../../components/Modals/ActivityModal/ActivityModal';
-import { getChildActivitiesApi, type ActivityItem } from '../../api/doctorApi';
+import { getChildActivitiesApi, deleteActivityApi, type ActivityItem } from '../../api/doctorApi';
 
 const ChildProfile = () => {
   const { openAssignParentModal, openAddChildModal } = useModal();
@@ -214,17 +214,19 @@ const ChildProfile = () => {
       <SpeechHistoryModal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} />
       <UpdateSpeechLevelModal isOpen={isUpdateLevelModalOpen} onClose={() => setIsUpdateLevelModalOpen(false)} childId={Number(id)} profileData={profileData} />
       
-      {activityToDelete !== null && (
-        <DeleteActivityModal 
-          isOpen={activityToDelete !== null}
-          activityId={activityToDelete} 
-          onClose={() => setActivityToDelete(null)}
-          onSuccess={() => {
-            fetchActivities(); 
-            setActivityToDelete(null);
-          }}
-        />
-      )}
+      <DeleteConfirmModal 
+        isOpen={activityToDelete !== null}
+        onClose={() => setActivityToDelete(null)}
+        onConfirm={async () => {
+          if (activityToDelete !== null) {
+            await deleteActivityApi(activityToDelete);
+            fetchActivities();
+          }
+        }}
+        title="تأكيد الحذف"
+        message="هل أنت متأكد من رغبتك في حذف هذا النشاط من السجل؟"
+        deleteBtnText="نعم، احذف النشاط"
+      />
 
       <ActivityModal
         isOpen={isActivityModalOpen}

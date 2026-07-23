@@ -7,6 +7,7 @@ import { fetchChildren } from "../../store/slices/childrenSlice";
 import styles from "./DoctorChildren.module.css";
 import { useModal } from '../../context/ModalContext'; 
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/DeleteConfirmModal";
+import { deleteChildApi } from "../../api/doctorApi";
 
 const DoctorChildren = () => {
   const { openAddChildModal } = useModal();
@@ -88,9 +89,16 @@ const DoctorChildren = () => {
 
       <DeleteConfirmModal 
         isOpen={childToDelete !== null}
-        childId={childToDelete}
         onClose={() => setChildToDelete(null)}
-        onSuccess={() => dispatch(fetchChildren())}
+        onConfirm={async () => {
+          if (childToDelete !== null) {
+            await deleteChildApi(childToDelete);
+            dispatch(fetchChildren());
+          }
+        }}
+        title="تأكيد الحذف"
+        message="هل أنت متأكد من رغبتك في حذف هذا الطفل من السجل؟"
+        deleteBtnText="نعم، احذف الطفل"
       />
     </div>
   );
