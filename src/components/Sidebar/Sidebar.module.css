@@ -112,19 +112,23 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.5rem 1.25rem;
-  background: none;
+  padding: 0.75rem 1.25rem; /* تكبير البادينج عشان خلفية الهوفر تبان مريحة */
+  background: transparent;
   border: none;
   color: #1E1B4B;
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
   text-align: right;
-  transition: color 0.2s ease;
+  border-radius: 9999px; /* إضافة حواف دائرية زي باقي العناصر */
+  transition: all 0.2s ease; /* تغيير لـ all عشان يشمل اللون والخلفية والحركة */
 }
 
+/* التعديل الخاص بالهوفر */
 .footerBtn:hover {
+  background-color: #e9d5ff; /* نفس لون هوفر القائمة الرئيسية */
   color: #581C87;
+  transform: translateX(-4px); /* حركة بسيطة لليسار بتدي إحساس تفاعلي ناعم */
 }
 
 .closeBtn {

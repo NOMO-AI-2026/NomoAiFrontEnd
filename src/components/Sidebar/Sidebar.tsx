@@ -1,12 +1,22 @@
 import { 
-  AudioLines, LayoutDashboard, LineChart, Users, Calendar, BookOpen, 
-  HelpCircle, LogOut, PlusCircle, Gamepad2, Activity, Settings, X
+  AudioLines, 
+  LayoutDashboard, 
+  Users, 
+  MessageSquare, 
+  BellRing,
+  Gamepad2, 
+  HelpCircle, 
+  LogOut, 
+  X,
+  UserCheck,
+  BarChart3,
+  HeadphonesIcon
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
-  role?: 'doctor' | 'parent';
+  role?: 'doctor' | 'parent' | 'admin';
   activePage?: string;
   isOpen?: boolean;
   onClose?: () => void;
@@ -21,22 +31,34 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
     navigate("/login");
   };
   
+  // روابط الطبيب
   const doctorLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard },
-    { title: "التحليلات", icon: LineChart },
     { title: "المرضى", icon: Users },
-    { title: "الجدول الزمني", icon: Calendar },
-    { title: "مكتبة المصادر", icon: BookOpen },
+    { title: "طلبات الأهالي", icon: MessageSquare },
+    { title: "التقارير والتنبيهات", icon: BellRing },
   ];
 
+  // روابط ولي الأمر
   const parentLinks = [
     { title: "الرئيسية", icon: LayoutDashboard },
-    { title: "تقارير التقدم", icon: Activity },
-    { title: "سجل اللعب", icon: Gamepad2 },
-    { title: "الإعدادات", icon: Settings },
+    { title: "الأطفال", icon: Users },
+    { title: "تواصل مع الطبيب", icon: MessageSquare },
   ];
 
-  const currentLinks = role === 'doctor' ? doctorLinks : parentLinks;
+  // روابط الأدمن
+  const adminLinks = [
+    { title: "اللوحة الرئيسية", icon: LayoutDashboard },
+    { title: "إدارة الأطباء", icon: UserCheck },
+    { title: "إدارة الأهالي", icon: Users },
+    { title: "تقارير النظام", icon: BarChart3 },
+    { title: "الدعم الفني", icon: HeadphonesIcon },
+  ];
+
+  const currentLinks = 
+    role === 'admin' ? adminLinks : 
+    role === 'doctor' ? doctorLinks : 
+    parentLinks;
 
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
@@ -52,8 +74,6 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
           <X className={styles.closeIcon} size={20} />
         </button>
       </div>
-
-      
 
       <nav className={styles.navMenu}>
         {currentLinks.map((link) => {
@@ -72,18 +92,22 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
       </nav>
 
       <div className={styles.sidebarFooter}>
-        {role === 'doctor' && (
+        {/* زر بدء الجلسة يظهر فقط لولي الأمر */}
+        {role === 'parent' && (
           <button className={styles.newSessionBtn}>
-            <PlusCircle size={20} />
-            جلسة جديدة
+            <Gamepad2 size={20} />
+            بدء الجلسة
           </button>
         )}
         
         <div className={styles.bottomLinks}>
-          <button className={styles.footerBtn}>
-            <HelpCircle className={styles.navIcon} size={20} />
-            المساعدة
-          </button>
+          {/* زر المساعدة يختفي من عند الأدمن */}
+          {role !== 'admin' && (
+            <button className={styles.footerBtn}>
+              <HelpCircle className={styles.navIcon} size={20} />
+              المساعدة
+            </button>
+          )}
           <button className={styles.footerBtn} onClick={handleLogout}>
             <LogOut className={styles.navIcon} size={20} />
             تسجيل الخروج
