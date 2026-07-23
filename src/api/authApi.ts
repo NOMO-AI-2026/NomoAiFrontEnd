@@ -33,3 +33,25 @@ export const resendEmailConfirmationApi = async (payload: ResendEmailPayload) =>
   const response = await axiosInstance.post('/auth/resend-email-confirmation', payload);
   return response.data;
 };
+
+
+export interface ChangeEmailPayload {
+  currentPassword: string;
+  newEmail: string;
+}
+
+// 1. طلب تغيير الإيميل وإرسال الـ OTP
+export const changeEmailApi = async (payload: ChangeEmailPayload) => {
+  const response = await axiosInstance.post('/auth/change-email', payload);
+  return response.data;
+};
+
+export interface ConfirmEmailChangePayload {
+  otp: string;
+}
+
+// 2. تأكيد الـ OTP للإيميل الجديد
+export const confirmEmailChangeApi = async (payload: ConfirmEmailChangePayload) => {
+  const response = await axiosInstance.post('/auth/confirm-email-change', payload);
+  return response.data;
+};

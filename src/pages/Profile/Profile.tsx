@@ -4,12 +4,13 @@ import { getProfile, clearProfile } from '../../store/slices/profileSlice';
 import styles from './Profile.module.css';
 import { useNavigate } from 'react-router-dom';
 import { deleteAccountApi } from '../../api/profileApi';
-import { Lock, Trash2, Edit2 } from 'lucide-react';
+import { Lock, Trash2, Edit2, AtSign } from 'lucide-react';
 
 // استيراد المودالز
 import ChangePasswordModal from '../../components/Modals/ChangePasswordModal/ChangePasswordModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
 import EditProfileModal from '../../components/Modals/EditProfileModal/EditProfileModal';
+import ChangeEmailModal from '../../components/Modals/ChangeEmailModal/ChangeEmailModal'; // تأكدي من مسار الاستيراد
 
 const Profile = () => {
   const dispatch = useAppDispatch();
@@ -17,9 +18,10 @@ const Profile = () => {
   const { data, loading, updateLoading, error } = useAppSelector((state) => state.profile);
 
   // Modal display states
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // ستيت مودال التعديل
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false); // ستيت مودال تغيير الإيميل
 
   // Decode JWT payload dynamically to verify role
   const getRoleFromToken = (): number | null => {
@@ -114,7 +116,6 @@ const Profile = () => {
           
           {/* Basic Info Card */}
           <div className={styles.card}>
-            {/* استخدمنا كلاس جديد عشان نحط الزرار قصاد العنوان */}
             <div className={styles.cardHeaderWithAction}>
               <h3 className={styles.cardTitle}>المعلومات الأساسية</h3>
               <button className={styles.editBtn} onClick={() => setIsEditModalOpen(true)}>
@@ -127,21 +128,52 @@ const Profile = () => {
                 <span className={styles.infoLabel}>الاسم بالكامل</span>
                 <span className={styles.infoValue}>{data.fullName}</span>
               </div>
+              
+              {/* العمر تم نقله هنا بدل الإيميل */}
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>البريد الإلكتروني</span>
-                <span className={styles.infoValue}>{data.email}</span>
+                <span className={styles.infoLabel}>العمر</span>
+                <span className={styles.infoValue}>{data.age ? `${data.age} سنة` : 'لم يتم التحديد'}</span>
               </div>
+
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>رقم الهاتف</span>
                 <span className={styles.infoValue}>{data.phoneNumber || 'لم يتم التحديد'}</span>
               </div>
+
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>النوع</span>
                 <span className={styles.infoValue}>{data.gender === 0 ? 'ذكر' : 'أنثى'}</span>
               </div>
+
+              {/* البريد الإلكتروني مع الزر الخاص به */}
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>العمر</span>
-                <span className={styles.infoValue}>{data.age ? `${data.age} سنة` : 'لم يتم التحديد'}</span>
+                <span className={styles.infoLabel}>البريد الإلكتروني</span>
+                <span className={styles.infoValue} dir="ltr" style={{ display: 'block', textAlign: 'right', marginBottom: '10px' }}>
+                  {data.email}
+                </span>
+                <button 
+                  onClick={() => setIsChangeEmailOpen(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    padding: '8px 16px',
+                    border: '1.5px solid #581C87',
+                    borderRadius: '8px',
+                    backgroundColor: 'transparent',
+                    color: '#581C87',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#F5F3FF'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <AtSign size={16} /> تغيير البريد الإلكتروني
+                </button>
               </div>
             </div>
           </div>
@@ -195,7 +227,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* مودال التعديل الجديد */}
+      {/* المودالز */}
       <EditProfileModal 
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -204,13 +236,17 @@ const Profile = () => {
         updateLoading={updateLoading}
       />
 
-      {/* Change Password Modal */}
       <ChangePasswordModal 
         isOpen={isChangePasswordOpen} 
         onClose={() => setIsChangePasswordOpen(false)} 
       />
 
-      {/* Delete Account Confirmation Modal */}
+      {/* مودال تغيير البريد الإلكتروني الجديد */}
+      <ChangeEmailModal 
+        isOpen={isChangeEmailOpen}
+        onClose={() => setIsChangeEmailOpen(false)}
+      />
+
       <DeleteConfirmModal 
         isOpen={isDeleteConfirmOpen}
         onClose={() => setIsDeleteConfirmOpen(false)}
