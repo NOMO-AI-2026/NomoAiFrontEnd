@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AudioLines, Brain, Gamepad2, LineChart } from "lucide-react";
+import { AudioLines, Brain, Gamepad2, LineChart, User } from "lucide-react"; // ضفنا User هنا
 import styles from "./HomePage.module.css";
 import { Link } from "react-router-dom";
 
@@ -23,9 +23,15 @@ const HomePage = () => {
 
         <div className={styles.navActions}>
           {isAuthenticated ? (
-            <Link to="/doctor/children" className={styles.dashboardBtn} style={{ textDecoration: 'none' }}>
-              لوحة التحكم
-            </Link>
+            // ضفنا ديف يلم الزرار والأيقونة مع بعض
+            <div className={styles.authenticatedNavGroup}>
+              <Link to="/doctor/children" className={styles.dashboardBtn} style={{ textDecoration: 'none' }}>
+                لوحة التحكم
+              </Link>
+              <Link to="/profile" className={styles.profileIconBtn} title="الملف الشخصي">
+                <User size={22} strokeWidth={2.5} />
+              </Link>
+            </div>
           ) : (
             <>
               <Link to="/login" className={styles.loginBtn} style={{ textDecoration: 'none' }}>
@@ -70,8 +76,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ... باقي الأقسام (Features, HowItWorks, etc.) هتفضل زي ما هي بدون تغيير ... */}
-      
       <section className={styles.features}>
         <div className={styles.featureCard}>
           <div className={styles.cardIconYellow}>

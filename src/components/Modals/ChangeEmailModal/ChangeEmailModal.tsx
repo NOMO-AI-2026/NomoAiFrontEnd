@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Mail, Lock, Eye, CheckCircle2, Send } from 'lucide-react';
+import { X, Mail, Lock, Eye, CheckCircle2 } from 'lucide-react';
 import { changeEmailApi, confirmEmailChangeApi } from '../../../api/authApi'; 
 import styles from './ChangeEmailModal.module.css';
 

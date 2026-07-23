@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import PendingApproval from "./pages/PendingApproval/PendingApproval"; 
 import VerifyOTP from "./pages/VerifyOTP/VerifyOTP";
 import Profile from "./pages/Profile/Profile";
+import Settings from "./pages/Settings/Settings";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
             
             <Route element={<DashboardLayout />}>
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/child/:id" element={<ChildProfile />} />
             </Route>
 

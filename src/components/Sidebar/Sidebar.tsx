@@ -53,15 +53,7 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
         </button>
       </div>
 
-      {/* Mobile-only perspective switcher (migrated from Navbar) */}
-      <div className={styles.mobileTabs}>
-        <div className={styles.mobileTabsTitle}>تبديل الحساب</div>
-        <div className={styles.mobileTabsList}>
-          <span className={`${styles.mobileTab} ${styles.activeMobileTab}`}>الطبيب</span>
-          <span className={styles.mobileTab}>ولي الأمر</span>
-          <span className={styles.mobileTab}>جلسة الطفل</span>
-        </div>
-      </div>
+      
 
       <nav className={styles.navMenu}>
         {currentLinks.map((link) => {
