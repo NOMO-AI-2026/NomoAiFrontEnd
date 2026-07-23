@@ -19,6 +19,7 @@ export default function VerifyOTP() {
   
   const userId = location.state?.userId || '';
   const email = location.state?.email || '';
+  const userRole = location.state?.role; // بنستقبل الـ role (0 للطبيب، 1 للأب)
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +33,7 @@ export default function VerifyOTP() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
+    // لو مفيش بيانات جيالنا من صفحة التسجيل، نرجعه للوجين
     if (!userId) {
       navigate('/login');
     }
@@ -81,8 +83,13 @@ export default function VerifyOTP() {
       await confirmEmailApi({ userId, otp: otpCode });
       setSuccessMsg('تم تأكيد حسابك بنجاح! جاري التوجيه...');
       
+      // التوجيه الذكي بناءً على نوع المستخدم
       setTimeout(() => {
-        navigate('/login');
+        if (userRole === 0) {
+          navigate('/pending-approval'); // الطبيب بيروح لصفحة انتظار الموافقة
+        } else {
+          navigate('/login'); // الأب بيروح لتسجيل الدخول
+        }
       }, 2000);
 
     } catch (err: unknown) {
@@ -139,7 +146,6 @@ export default function VerifyOTP() {
 
         <form onSubmit={handleVerify} className="space-y-6">
           
-          {/* تم تعديل الفجوات (gap) بين المربعات لتكون أصغر في الموبايل */}
           <div className="flex justify-center gap-1.5 sm:gap-2" dir="ltr">
             {otp.map((digit, index) => (
               <input
@@ -153,7 +159,6 @@ export default function VerifyOTP() {
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                /* تم إضافة أحجام أصغر للموبايل (w-10 h-12 text-lg) وأكبر للشاشات (sm:w-12 sm:h-14 sm:text-xl) */
                 className={`w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-extrabold text-[#1E1B4B] bg-gray-50 border-2 rounded-xl outline-none transition-all focus:border-[#581C87] focus:bg-white focus:shadow-[0_0_0_4px_rgba(88,28,135,0.15)] ${
                   digit ? 'border-[#581C87]' : 'border-gray-200'
                 }`}
@@ -164,7 +169,7 @@ export default function VerifyOTP() {
           <button 
             type="submit" 
             disabled={isLoading || successMsg !== ''}
-            className={`w-full bg-[#FACC15] text-[#581C87] font-extrabold rounded-full flex justify-center items-center gap-2 mt-4 ${sharedStyles.buttonShadow} disabled:opacity-70`}
+            className={`w-full bg-[#FACC15] text-[#581C87] font-extrabold rounded-full flex justify-center items-center gap-2 mt-4 py-3.5 ${sharedStyles.buttonShadow} disabled:opacity-70`}
           >
             {isLoading ? 'جاري التأكيد...' : 'تأكيد الحساب'}
           </button>
