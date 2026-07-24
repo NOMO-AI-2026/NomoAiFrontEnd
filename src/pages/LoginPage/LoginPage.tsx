@@ -18,14 +18,11 @@ export default function LoginPage() {
     password: ''
   });
 
-  // التعديل هنا: تحسين دالة التغيير عشان متعملش مسح عشوائي للأخطاء
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     
-    // إخفاء خطأ السيرفر العام لو اليوزر بدأ يكتب من جديد
     if (serverError) setServerError('');
     
-    // مسح الخطأ الخاص بالحقل الحالي فقط
     if (errors[e.target.name]) {
       setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
     }
@@ -50,10 +47,61 @@ export default function LoginPage() {
     try {
       const data = (await loginApi(formData)) as { token?: string; value?: { token?: string } };
       const token = data.token || data.value?.token;
+      
       if (token) {
         localStorage.setItem('token', token);
+
+        // ================= التعديل هنا: فك التوكن وتوجيه اليوزر ================= //
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            window.atob(base64)
+              .split('')
+              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const decoded = JSON.parse(jsonPayload);
+
+          let roleClaim: string | string[] | null = null;
+          for (const key in decoded) {
+            if (key.toLowerCase().includes("role")) {
+              roleClaim = decoded[key];
+              break;
+            }
+          }
+
+          if (roleClaim) {
+            const roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
+            const normalizedRoles = roles.map(r => String(r).toLowerCase().trim());
+            
+            // 1. لو أدمن (Role 2)
+            if (normalizedRoles.includes("admin") || normalizedRoles.includes("2")) {
+              navigate('/admin');
+              return; 
+            }
+            
+            // 2. لو دكتور (Role 0) 
+            if (normalizedRoles.includes("doctor") || normalizedRoles.includes("0")) {
+              navigate('/doctor/children');
+              return;
+            }
+
+            // 3. لو ولي أمر (Role 1) - تقدري تغيري المسار للمكان اللي بتوديه عليه
+            if (normalizedRoles.includes("parent") || normalizedRoles.includes("1")) {
+              navigate('/profile'); // مثال: وجهيه للمكان المناسب لولي الأمر
+              return;
+            }
+          }
+        } catch (decodeError) {
+          console.error("Error decoding token on login:", decodeError);
+        }
+        // ==================================================================== //
       }
+      
+      // التوجيه الافتراضي لو حصل أي مشكلة في فك التوكن
       navigate('/doctor/children'); 
+      
     } catch (err: unknown) {
       const apiError = err as { response?: { status?: number; data?: { message?: string; title?: string; detail?: string } } };
       console.error("Login Error Response:", apiError.response?.data); 

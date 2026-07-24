@@ -1,0 +1,315 @@
+/* AdminDoctors.module.css */
+
+.pageContainer {
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #FFFFFF;
+  min-height: 100vh;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- الهيدر --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap; 
+  gap: 1.5rem;
+}
+
+.titleArea {
+  text-align: right;
+}
+
+.title {
+  color: #211A44;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  color: #6B7280;
+  font-size: 0.9rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* --- قسم الفلتر والبحث --- */
+.filterSection {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 1rem;
+  background-color: #FFFFFF;
+  border: 2px solid #6C34AF;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.searchWrapper {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  background-color: #F8F7FF;
+  border: 1px solid #EBE5F7;
+  border-radius: 8px;
+  padding: 0 1rem;
+}
+
+.searchIcon {
+  color: #6B7280;
+  margin-left: 0.5rem;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.75rem 0;
+  text-align: right;
+  font-weight: 600;
+  color: #211A44;
+}
+
+.searchInput::placeholder {
+  color: #9CA3AF;
+}
+
+/* --- الأزرار (Tabs) البديلة للـ Dropdown --- */
+.tabsContainer {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap; /* للريسبونسف في الشاشات الصغيرة */
+}
+
+.tabBtn {
+  background-color: #F8F7FF;
+  border: 2px solid #211A44;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #211A44;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+  flex: 1;
+  text-align: center;
+}
+
+.tabActive {
+  background-color: #FFD11A;
+  box-shadow: 3px 3px 0px #211A44;
+}
+
+.tabBtn:not(.tabActive):hover {
+  background-color: #EBE5F7;
+}
+
+.tabActive:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #211A44;
+}
+
+/* --- الجدول والـ Responsive --- */
+.tableWrapper {
+  border: 2px solid #6C34AF;
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px #6C34AF;
+  background-color: #FFFFFF;
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; 
+}
+
+.table th {
+  background-color: #F8F7FF;
+  color: #211A44;
+  font-weight: 900;
+  text-align: right;
+  padding: 1.25rem 1rem;
+  border-bottom: 2px solid #6C34AF;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #EBE5F7;
+  color: #4B5563;
+  font-weight: 700;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover {
+  background-color: #F5F3FF;
+}
+
+.doctorInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #211A44;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.9rem;
+  background-color: #E9D5FF;
+  color: #6C34AF;
+  flex-shrink: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.badgeApproved { background-color: #DCFCE7; color: #16A34A; }
+.badgePending { background-color: #FEF9C3; color: #CA8A04; }
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+
+.actionBtn:hover { transform: scale(1.1); }
+.actionDelete { color: #DC2626; }
+.actionAccept { color: #16A34A; }
+.actionReject { color: #DC2626; }
+
+.loadingOrEmpty {
+  padding: 4rem 2rem;
+  text-align: center;
+  font-weight: 800;
+  color: #6C34AF;
+  font-size: 1.1rem;
+}
+
+/* --- الترقيم Pagination --- */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #EBE5F7;
+  background-color: #F8F7FF;
+  flex-wrap: wrap; 
+  gap: 1rem;
+}
+
+.pageInfo {
+  color: #6B7280;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.pageControls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pageBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #4B5563;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background-color: #F3F4F6;
+  border-color: #211A44;
+  color: #211A44;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- زر المساعدة العائم --- */
+.helpBtn {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  width: 56px;
+  height: 56px;
+  background-color: #FFD11A;
+  border: 2px solid #211A44;
+  border-radius: 16px; 
+  box-shadow: 3px 3px 0px #211A44;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #211A44;
+  cursor: pointer;
+  transition: transform 0.1s;
+  z-index: 100;
+}
+
+.helpBtn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #211A44;
+}
+
+/* --- تخصيصات الشاشات الصغيرة (الموبايل) --- */
+@media (max-width: 768px) {
+  .pageContainer { padding: 1rem; }
+  .title { font-size: 1.5rem; }
+  .searchWrapper { min-width: 100%; }
+  .tabsContainer { width: 100%; }
+  .pagination { justify-content: center; flex-direction: column; }
+}

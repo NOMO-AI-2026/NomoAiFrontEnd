@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ModalProvider } from "./context/ModalContext"; 
-
+import { Toaster } from "react-hot-toast";
 import HomePage from "./pages/HomePage/HomePage";
 import DashboardLayout from "./layouts/DashboardLayout/DashboardLayout";
 import DoctorChildren from "./pages/DoctorChildren/DoctorChildren";
@@ -17,10 +17,17 @@ import Profile from "./pages/Profile/Profile";
 import Settings from "./pages/Settings/Settings";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
+// ================= إضافات الأدمن ================= //
+import AdminRoute from "./components/ProtectedRoute/AdminRoute";
+import AdminLayout from "./layouts/AdminLayout/AdminLayout";
+import AdminDoctors from "./pages/Admin/Doctors/AdminDoctors";
+import AdminParents from "./pages/Admin/Parents/AdminParents";
+
 function App() {
   return (
     <ModalProvider>
       <BrowserRouter>
+      <Toaster position="top-center" reverseOrder={false} />
         <Routes>
           <Route path="/" element={<HomePage />} />
           
@@ -32,8 +39,8 @@ function App() {
           
           <Route path="/verify-otp" element={<VerifyOTP />} />
 
+          {/* مسارات المستخدمين العاديين (أطباء / أولياء أمور) */}
           <Route element={<ProtectedRoute />}>
-            
             <Route element={<DashboardLayout />}>
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
@@ -43,9 +50,20 @@ function App() {
             <Route element={<DashboardLayout role="doctor" />}>
               <Route path="/doctor/children" element={<DoctorChildren />} />
             </Route>
+          </Route>
 
+          {/* ================= مسارات الأدمن ================= */}
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              {/* توجيه تلقائي من /admin إلى /admin/doctors */}
+              <Route index element={<Navigate to="doctors" replace />} />
+              
+              <Route path="doctors" element={<AdminDoctors />} />
+              <Route path="parents" element={<AdminParents />} />
+            </Route>
           </Route>
           
+          {/* صفحة الخطأ 404 */}
           <Route path="*" element={<ErrorLayout />} />
         </Routes>
       </BrowserRouter>
