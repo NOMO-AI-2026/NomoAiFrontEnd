@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { CheckCircle2, XCircle, Trash2, Search, ChevronRight, ChevronLeft, HelpCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2, XCircle, Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminDoctors.module.css';
 import { getAdminDoctorsApi, handleDoctorApprovalApi, deleteDoctorByAdminApi } from '../../../api/adminApi';
@@ -17,12 +17,11 @@ interface Doctor {
 }
 
 const AdminDoctors = () => {
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [filter, setFilter] = useState<'ALL' | 'APPROVED' | 'PENDING'>('ALL');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -36,32 +35,22 @@ const AdminDoctors = () => {
   const fetchDoctors = async () => {
     setLoading(true);
     try {
-      let isApprovedValue: boolean | undefined = undefined;
-      if (filter === 'APPROVED') isApprovedValue = true;
-      if (filter === 'PENDING') isApprovedValue = false;
-
-      const params: any = {
-        pageNumber: page,
-        pageSize: 10,
+      const params = {
+        pageNumber: 1,
+        pageSize: 1000, // Fetch all records at once to allow complete search across pages
       };
-
-      if (isApprovedValue !== undefined) {
-        params.isApproved = isApprovedValue;
-      }
 
       const response = await getAdminDoctorsApi(params);
       
       if (response?.value?.items && Array.isArray(response.value.items)) {
-        setDoctors(response.value.items);
+        setAllDoctors(response.value.items);
       } else {
-        setDoctors([]);
+        setAllDoctors([]);
       }
-
-      setTotalPages(response?.value?.totalPages || 1);
 
     } catch (error) {
       console.error("Error fetching doctors:", error);
-      setDoctors([]); 
+      setAllDoctors([]); 
     } finally {
       setLoading(false);
     }
@@ -69,14 +58,19 @@ const AdminDoctors = () => {
 
   useEffect(() => {
     fetchDoctors();
-  }, [filter, page]);
+  }, []);
+
+  // Reset to first page when search or tab changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, filter]);
 
   // دالة القبول (تحديث فوري للواجهة)
   const handleApproveInstant = async (userId: string) => {
     try {
       await handleDoctorApprovalApi({ userId, approveStatus: true });
       
-      setDoctors((prev) => 
+      setAllDoctors((prev) => 
         prev.map((doc) => doc.userId === userId ? { ...doc, isApproved: true } : doc)
       );
 
@@ -99,7 +93,7 @@ const AdminDoctors = () => {
     try {
       await handleDoctorApprovalApi({ userId: doctorToReject, approveStatus: false });
       
-      setDoctors((prev) => 
+      setAllDoctors((prev) => 
         prev.map((doc) => doc.userId === doctorToReject ? { ...doc, isApproved: false } : doc)
       );
 
@@ -124,7 +118,7 @@ const AdminDoctors = () => {
     setIsActionLoading(true);
     try {
       await deleteDoctorByAdminApi({ userId: selectedDoctorId });
-      setDoctors((prev) => prev.filter((doc) => doc.userId !== selectedDoctorId));
+      setAllDoctors((prev) => prev.filter((doc) => doc.userId !== selectedDoctorId));
       setIsDeleteModalOpen(false);
       toast.success("تم حذف الطبيب نهائياً!");
     } catch (error) {
@@ -138,17 +132,34 @@ const AdminDoctors = () => {
 
   const getInitials = (name: string) => {
     if (!name) return 'د';
-    const parts = name.split(' ');
-    if (parts.length > 1) return parts[0][0] + '.' + parts[1][0];
+    const parts = name.trim().split(/\s+/);
+    if (parts.length > 1) {
+      return parts[0][0] + '.' + parts[1][0];
+    }
+    
     return name.substring(0, 2);
   };
 
-  const filteredDoctors = doctors.filter(doc => {
+  // 1. Filter local records
+  const filteredDoctors = allDoctors.filter(doc => {
+    // A. status filter
+    let matchesFilter = true;
+    if (filter === 'APPROVED') matchesFilter = doc.isApproved === true;
+    if (filter === 'PENDING') matchesFilter = doc.isApproved === false;
+
+    // B. search query filter
     const name = (doc.fullName || '').toLowerCase();
     const email = (doc.email || '').toLowerCase();
     const search = searchTerm.toLowerCase();
-    return name.includes(search) || email.includes(search);
+    
+    return matchesFilter && (name.includes(search) || email.includes(search));
   });
+
+  // 2. Paginate filtered local records
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(filteredDoctors.length / PAGE_SIZE) || 1;
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const paginatedDoctors = filteredDoctors.slice(startIndex, startIndex + PAGE_SIZE);
 
   return (
     <div className={styles.pageContainer} dir="rtl">
@@ -175,19 +186,19 @@ const AdminDoctors = () => {
         <div className={styles.tabsContainer}>
           <button 
             className={`${styles.tabBtn} ${filter === 'ALL' ? styles.tabActive : ''}`}
-            onClick={() => { setFilter('ALL'); setPage(1); }}
+            onClick={() => setFilter('ALL')}
           >
             الكل
           </button>
           <button 
             className={`${styles.tabBtn} ${filter === 'PENDING' ? styles.tabActive : ''}`}
-            onClick={() => { setFilter('PENDING'); setPage(1); }}
+            onClick={() => setFilter('PENDING')}
           >
             قيد الانتظار
           </button>
           <button 
             className={`${styles.tabBtn} ${filter === 'APPROVED' ? styles.tabActive : ''}`}
-            onClick={() => { setFilter('APPROVED'); setPage(1); }}
+            onClick={() => setFilter('APPROVED')}
           >
             المعتمدين
           </button>
@@ -200,7 +211,6 @@ const AdminDoctors = () => {
             <tr>
               <th>الاسم</th>
               <th>البريد الإلكتروني</th>
-              <th>العيادة / الخبرة</th>
               <th>الحالة</th>
               <th>الإجراءات</th>
             </tr>
@@ -223,73 +233,63 @@ const AdminDoctors = () => {
                </tr>
              </tbody>
           ) : (
-            <tbody>
-              {filteredDoctors.map((doctor, index) => {
-                // منطق ذكي لتحديد الحالة بناءً على التاب النشط أو خاصية الدكتور
-                const isApprovedStatus = filter === 'APPROVED' ? true : (filter === 'PENDING' ? false : doctor.isApproved);
-
-                return (
-                  <tr key={`${doctor.userId}-${index}`}>
-                    <td>
-                      <div className={styles.doctorInfo}>
-                        <div className={styles.avatar}>
-                          {getInitials(doctor.fullName)}
-                        </div>
-                        <span style={{ fontWeight: 800 }}>{doctor.fullName || 'غير محدد'}</span>
-                      </div>
-                    </td>
-                    <td><span dir="ltr">{doctor.email}</span></td>
-                    <td>
-                      <div style={{display: 'flex', flexDirection: 'column', gap: '0.25rem'}}>
-                        <span style={{fontWeight: 800, color: '#211A44'}}>{doctor.doctorSpecificData?.clinicName || 'غير محدد'}</span>
-                        <span style={{fontSize: '0.85rem', color: '#6B7280', fontWeight: 600}}>
-                          {doctor.doctorSpecificData?.yearsOfExperience ? `${doctor.doctorSpecificData.yearsOfExperience} سنوات خبرة` : ''}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`${styles.badge} ${isApprovedStatus ? styles.badgeApproved : styles.badgePending}`}>
-                        <span className={styles.dot} style={{ backgroundColor: isApprovedStatus ? '#16A34A' : '#CA8A04' }}></span>
-                        {isApprovedStatus ? 'مقبول' : 'قيد الانتظار'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        {!isApprovedStatus ? (
-                          <button 
-                            title="قبول" 
-                            className={`${styles.actionBtn} ${styles.actionAccept}`}
-                            onClick={() => handleApproveInstant(doctor.userId)}
-                          >
-                            <CheckCircle2 size={22} />
-                          </button>
-                        ) : (
+             <tbody>
+               {paginatedDoctors.map((doctor, index) => {
+                 return (
+                   <tr key={`${doctor.userId}-${index}`}>
+                     <td>
+                       <div className={styles.doctorInfo}>
+                         <div className={styles.avatar}>
+                           {getInitials(doctor.fullName)}
+                         </div>
+                         <span style={{ fontWeight: 800 }}>{doctor.fullName || 'غير محدد'}</span>
+                       </div>
+                     </td>
+                     <td><span dir="ltr">{doctor.email}</span></td>
+                     
+                     <td>
+                       <span className={`${styles.badge} ${doctor.isApproved ? styles.badgeApproved : styles.badgePending}`}>
+                         <span className={styles.dot} style={{ backgroundColor: doctor.isApproved ? '#16A34A' : '#CA8A04' }}></span>
+                         {doctor.isApproved ? 'مقبول' : 'قيد الانتظار'}
+                       </span>
+                     </td>
+                     <td>
+                       <div className={styles.actions}>
+                         {!doctor.isApproved ? (
                            <button 
-                            title="إلغاء الاعتماد" 
-                            className={`${styles.actionBtn} ${styles.actionReject}`}
-                            onClick={() => openRejectModal(doctor.userId)}
-                         >
-                           <XCircle size={22} />
-                         </button>
-                        )}
+                             title="قبول" 
+                             className={`${styles.actionBtn} ${styles.actionAccept}`}
+                             onClick={() => handleApproveInstant(doctor.userId)}
+                           >
+                             <CheckCircle2 size={22} />
+                           </button>
+                         ) : (
+                            <button 
+                             title="إلغاء الاعتماد" 
+                             className={`${styles.actionBtn} ${styles.actionReject}`}
+                             onClick={() => openRejectModal(doctor.userId)}
+                          >
+                            <XCircle size={22} />
+                          </button>
+                         )}
 
-                        <button 
-                          title="حذف نهائي" 
-                          className={`${styles.actionBtn} ${styles.actionDelete}`}
-                          onClick={() => openDeleteModal(doctor.userId)}
-                        >
-                          <Trash2 size={22} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
+                         <button 
+                           title="حذف نهائي" 
+                           className={`${styles.actionBtn} ${styles.actionDelete}`}
+                           onClick={() => openDeleteModal(doctor.userId)}
+                         >
+                           <Trash2 size={22} />
+                         </button>
+                       </div>
+                     </td>
+                   </tr>
+                 );
+               })}
+             </tbody>
           )}
         </table>
         
-        {!loading && totalPages > 0 && (
+        {!loading && filteredDoctors.length > 0 && (
           <div className={styles.pagination}>
             <div className={styles.pageInfo}>
               صفحة <span style={{color: '#211A44', fontWeight: 900}}>{page}</span> من {totalPages}
@@ -316,10 +316,6 @@ const AdminDoctors = () => {
           </div>
         )}
       </div>
-
-      <button className={styles.helpBtn}>
-        <HelpCircle size={24} />
-      </button>
 
       <DeleteConfirmModal 
         isOpen={isDeleteModalOpen}

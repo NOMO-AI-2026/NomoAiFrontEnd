@@ -246,7 +246,7 @@
   align-items: center;
   padding: 1rem 1.5rem;
   border-top: 1px solid #EBE5F7;
-  background-color: #FFFFFF;
+  background-color: #F8F7FF;
   flex-wrap: wrap; 
   gap: 1rem;
 }
@@ -265,9 +265,8 @@
 .pageBtn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
   border: 1px solid #D1D5DB;
   border-radius: 8px;
   background-color: #FFFFFF;
@@ -279,20 +278,14 @@
 
 .pageBtn:hover:not(:disabled) {
   background-color: #F3F4F6;
+  border-color: #211A44;
+  color: #211A44;
 }
 
 .pageBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
-/* تصميم الزر الفعال (الأصفر) */
-.pageBtnActive {
-  background-color: #FFD11A;
-  color: #6C34AF;
-  border: 2px solid #6C34AF;
-}
-.pageBtnActive:hover { background-color: #FFD11A; }
 
 /* --- ريسبونسيف للشاشات الصغيرة --- */
 @media (max-width: 768px) {

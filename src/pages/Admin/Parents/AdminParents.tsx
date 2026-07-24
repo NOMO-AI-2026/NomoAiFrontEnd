@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminParents.module.css';
@@ -16,11 +16,10 @@ interface Parent {
 }
 
 const AdminParents = () => {
-  const [parents, setParents] = useState<Parent[]>([]);
+  const [allParents, setAllParents] = useState<Parent[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -31,23 +30,27 @@ const AdminParents = () => {
     setLoading(true);
     try {
       const params = {
-        pageNumber: page,
-        pageSize: 10,
+        pageNumber: 1,
+        pageSize: 50, // Let's try 50 to see if 1000 was causing validation error
       };
 
       const response = await getAdminParentsApi(params);
+      console.log("Parents API Response:", response);
       
       if (response?.value?.items && Array.isArray(response.value.items)) {
-        setParents(response.value.items);
+        setAllParents(response.value.items);
+      } else if (response?.value && Array.isArray(response.value)) {
+        // Fallback in case the array is directly in response.value
+        setAllParents(response.value);
       } else {
-        setParents([]);
+        setAllParents([]);
       }
 
-      setTotalPages(response?.value?.totalPages || 1);
-
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching parents:", error);
-      setParents([]); 
+      const msg = error.response?.data?.message || error.message || "حدث خطأ أثناء جلب أولياء الأمور";
+      toast.error(`خطأ: ${msg}`);
+      setAllParents([]); 
     } finally {
       setLoading(false);
     }
@@ -55,7 +58,12 @@ const AdminParents = () => {
 
   useEffect(() => {
     fetchParents();
-  }, [page]);
+  }, []);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
   const openDeleteModal = (userId: string) => {
     setSelectedParentId(userId);
@@ -67,7 +75,7 @@ const AdminParents = () => {
     setIsActionLoading(true);
     try {
       await deleteParentByAdminApi({ userId: selectedParentId });
-      setParents((prev) => prev.filter((p) => p.userId !== selectedParentId));
+      setAllParents((prev) => prev.filter((p) => p.userId !== selectedParentId));
       setIsDeleteModalOpen(false);
       toast.success("تم حذف حساب ولي الأمر نهائياً!");
     } catch (error) {
@@ -80,21 +88,28 @@ const AdminParents = () => {
   };
 
   const getParentName = (parent: Parent) => {
-    return parent.fullName || parent.fullname || parent.name || 'غير محدد';
+    return parent.fullName || parent.fullname || parent.name || 'غير مححدد';
   };
 
   const getInitials = (name: string) => {
-    if (!name || name === 'غير محدد') return 'أ';
-    const parts = name.split(' ');
-    return parts[0].substring(0, 1);
+    if (!name || name === 'غير محدد' || name.trim() === '') return 'أ';
+    const parts = name.trim().split(/\s+/);
+    return parts[0].substring(0, 1); 
   };
 
-  const filteredParents = parents.filter(p => {
+  // 1. Filter local records
+  const filteredParents = allParents.filter(p => {
     const name = getParentName(p).toLowerCase();
     const email = (p.email || '').toLowerCase();
     const search = searchTerm.toLowerCase();
     return name.includes(search) || email.includes(search);
   });
+
+  // 2. Paginate filtered local records
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(filteredParents.length / PAGE_SIZE) || 1;
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const paginatedParents = filteredParents.slice(startIndex, startIndex + PAGE_SIZE);
 
   return (
     <div className={styles.pageContainer} dir="rtl">
@@ -109,7 +124,6 @@ const AdminParents = () => {
 
       {/* ================= البحث والفلترة ================= */}
       <div className={styles.filterSection}>
-        {/* تم إزالة الفلاتر بناءً على طلبك والاحتفاظ فقط بصندوق البحث */}
         <div className={styles.searchWrapper}>
           <Search className={styles.searchIcon} size={18} />
           <input 
@@ -130,8 +144,6 @@ const AdminParents = () => {
               <th>الاسم الكامل</th>
               <th>البريد الإلكتروني</th>
               <th>رقم الهاتف</th>
-              <th style={{textAlign: 'center'}}>عدد الأطفال</th>
-              <th>تاريخ التسجيل</th>
               <th>الإجراءات</th>
             </tr>
           </thead>
@@ -153,60 +165,49 @@ const AdminParents = () => {
                </tr>
              </tbody>
           ) : (
-            <tbody>
-              {filteredParents.map((parent, index) => {
-                const name = getParentName(parent);
-                return (
-                  <tr key={`${parent.userId}-${index}`}>
-                    <td>
-                      <div className={styles.parentInfo}>
-                        <div className={styles.avatar}>
-                          {getInitials(name)}
-                        </div>
-                        <span style={{ fontWeight: 800 }}>{name}</span>
-                      </div>
-                    </td>
-                    <td><span dir="ltr">{parent.email}</span></td>
-                    <td>
-                      <span style={{fontWeight: 800, color: '#4B5563'}} dir="ltr">
-                        {parent.phoneNumber || 'غير مسجل'}
-                      </span>
-                    </td>
-                    <td style={{textAlign: 'center'}}>
-                      <span className={styles.childrenBadge}>
-                        {(index % 3) + 1}
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{color: '#6B7280', fontWeight: 600}}>
-                        12 أكتوبر 2023
-                      </span>
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button 
-                          title="حذف نهائي" 
-                          className={`${styles.actionBtn} ${styles.actionDelete}`}
-                          onClick={() => openDeleteModal(parent.userId)}
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
+             <tbody>
+               {paginatedParents.map((parent, index) => {
+                 const name = getParentName(parent);
+                 return (
+                   <tr key={`${parent.userId}-${index}`}>
+                     <td>
+                       <div className={styles.parentInfo}>
+                         <div className={styles.avatar}>
+                           {getInitials(name)}
+                         </div>
+                         <span style={{ fontWeight: 800 }}>{name}</span>
+                       </div>
+                     </td>
+                     <td><span dir="ltr">{parent.email}</span></td>
+                     <td>
+                       <span style={{fontWeight: 800, color: '#4B5563'}} dir="ltr">
+                         {parent.phoneNumber || 'غير مسجل'}
+                       </span>
+                     </td>
+                     <td>
+                       <div className={styles.actions}>
+                         <button 
+                           title="حذف نهائي" 
+                           className={`${styles.actionBtn} ${styles.actionDelete}`}
+                           onClick={() => openDeleteModal(parent.userId)}
+                         >
+                           <Trash2 size={18} />
+                         </button>
+                       </div>
+                     </td>
+                   </tr>
+                 );
+               })}
+             </tbody>
           )}
         </table>
         
         {/* ================= الترقيم (Pagination) ================= */}
-        {!loading && totalPages > 0 && (
+        {!loading && filteredParents.length > 0 && (
           <div className={styles.pagination}>
             <div className={styles.pageInfo}>
-              عرض {(page - 1) * 10 + 1}-{Math.min(page * 10, parents.length * totalPages)} من أصل {parents.length * totalPages} ولي أمر
+              صفحة <span style={{color: '#211A44', fontWeight: 900}}>{page}</span> من {totalPages}
             </div>
-            
             <div className={styles.pageControls}>
               <button 
                 className={styles.pageBtn} 
@@ -214,10 +215,7 @@ const AdminParents = () => {
                 onClick={() => setPage((p) => p - 1)}
               >
                 <ChevronRight size={18} />
-              </button>
-              
-              <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>
-                {page}
+                السابق
               </button>
               
               <button 
@@ -225,6 +223,7 @@ const AdminParents = () => {
                 disabled={page === totalPages} 
                 onClick={() => setPage((p) => p + 1)}
               >
+                التالي
                 <ChevronLeft size={18} />
               </button>
             </div>

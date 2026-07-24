@@ -13,17 +13,18 @@ import {
   HeadphonesIcon
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   role?: 'doctor' | 'parent' | 'admin';
-  activePage?: string;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false, onClose }: SidebarProps) => {
+const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -33,26 +34,26 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
   
   // روابط الطبيب
   const doctorLinks = [
-    { title: "اللوحة الرئيسية", icon: LayoutDashboard },
-    { title: "المرضى", icon: Users },
-    { title: "طلبات الأهالي", icon: MessageSquare },
-    { title: "التقارير والتنبيهات", icon: BellRing },
+    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
+    { title: "المرضى", icon: Users, path: "/doctor/children" },
+    { title: "طلبات الأهالي", icon: MessageSquare, path: "#" },
+    { title: "التقارير والتنبيهات", icon: BellRing, path: "#" },
   ];
 
   // روابط ولي الأمر
   const parentLinks = [
-    { title: "الرئيسية", icon: LayoutDashboard },
-    { title: "الأطفال", icon: Users },
-    { title: "تواصل مع الطبيب", icon: MessageSquare },
+    { title: "الرئيسية", icon: LayoutDashboard, path: "#" },
+    { title: "الأطفال", icon: Users, path: "#" },
+    { title: "تواصل مع الطبيب", icon: MessageSquare, path: "#" },
   ];
 
   // روابط الأدمن
   const adminLinks = [
-    { title: "اللوحة الرئيسية", icon: LayoutDashboard },
-    { title: "إدارة الأطباء", icon: UserCheck },
-    { title: "إدارة الأهالي", icon: Users },
-    { title: "تقارير النظام", icon: BarChart3 },
-    { title: "الدعم الفني", icon: HeadphonesIcon },
+    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
+    { title: "إدارة الأطباء", icon: UserCheck, path: "/admin/doctors" },
+    { title: "إدارة الأهالي", icon: Users, path: "/admin/parents" },
+    { title: "تقارير النظام", icon: BarChart3, path: "#" },
+    { title: "الدعم الفني", icon: HeadphonesIcon, path: "#" },
   ];
 
   const currentLinks = 
@@ -78,15 +79,16 @@ const Sidebar = ({ role = 'doctor', activePage = 'المرضى', isOpen = false,
       <nav className={styles.navMenu}>
         {currentLinks.map((link) => {
           const Icon = link.icon;
+          const isActive = currentPath === link.path || (link.path === '/doctor/children' && currentPath.startsWith('/child/'));
           return (
-            <a 
+            <Link 
               key={link.title} 
-              href="#" 
-              className={`${styles.navItem} ${activePage === link.title ? styles.active : ''}`}
+              to={link.path} 
+              className={`${styles.navItem} ${isActive ? styles.active : ''}`}
             >
               <Icon className={styles.navIcon} size={20} />
               {link.title}
-            </a>
+            </Link>
           );
         })}
       </nav>

@@ -280,30 +280,7 @@
   cursor: not-allowed;
 }
 
-/* --- زر المساعدة العائم --- */
-.helpBtn {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  width: 56px;
-  height: 56px;
-  background-color: #FFD11A;
-  border: 2px solid #211A44;
-  border-radius: 16px; 
-  box-shadow: 3px 3px 0px #211A44;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #211A44;
-  cursor: pointer;
-  transition: transform 0.1s;
-  z-index: 100;
-}
 
-.helpBtn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px #211A44;
-}
 
 /* --- تخصيصات الشاشات الصغيرة (الموبايل) --- */
 @media (max-width: 768px) {
