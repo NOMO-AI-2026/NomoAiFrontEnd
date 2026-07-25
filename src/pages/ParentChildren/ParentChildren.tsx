@@ -1,0 +1,68 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
+import ChildCard from "../../components/ChildCard/ChildCard";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { fetchParentChildren } from "../../store/slices/childrenSlice";
+import styles from "./ParentChildren.module.css";
+
+const ParentChildren = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate(); 
+  const { children, isLoading, error } = useAppSelector((state) => state.children);
+
+  useEffect(() => {
+    dispatch(fetchParentChildren());
+  }, [dispatch]);
+
+  const handleView = (id: number) => {
+    navigate(`/child/${id}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh] w-full bg-[#F8F7FF]">
+        <div className="text-xl font-extrabold text-[#6C34AF]">جاري تحميل بيانات الأطفال...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh] w-full bg-[#F8F7FF]">
+        <div className="text-xl font-bold text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.pageContent} dir="rtl">
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>أطفالي</h1>
+          <p className={styles.pageSubtitle}>استعراض ومتابعة أطفالك المسجلين في المنصة ومتابعة تقدمهم.</p>
+        </div>
+      </div>
+
+      <div className={styles.patientsGrid}>
+        {children && children.length > 0 ? (
+          children.map((child) => (
+            <ChildCard
+              key={child.id}
+              id={child.id}
+              name={child.fullName} 
+              age={`${child.age} سنوات`} 
+              gender={child.gender} 
+              onView={handleView} 
+            />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-10 text-gray-500 font-bold">
+            لا يوجد أطفال مسجلين تحت حسابك حالياً.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ParentChildren;

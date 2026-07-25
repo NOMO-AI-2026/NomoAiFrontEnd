@@ -13,49 +13,18 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
   const dispatch = useAppDispatch();
   const { data: profileData } = useAppSelector((state) => state.profile);
 
-  // Decode JWT payload dynamically to verify role
-  const getRoleFromToken = (): number | null => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return null;
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        window.atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      const decoded = JSON.parse(jsonPayload);
-      
-      let roleClaim: string | string[] | null = null;
-      for (const key in decoded) {
-        if (key.toLowerCase().includes("role")) {
-          roleClaim = decoded[key];
-          break;
-        }
-      }
-
-      if (roleClaim) {
-        const roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
-        const normalizedRoles = roles.map(r => String(r).toLowerCase().trim());
-        if (normalizedRoles.includes("doctor") || normalizedRoles.includes("0")) return 0;
-        if (normalizedRoles.includes("parent") || normalizedRoles.includes("1")) return 1;
-      }
-      return null;
-    } catch (e) {
-      console.error("Error decoding token:", e);
-      return null;
-    }
-  };
-
-  const isDoctor = getRoleFromToken() === 0;
+  // ================= التعديل هنا ================= //
+  // نقرأ الرول من الريدكس مباشرة، عشان يتحدث لحظياً وقت اللوجين
+  const rawRole = useAppSelector((state) => state.auth?.role);
+  const isDoctor = rawRole === 'doctor' || rawRole === '0' || String(rawRole).toLowerCase() === 'doctor';
+  // =============================================== //
 
   useEffect(() => {
-    if (!profileData) {
+    // يفضل كمان نربط جلب بيانات البروفايل بوجود الرول أو التوكن
+    if (!profileData && rawRole) {
       dispatch(getProfile());
     }
-  }, [dispatch, profileData]);
+  }, [dispatch, profileData, rawRole]); // ضفنا rawRole هنا عشان لو اتغير يجيب الداتا الجديدة
 
   return (
     <header className={styles.topHeader}>

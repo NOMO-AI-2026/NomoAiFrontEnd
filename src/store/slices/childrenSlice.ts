@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getDoctorChildrenApi, type Child } from '../../api/doctorApi'; 
+import { getParentChildrenApi } from '../../api/parentApi';
 
 interface ChildrenState {
   children: Child[]; 
@@ -13,6 +14,7 @@ const initialState: ChildrenState = {
   error: null,
 };
 
+// جلب أطفال الطبيب
 export const fetchChildren = createAsyncThunk(
   'children/fetchChildren',
   async (_, { rejectWithValue }) => {
@@ -23,7 +25,21 @@ export const fetchChildren = createAsyncThunk(
       }
       return rejectWithValue(data.error?.description || 'حدث خطأ غير معروف');
     } catch (error) {
-        console.error('Error fetching children:', error);
+      console.error('Error fetching children:', error);
+      return rejectWithValue('فشل الاتصال بالخادم');
+    }
+  }
+);
+
+// جلب أطفال ولي الأمر
+export const fetchParentChildren = createAsyncThunk(
+  'children/fetchParentChildren',
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await getParentChildrenApi();
+      return data;
+    } catch (error) {
+      console.error('Error fetching parent children:', error);
       return rejectWithValue('فشل الاتصال بالخادم');
     }
   }
@@ -35,6 +51,7 @@ const childrenSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // أطفال الطبيب
       .addCase(fetchChildren.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -44,6 +61,19 @@ const childrenSlice = createSlice({
         state.children = action.payload; 
       })
       .addCase(fetchChildren.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // أطفال ولي الأمر
+      .addCase(fetchParentChildren.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchParentChildren.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.children = action.payload; 
+      })
+      .addCase(fetchParentChildren.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

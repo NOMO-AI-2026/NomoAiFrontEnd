@@ -16,8 +16,13 @@ const ChildProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  
+  // جلب بيانات الطفل من الريدكس
   const { profileData, isLoading, error } = useAppSelector((state) => state.childProfile);
   
+  const role = useAppSelector((state) => state.auth?.role) || 'parent';
+  const isDoctor = role.toLowerCase() === 'doctor';
+
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<number | null>(null);
@@ -95,14 +100,18 @@ const ChildProfile = () => {
       </div>
 
       <div className={styles.gridContainer}>
-        {/* بيانات الطفل */}
+        {/* بيانات الطفل ومستوى الكلام */}
         <div className={styles.cardsStack}>
+          {/* كارت بيانات الطفل */}
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>بيانات الطفل</h2>
-              <button className={styles.primaryBtn} onClick={() => openAddChildModal({ ...profileData, id: Number(id) })}>
-                <Edit2 size={18} /> تعديل
-              </button>
+              {/* زر التعديل يظهر للدكتور فقط */}
+              {isDoctor && (
+                <button className={styles.primaryBtn} onClick={() => openAddChildModal({ ...profileData, id: Number(id) })}>
+                  <Edit2 size={18} /> تعديل
+                </button>
+              )}
             </div>
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم بالكامل</span><span className={styles.infoValue}>{profileData.fullName}</span></div>
@@ -113,47 +122,55 @@ const ChildProfile = () => {
             </div>
           </div>
 
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}><Activity size={24} />مستوى الكلام الحالي</h2>
-              <button className={styles.secondaryBtn} onClick={handleOpenHistory}><History size={18} />سجل المستويات</button>
+          {/* كارت مستوى الكلام يظهر للدكتور فقط */}
+          {isDoctor && (
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}><Activity size={24} />مستوى الكلام الحالي</h2>
+                <button className={styles.secondaryBtn} onClick={handleOpenHistory}><History size={18} />سجل المستويات</button>
+              </div>
+              <div className="flex flex-col gap-4 items-start">
+                <span className={styles.stageBadge}>{profileData.speechLevel ? profileData.speechLevel.levelName : 'لم يتم تحديد مستوى'}</span>
+                <button className={styles.primaryBtn} onClick={() => setIsUpdateLevelModalOpen(true)}><Edit2 size={18} />تحديث المستوى</button>
+              </div>
             </div>
-            <div className="flex flex-col gap-4 items-start">
-              <span className={styles.stageBadge}>{profileData.speechLevel ? profileData.speechLevel.levelName : 'لم يتم تحديد مستوى'}</span>
-              <button className={styles.primaryBtn} onClick={() => setIsUpdateLevelModalOpen(true)}><Edit2 size={18} />تحديث المستوى</button>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* بيانات ولي الأمر */}
-        <div className={styles.cardsStack}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}><h2 className={styles.cardTitle}>بيانات ولي الأمر</h2></div>
-            {profileData.parentFullName ? (
-              <div className="flex flex-col gap-4">
-                <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم</span><span className={styles.infoValue}>{profileData.parentFullName}</span></div>
-                <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{profileData.parentEmail}</span></div>
-                <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{profileData.parentPhoneNumber || 'غير مسجل'}</span></div>
-                <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn}>تغيير ولي الأمر</button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center text-center gap-4 py-4">
-                <div className="text-gray-400"><LinkIcon size={48} /></div>
-                <p className="font-bold text-[#1E1B4B]">لم يتم ربط الطفل بولي أمر حتى الآن.</p>
-                <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn} style={{ width: '100%' }}><LinkIcon size={18} />ربط بولي أمر</button>
-              </div>
-            )}
+        {/* بيانات ولي الأمر تظهر للدكتور فقط */}
+        {isDoctor && (
+          <div className={styles.cardsStack}>
+            <div className={styles.card}>
+              <div className={styles.cardHeader}><h2 className={styles.cardTitle}>بيانات ولي الأمر</h2></div>
+              {profileData.parentFullName ? (
+                <div className="flex flex-col gap-4">
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم</span><span className={styles.infoValue}>{profileData.parentFullName}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{profileData.parentEmail}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{profileData.parentPhoneNumber || 'غير مسجل'}</span></div>
+                  <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn}>تغيير ولي الأمر</button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center text-center gap-4 py-4">
+                  <div className="text-gray-400"><LinkIcon size={48} /></div>
+                  <p className="font-bold text-[#1E1B4B]">لم يتم ربط الطفل بولي أمر حتى الآن.</p>
+                  <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn} style={{ width: '100%' }}><LinkIcon size={18} />ربط بولي أمر</button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* قسم الأنشطة */}
       <div className={`${styles.card} mt-6`}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>الأنشطة الحالية</h2>
-          <button onClick={handleOpenAddActivity} className={styles.primaryBtn}>
-            إضافة نشاط
-          </button>
+          {/* زر إضافة نشاط يظهر للدكتور فقط */}
+          {isDoctor && (
+            <button onClick={handleOpenAddActivity} className={styles.primaryBtn}>
+              إضافة نشاط
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 mt-4">
@@ -182,24 +199,26 @@ const ChildProfile = () => {
                   </div>
                 </div>
 
-                {/* زراير الأكشن بستايل متناسق مع Brutalism وبسمك أيقونات واضح */}
-                <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
-                  <button 
-                    onClick={() => handleOpenEditActivity(activity)}
-                    className="flex items-center justify-center p-2 rounded-lg bg-[#FACC15] border-2 border-[#1E1B4B] text-[#1E1B4B] hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
-                    title="تعديل"
-                  >
-                    <Edit2 size={18} strokeWidth={2.5} />
-                  </button>
-                  
-                  <button 
-                    onClick={() => setActivityToDelete(activity.id)}
-                    className="flex items-center justify-center p-2 rounded-lg bg-[#EF4444] border-2 border-[#1E1B4B] text-white hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
-                    title="حذف"
-                  >
-                    <Trash2 size={18} strokeWidth={2.5} />
-                  </button>
-                </div>
+                {/* زراير الأكشن (تعديل/حذف) تظهر للدكتور فقط */}
+                {isDoctor && (
+                  <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
+                    <button 
+                      onClick={() => handleOpenEditActivity(activity)}
+                      className="flex items-center justify-center p-2 rounded-lg bg-[#FACC15] border-2 border-[#1E1B4B] text-[#1E1B4B] hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
+                      title="تعديل"
+                    >
+                      <Edit2 size={18} strokeWidth={2.5} />
+                    </button>
+                    
+                    <button 
+                      onClick={() => setActivityToDelete(activity.id)}
+                      className="flex items-center justify-center p-2 rounded-lg bg-[#EF4444] border-2 border-[#1E1B4B] text-white hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
+                      title="حذف"
+                    >
+                      <Trash2 size={18} strokeWidth={2.5} />
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           ) : (
@@ -210,33 +229,37 @@ const ChildProfile = () => {
         </div>
       </div>
 
-      {/* المودالز */}
-      <SpeechHistoryModal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} />
-      <UpdateSpeechLevelModal isOpen={isUpdateLevelModalOpen} onClose={() => setIsUpdateLevelModalOpen(false)} childId={Number(id)} profileData={profileData} />
-      
-      <DeleteConfirmModal 
-        isOpen={activityToDelete !== null}
-        onClose={() => setActivityToDelete(null)}
-        onConfirm={async () => {
-          if (activityToDelete !== null) {
-            await deleteActivityApi(activityToDelete);
-            fetchActivities();
-          }
-        }}
-        title="تأكيد الحذف"
-        message="هل أنت متأكد من رغبتك في حذف هذا النشاط من السجل؟"
-        deleteBtnText="نعم، احذف النشاط"
-      />
+      {/* المودالز - تظهر فقط للدكتور لحماية إضافية للواجهة */}
+      {isDoctor && (
+        <>
+          <SpeechHistoryModal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} />
+          <UpdateSpeechLevelModal isOpen={isUpdateLevelModalOpen} onClose={() => setIsUpdateLevelModalOpen(false)} childId={Number(id)} profileData={profileData} />
+          
+          <DeleteConfirmModal 
+            isOpen={activityToDelete !== null}
+            onClose={() => setActivityToDelete(null)}
+            onConfirm={async () => {
+              if (activityToDelete !== null) {
+                await deleteActivityApi(activityToDelete);
+                fetchActivities();
+              }
+            }}
+            title="تأكيد الحذف"
+            message="هل أنت متأكد من رغبتك في حذف هذا النشاط من السجل؟"
+            deleteBtnText="نعم، احذف النشاط"
+          />
 
-      <ActivityModal
-        isOpen={isActivityModalOpen}
-        onClose={() => setIsActivityModalOpen(false)}
-        childId={Number(id)}
-        activityToEdit={activityToEdit}
-        onSuccess={() => {
-          fetchActivities();
-        }}
-      />
+          <ActivityModal
+            isOpen={isActivityModalOpen}
+            onClose={() => setIsActivityModalOpen(false)}
+            childId={Number(id)}
+            activityToEdit={activityToEdit}
+            onSuccess={() => {
+              fetchActivities();
+            }}
+          />
+        </>
+      )}
 
     </div>
   );

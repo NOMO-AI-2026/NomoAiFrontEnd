@@ -38,16 +38,29 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
     try {
       const response = await searchParentByPhoneApi(searchTerm);
       const data = response.data;
-      const resultsArray = data.items || [];
+      
+      let resultsArray: ParentSearchResult[] = [];
+      if (data) {
+        if (Array.isArray(data)) {
+          resultsArray = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          resultsArray = data.items;
+        } else if (data.value && Array.isArray(data.value)) {
+          resultsArray = data.value;
+        } else if (data.value?.items && Array.isArray(data.value.items)) {
+          resultsArray = data.value.items;
+        }
+      }
       
       if (resultsArray.length > 0) {
         setSearchResults(resultsArray);
       } else {
         setErrorMsg("لم يتم العثور على نتائج مطابقة.");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("خطأ في البحث:", error);
-      setErrorMsg("حدث خطأ أثناء البحث، تأكد من البيانات.");
+      const apiError = (error as { response?: { data?: { message?: string; error?: string } }; message?: string }).response?.data?.message || (error as { response?: { data?: { message?: string; error?: string } }; message?: string }).response?.data?.error || (error as { message?: string }).message || "حدث خطأ أثناء البحث.";
+      setErrorMsg(`فشل البحث: ${apiError}`);
     } finally {
       setIsSearching(false);
     }
@@ -64,11 +77,8 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
       
     } catch (error: unknown) {
       console.error("خطأ في الربط:", error);
-      if (error instanceof Error) {
-        alert(`رفض من السيرفر: ${error.message}`);
-      } else {
-        alert("حدث خطأ أثناء الربط، يرجى المحاولة مرة أخرى.");
-      }
+      const apiError = (error as { response?: { data?: { message?: string; error?: string } }; message?: string }).response?.data?.message || (error as { response?: { data?: { message?: string; error?: string } }; message?: string }).response?.data?.error || (error as { message?: string }).message || "حدث خطأ أثناء الربط، يرجى المحاولة مرة أخرى.";
+      alert(`رفض من السيرفر: ${apiError}`);
     } finally {
       setAssigningId(null);
     }

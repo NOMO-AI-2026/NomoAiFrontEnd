@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import { loginApi } from '../../api/authApi'; 
 import styles from '../../layouts/AuthLayout/SharedAuth.module.css';
+import { setCredentials } from '../../store/slices/authSlice';
+import { useAppDispatch } from '../../store/hooks';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -17,7 +19,8 @@ export default function LoginPage() {
     email: '',
     password: ''
   });
-
+  const dispatch = useAppDispatch();
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     
@@ -51,7 +54,7 @@ export default function LoginPage() {
       if (token) {
         localStorage.setItem('token', token);
 
-        // ================= التعديل هنا: فك التوكن وتوجيه اليوزر ================= //
+        // ================= فك التوكن وتوجيه اليوزر ================= //
         try {
           const base64Url = token.split('.')[1];
           const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -75,21 +78,31 @@ export default function LoginPage() {
             const roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
             const normalizedRoles = roles.map(r => String(r).toLowerCase().trim());
             
-            // 1. لو أدمن (Role 2)
+            // 1. نجهز متغير نوعه مطابق بالظبط للنوع اللي في الريدكس
+            let finalRole: 'doctor' | 'parent' | 'admin' | null = null;
+            
             if (normalizedRoles.includes("admin") || normalizedRoles.includes("2")) {
+              finalRole = 'admin';
+            } else if (normalizedRoles.includes("doctor") || normalizedRoles.includes("0")) {
+              finalRole = 'doctor';
+            } else if (normalizedRoles.includes("parent") || normalizedRoles.includes("1")) {
+              finalRole = 'parent';
+            }
+
+            // 2. نعمل dispatch للرول النهائي المطابق للشروط
+            dispatch(setCredentials({ token, role: finalRole }));
+            
+            // 3. التوجيه بناءً على الرول
+            if (finalRole === 'admin') {
               navigate('/admin');
               return; 
             }
-            
-            // 2. لو دكتور (Role 0) 
-            if (normalizedRoles.includes("doctor") || normalizedRoles.includes("0")) {
+            if (finalRole === 'doctor') {
               navigate('/doctor/children');
               return;
             }
-
-            // 3. لو ولي أمر (Role 1) - تقدري تغيري المسار للمكان اللي بتوديه عليه
-            if (normalizedRoles.includes("parent") || normalizedRoles.includes("1")) {
-              navigate('/profile'); // مثال: وجهيه للمكان المناسب لولي الأمر
+            if (finalRole === 'parent') {
+              navigate('/parent/children'); 
               return;
             }
           }
@@ -99,7 +112,11 @@ export default function LoginPage() {
         // ==================================================================== //
       }
       
-      // التوجيه الافتراضي لو حصل أي مشكلة في فك التوكن
+      // التوجيه الافتراضي لو حصل أي مشكلة في فك التوكن بس في توكن موجود
+      if (token) {
+          // نحدث الريدكس بالتوكن على الأقل حتى لو مفيش رول واضح
+          dispatch(setCredentials({ token, role: null }));
+      }
       navigate('/doctor/children'); 
       
     } catch (err: unknown) {

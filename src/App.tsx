@@ -14,6 +14,7 @@ import PendingApproval from "./pages/PendingApproval/PendingApproval";
 import VerifyOTP from "./pages/VerifyOTP/VerifyOTP";
 import Profile from "./pages/Profile/Profile";
 import Settings from "./pages/Settings/Settings";
+import ParentChildren from "./pages/ParentChildren/ParentChildren";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 import AdminRoute from "./components/ProtectedRoute/AdminRoute";
@@ -45,6 +46,9 @@ function App() {
               
               {/* مسارات الطبيب */}
               <Route path="/doctor/children" element={<DoctorChildren />} />
+
+              {/* مسارات ولي الأمر */}
+              <Route path="/parent/children" element={<ParentChildren />} />
 
               {/* مسارات الأدمن محمية بـ AdminRoute ومحاطة بالداشبورد الموحد */}
               <Route element={<AdminRoute />}>

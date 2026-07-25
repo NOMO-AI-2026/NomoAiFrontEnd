@@ -14,7 +14,9 @@ import {
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-
+import { useAppDispatch } from "../../store/hooks"; // تأكدي من مسار الملف عندك
+import { logout } from "../../store/slices/authSlice"; // تأكدي من مسار الـ slice عندك
+import {clearProfile} from "../../store/slices/profileSlice"; // تأكدي من مسار الـ slice عندك
 interface SidebarProps {
   role?: 'doctor' | 'parent' | 'admin';
   isOpen?: boolean;
@@ -25,10 +27,11 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const dispatch = useAppDispatch();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    dispatch(logout()); 
+    dispatch(clearProfile());
     navigate("/login");
   };
   
@@ -43,7 +46,7 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
   // روابط ولي الأمر
   const parentLinks = [
     { title: "الرئيسية", icon: LayoutDashboard, path: "#" },
-    { title: "الأطفال", icon: Users, path: "#" },
+    { title: "الأطفال", icon: Users, path: "/parent/children" },
     { title: "تواصل مع الطبيب", icon: MessageSquare, path: "#" },
   ];
 

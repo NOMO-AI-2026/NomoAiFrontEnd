@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, XCircle, Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
+import { UserCheck, UserX, Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminDoctors.module.css';
 import { getAdminDoctorsApi, handleDoctorApprovalApi, deleteDoctorByAdminApi } from '../../../api/adminApi';
@@ -261,7 +261,7 @@ const AdminDoctors = () => {
                              className={`${styles.actionBtn} ${styles.actionAccept}`}
                              onClick={() => handleApproveInstant(doctor.userId)}
                            >
-                             <CheckCircle2 size={22} />
+                             <UserCheck size={22} />
                            </button>
                          ) : (
                             <button 
@@ -269,7 +269,7 @@ const AdminDoctors = () => {
                              className={`${styles.actionBtn} ${styles.actionReject}`}
                              onClick={() => openRejectModal(doctor.userId)}
                           >
-                            <XCircle size={22} />
+                            <UserX size={22} />
                           </button>
                          )}
 

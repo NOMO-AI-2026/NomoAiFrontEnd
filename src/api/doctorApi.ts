@@ -43,7 +43,7 @@ export const updateChildApi = async (childId: number, data: Partial<AddChildPayl
   return await axiosInstance.put(`/children/${childId}`, data);
 };
 export const searchParentByPhoneApi = async (searchTerm: string) => {
-  const response = await axiosInstance.get('/parents/api/parents/search', {
+  const response = await axiosInstance.get('/parents/search', {
     params: {
       SearchTerm: searchTerm
     }

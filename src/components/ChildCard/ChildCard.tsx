@@ -6,7 +6,7 @@ interface ChildCardProps {
   name: string;
   age: string | number;
   gender: number; 
-  onDelete: (id: number) => void;
+  onDelete?: (id: number) => void;
   onView: (id: number) => void; 
 }
 
@@ -42,9 +42,11 @@ const ChildCard = ({ id, name, age, gender, onDelete, onView }: ChildCardProps) 
         <button onClick={() => onView(id)} className={styles.viewBtn} title="عرض التفاصيل">
           <ChevronLeft size={20} />
         </button>
-        <button onClick={() => onDelete(id)} className={styles.deleteBtn} title="حذف الطفل">
-          <Trash2 size={18} />
-        </button>
+        {onDelete && (
+          <button onClick={() => onDelete(id)} className={styles.deleteBtn} title="حذف الطفل">
+            <Trash2 size={18} />
+          </button>
+        )}
       </div>
     </div>
   );
