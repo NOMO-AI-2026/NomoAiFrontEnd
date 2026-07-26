@@ -13,14 +13,11 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
   const dispatch = useAppDispatch();
   const { data: profileData } = useAppSelector((state) => state.profile);
 
-  // ================= التعديل هنا ================= //
-  // نقرأ الرول من الريدكس مباشرة، عشان يتحدث لحظياً وقت اللوجين
-  const rawRole = useAppSelector((state) => state.auth?.role);
-  const isDoctor = rawRole === 'doctor' || rawRole === '0' || String(rawRole).toLowerCase() === 'doctor';
-  // =============================================== //
 
+  const rawRole = useAppSelector((state) => state.auth?.role);
+const isDoctor = rawRole === 'doctor';
   useEffect(() => {
-    // يفضل كمان نربط جلب بيانات البروفايل بوجود الرول أو التوكن
+
     if (!profileData && rawRole) {
       dispatch(getProfile());
     }
