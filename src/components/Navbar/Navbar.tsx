@@ -15,7 +15,7 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
 
 
   const rawRole = useAppSelector((state) => state.auth?.role);
-const isDoctor = rawRole === 'doctor';
+  const isDoctor = rawRole === 'doctor';
   useEffect(() => {
 
     if (!profileData && rawRole) {

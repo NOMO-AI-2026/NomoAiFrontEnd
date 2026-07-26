@@ -20,8 +20,8 @@ const ChildProfile = () => {
   // جلب بيانات الطفل من الريدكس
   const { profileData, isLoading, error } = useAppSelector((state) => state.childProfile);
   
-  const role = useAppSelector((state) => state.auth?.role) || 'parent';
-  const isDoctor = role.toLowerCase() === 'doctor';
+  const rawRole = useAppSelector((state) => state.auth?.role);
+  const isDoctor = rawRole === 'doctor';
 
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
