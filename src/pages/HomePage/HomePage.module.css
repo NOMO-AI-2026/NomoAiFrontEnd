@@ -526,7 +526,13 @@
   height: 1.5rem;
   color: #581C87;
 }
-
+.heroAvatarImage {
+  width: 100%;
+  height: auto;
+  max-height: 400px; /* تقدري تعدلي الرقم ده حسب حجم الصورة المناسب ليكي */
+  object-fit: contain; /* عشان الصورة تحافظ على أبعادها وماتتمطش */
+  border-radius: 12px; /* لو حابة حواف الصورة تكون ناعمة */
+}
 @media (min-width: 768px) {
   .cardIcon {
     width: 2rem;

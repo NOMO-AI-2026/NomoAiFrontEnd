@@ -162,7 +162,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
           
           <div className="flex flex-col gap-1">
-            <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">البريد الإلكتروني</label>
+            <label className={styles.inputLabel}>البريد الإلكتروني</label>
             <div className={`flex items-center bg-white px-4 py-3.5 ${styles.inputContainer} ${errors.email ? 'border-red-500' : ''}`}>
               <Mail className="w-5 h-5 text-[#581C87] flex-shrink-0" />
               <input 
@@ -182,7 +182,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-1">
             <div className="flex justify-between items-center">
-              <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">كلمة المرور</label>
+              <label className={styles.inputLabel}>كلمة المرور</label>
               <a href="/forgot-password" className="text-sm md:text-base font-extrabold text-[#581C87] hover:underline">نسيت كلمة المرور؟</a>
             </div>
             <div className={`flex items-center bg-white px-4 py-3.5 ${styles.inputContainer} ${errors.password ? 'border-red-500' : ''}`}>

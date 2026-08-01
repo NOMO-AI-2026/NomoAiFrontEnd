@@ -20,6 +20,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import AdminRoute from "./components/ProtectedRoute/AdminRoute";
 import AdminDoctors from "./pages/Admin/Doctors/AdminDoctors";
 import AdminParents from "./pages/Admin/Parents/AdminParents";
+import SessionScreen from "./pages/SessionScreen/SessionScreen";
 
 function App() {
   return (
@@ -49,7 +50,7 @@ function App() {
 
               {/* مسارات ولي الأمر */}
               <Route path="/parent/children" element={<ParentChildren />} />
-
+              <Route path="/session" element={<SessionScreen />} />
               {/* مسارات الأدمن محمية بـ AdminRoute ومحاطة بالداشبورد الموحد */}
               <Route element={<AdminRoute />}>
                 <Route path="/admin" element={<Navigate to="/admin/doctors" replace />} />

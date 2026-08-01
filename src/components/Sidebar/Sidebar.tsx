@@ -14,9 +14,10 @@ import {
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useAppDispatch } from "../../store/hooks"; // تأكدي من مسار الملف عندك
-import { logout } from "../../store/slices/authSlice"; // تأكدي من مسار الـ slice عندك
-import {clearProfile} from "../../store/slices/profileSlice"; // تأكدي من مسار الـ slice عندك
+import { useAppDispatch } from "../../store/hooks"; 
+import { logout } from "../../store/slices/authSlice"; 
+import { clearProfile } from "../../store/slices/profileSlice"; 
+
 interface SidebarProps {
   role?: 'doctor' | 'parent' | 'admin';
   isOpen?: boolean;
@@ -35,28 +36,30 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
     navigate("/login");
   };
   
-  // روابط الطبيب
+  // روابط الطبيب (تم إضافة الدعم الفني)
   const doctorLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
     { title: "المرضى", icon: Users, path: "/doctor/children" },
     { title: "طلبات الأهالي", icon: MessageSquare, path: "#" },
     { title: "التقارير والتنبيهات", icon: BellRing, path: "#" },
+    { title: "الدعم الفني", icon: HeadphonesIcon, path: "/doctor/support" },
   ];
 
-  // روابط ولي الأمر
+  // روابط ولي الأمر (تم إضافة الدعم الفني)
   const parentLinks = [
     { title: "الرئيسية", icon: LayoutDashboard, path: "#" },
     { title: "الأطفال", icon: Users, path: "/parent/children" },
     { title: "تواصل مع الطبيب", icon: MessageSquare, path: "#" },
+    { title: "الدعم الفني", icon: HeadphonesIcon, path: "/parent/support" },
   ];
 
-  // روابط الأدمن
+  // روابط الأدمن (تم تعديل الاسم ليكون معبر أكثر عن إدارة التذاكر)
   const adminLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
     { title: "إدارة الأطباء", icon: UserCheck, path: "/admin/doctors" },
     { title: "إدارة الأهالي", icon: Users, path: "/admin/parents" },
     { title: "تقارير النظام", icon: BarChart3, path: "#" },
-    { title: "الدعم الفني", icon: HeadphonesIcon, path: "#" },
+    { title: "تذاكر الدعم", icon: HeadphonesIcon, path: "/admin/tickets" },
   ];
 
   const currentLinks = 
@@ -99,7 +102,8 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
       <div className={styles.sidebarFooter}>
         {/* زر بدء الجلسة يظهر فقط لولي الأمر */}
         {role === 'parent' && (
-          <button className={styles.newSessionBtn}>
+          <button className={styles.newSessionBtn}
+          onClick={() => navigate('/session')}>
             <Gamepad2 size={20} />
             بدء الجلسة
           </button>

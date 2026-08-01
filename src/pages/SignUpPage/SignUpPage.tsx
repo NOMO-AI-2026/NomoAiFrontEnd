@@ -131,7 +131,7 @@ export default function SignUpPage() {
           <div className="flex flex-col gap-5">
             
             <div className="flex flex-col gap-1">
-              <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">الاسم الكامل</label>
+              <label className={styles.inputLabel}>الاسم الكامل</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.fullName ? 'border-red-500' : ''}`}>
                 <User className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                 <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="أدخل اسمك الكامل" className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0" />
@@ -140,7 +140,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">البريد الإلكتروني</label>
+              <label className={styles.inputLabel}>البريد الإلكتروني</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.email ? 'border-red-500' : ''}`}>
                 <Mail className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                 <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="أدخل بريدك الإلكتروني" className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0" />
@@ -149,7 +149,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">رقم الهاتف</label>
+              <label className={styles.inputLabel}>رقم الهاتف</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.phoneNumber ? 'border-red-500' : ''}`}>
                 <Phone className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                 <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="رقم الهاتف" className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0" />
@@ -158,7 +158,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">العمر</label>
+              <label className={styles.inputLabel}>العمر</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.age ? 'border-red-500' : ''}`}>
                 <Calendar className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                 <input type="number" min="0" name="age" value={formData.age} onChange={handleChange} placeholder="العمر" className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0" />
@@ -167,7 +167,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">النوع</label>
+              <label className={styles.inputLabel}>النوع</label>
               <div className={`flex items-center justify-around bg-white px-4 py-3 ${styles.inputContainer}`}>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="gender" value={0} checked={formData.gender === 0} onChange={() => handleGenderChange(0)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
@@ -182,7 +182,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">كلمة المرور</label>
+              <label className={styles.inputLabel}>كلمة المرور</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.password ? 'border-red-500' : ''}`}>
                 <Lock className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                 <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-300 placeholder:text-sm placeholder:md:text-base tracking-widest mr-2 min-w-0" />
@@ -192,8 +192,8 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-extrabold text-[#581C87] tracking-widest uppercase">نوع الحساب</label>
+          <div className="flex flex-col gap-1 mt-4">
+            <label className={styles.inputLabel}>نوع الحساب</label>
             <div className={`flex items-center justify-around bg-white px-4 py-3 ${styles.inputContainer}`}>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="radio" name="role" value={1} checked={formData.role === 1} onChange={() => handleRoleChange(1)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />

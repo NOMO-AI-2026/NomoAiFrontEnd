@@ -2,14 +2,22 @@ import { useState } from "react";
 import { AudioLines, Brain, Gamepad2, LineChart, User } from "lucide-react"; // ضفنا User هنا
 import styles from "./HomePage.module.css";
 import { Link } from "react-router-dom";
-
+import { useAppSelector } from "../../store/hooks";
+import welcomeImage from "../../assets/welcom-image.png";
 const HomePage = () => {
+  const role = useAppSelector((state) => state.auth.role);
   const [isAuthenticated] = useState(() => {
     const token = localStorage.getItem("token"); 
     return !!token; 
   });
 
-  const targetRoute = isAuthenticated ? "/doctor/children" : "/login";
+  const dashboardRoute = role === "admin"
+    ? "/admin"
+    : role === "parent"
+    ? "/parent/children"
+    : "/doctor/children";
+
+  const targetRoute = isAuthenticated ? dashboardRoute : "/login";
 
   return (
     <div className={styles.container} dir="rtl">
@@ -25,7 +33,7 @@ const HomePage = () => {
           {isAuthenticated ? (
             // ضفنا ديف يلم الزرار والأيقونة مع بعض
             <div className={styles.authenticatedNavGroup}>
-              <Link to="/doctor/children" className={styles.dashboardBtn} style={{ textDecoration: 'none' }}>
+              <Link to={targetRoute} className={styles.dashboardBtn} style={{ textDecoration: 'none' }}>
                 لوحة التحكم
               </Link>
               <Link to="/profile" className={styles.profileIconBtn} title="الملف الشخصي">
@@ -68,10 +76,11 @@ const HomePage = () => {
         <div className={styles.heroImageContainer}>
           <div className={styles.imageGlow}></div>
           <div className={styles.imageCard}>
-            <div className={styles.imageIconWrapper}>
-              <AudioLines className={styles.imageIcon} />
-            </div>
-            <p className={styles.imageText}>بيئة شخصيات ذكية<br />ثلاثية الأبعاد</p>
+            <img 
+              src={welcomeImage} 
+              alt="مساعد التخاطب الذكي" 
+              className={styles.heroAvatarImage} 
+            />
           </div>
         </div>
       </section>

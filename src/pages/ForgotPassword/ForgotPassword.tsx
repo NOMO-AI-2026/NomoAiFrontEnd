@@ -80,10 +80,9 @@ export default function ForgotPasswordPage() {
             <p className="text-base font-bold text-gray-600 mb-8 leading-relaxed">
               لا تقلق! أدخل بريدك الإلكتروني المسجل لدينا وسنرسل لك رابطاً لإنشاء كلمة مرور جديدة.
             </p>
-
             <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
               <div className="flex flex-col gap-1">
-                <label className="text-sm md:text-base font-extrabold text-[#581C87] tracking-widest uppercase">البريد الإلكتروني</label>
+                <label className={styles.inputLabel}>البريد الإلكتروني</label>
                 <div className={`flex items-center bg-white px-4 py-3.5 ${styles.inputContainer} ${error ? 'border-red-500' : ''}`}>
                   <Mail className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                   <input type="email" name="email" value={email} onChange={handleChange} placeholder="أدخل بريدك الإلكتروني" className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0" />
