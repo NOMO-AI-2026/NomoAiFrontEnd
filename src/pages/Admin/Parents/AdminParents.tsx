@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 import { Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminParents.module.css';
@@ -26,44 +26,42 @@ const AdminParents = () => {
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
-  const fetchParents = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        pageNumber: 1,
-        pageSize: 50, // Let's try 50 to see if 1000 was causing validation error
-      };
-
-      const response = await getAdminParentsApi(params);
-      console.log("Parents API Response:", response);
-      
-      if (response?.value?.items && Array.isArray(response.value.items)) {
-        setAllParents(response.value.items);
-      } else if (response?.value && Array.isArray(response.value)) {
-        // Fallback in case the array is directly in response.value
-        setAllParents(response.value);
-      } else {
-        setAllParents([]);
-      }
-
-    } catch (error: any) {
-      console.error("Error fetching parents:", error);
-      const msg = error.response?.data?.message || error.message || "حدث خطأ أثناء جلب أولياء الأمور";
-      toast.error(`خطأ: ${msg}`);
-      setAllParents([]); 
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    const fetchParents = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          pageNumber: 1,
+          pageSize: 50, 
+        };
+
+        const response = await getAdminParentsApi(params);
+        console.log("Parents API Response:", response);
+        
+        if (response?.value?.items && Array.isArray(response.value.items)) {
+          setAllParents(response.value.items);
+        } else if (response?.value && Array.isArray(response.value)) {
+          setAllParents(response.value);
+        } else {
+          setAllParents([]);
+        }
+
+      } catch (error: unknown) {
+        console.error("Error fetching parents:", error);
+        const msg = (error as { response?: { data?: { message?: string } }; message?: string }).response?.data?.message || (error as { message?: string }).message || "حدث خطأ أثناء جلب أولياء الأمور";
+        toast.error(`خطأ: ${msg}`);
+        setAllParents([]); 
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // استدعاء الدالة
     fetchParents();
   }, []);
 
-  // Reset to first page when search changes
-  useEffect(() => {
-    setPage(1);
-  }, [searchTerm]);
+  // تم مسح الـ useEffect الخاص بالـ searchTerm ونقل الـ setPage(1) إلى الـ onChange في حقل البحث بالأسفل
 
   const openDeleteModal = (userId: string) => {
     setSelectedParentId(userId);
@@ -78,7 +76,7 @@ const AdminParents = () => {
       setAllParents((prev) => prev.filter((p) => p.userId !== selectedParentId));
       setIsDeleteModalOpen(false);
       toast.success("تم حذف حساب ولي الأمر نهائياً!");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error deleting parent:", error);
       toast.error("حدث خطأ أثناء الحذف");
     } finally {
@@ -88,7 +86,7 @@ const AdminParents = () => {
   };
 
   const getParentName = (parent: Parent) => {
-    return parent.fullName || parent.fullname || parent.name || 'غير مححدد';
+    return parent.fullName || parent.fullname || parent.name || 'غير محدد';
   };
 
   const getInitials = (name: string) => {
@@ -131,7 +129,10 @@ const AdminParents = () => {
             className={styles.searchInput} 
             placeholder="البحث عن طريق الاسم أو البريد الإلكتروني..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1); // تم النقل هنا: بمجرد الكتابة في البحث نعود للصفحة الأولى
+            }}
           />
         </div>
       </div>

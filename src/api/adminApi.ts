@@ -45,3 +45,9 @@ export const deleteParentByAdminApi = async (payload: { userId: string }) => {
   const response = await axiosInstance.delete('/admin/parents', { data: payload });
   return response.data;
 };
+
+// 6. جلب إحصائيات لوحة التحكم العامة للأدمن
+export const getAdminAnalyticsOverviewApi = async () => {
+  const response = await axiosInstance.get('/admin/analytics/overview');
+  return response.data;
+};

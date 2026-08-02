@@ -55,7 +55,7 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
 
   // روابط الأدمن (تم تعديل الاسم ليكون معبر أكثر عن إدارة التذاكر)
   const adminLinks = [
-    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
+    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "/admin" },
     { title: "إدارة الأطباء", icon: UserCheck, path: "/admin/doctors" },
     { title: "إدارة الأهالي", icon: Users, path: "/admin/parents" },
     { title: "تقارير النظام", icon: BarChart3, path: "#" },

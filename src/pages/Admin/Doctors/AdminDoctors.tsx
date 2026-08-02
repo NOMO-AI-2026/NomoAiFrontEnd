@@ -32,38 +32,34 @@ const AdminDoctors = () => {
   const [doctorToReject, setDoctorToReject] = useState<string | null>(null);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
 
-  const fetchDoctors = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        pageNumber: 1,
-        pageSize: 1000, // Fetch all records at once to allow complete search across pages
-      };
+  // تم نقل الدالة بالكامل داخل الـ useEffect
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          pageNumber: 1,
+          pageSize: 1000, 
+        };
 
-      const response = await getAdminDoctorsApi(params);
-      
-      if (response?.value?.items && Array.isArray(response.value.items)) {
-        setAllDoctors(response.value.items);
-      } else {
-        setAllDoctors([]);
+        const response = await getAdminDoctorsApi(params);
+        
+        if (response?.value?.items && Array.isArray(response.value.items)) {
+          setAllDoctors(response.value.items);
+        } else {
+          setAllDoctors([]);
+        }
+
+      } catch (error: unknown) {
+        console.error("Error fetching doctors:", error);
+        setAllDoctors([]); 
+      } finally {
+        setLoading(false);
       }
+    };
 
-    } catch (error) {
-      console.error("Error fetching doctors:", error);
-      setAllDoctors([]); 
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
     fetchDoctors();
-  }, []);
-
-  // Reset to first page when search or tab changes
-  useEffect(() => {
-    setPage(1);
-  }, [searchTerm, filter]);
+  }, []); // مصفوفة فارغة تمنع أي لوب
 
   // دالة القبول (تحديث فوري للواجهة)
   const handleApproveInstant = async (userId: string) => {
@@ -75,7 +71,7 @@ const AdminDoctors = () => {
       );
 
       toast.success("تم قبول الطبيب بنجاح!");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error approving doctor:", error);
       toast.error("حدث خطأ أثناء قبول الطبيب");
     }
@@ -99,7 +95,7 @@ const AdminDoctors = () => {
 
       setIsRejectModalOpen(false);
       toast.success("تم إلغاء اعتماد الطبيب بنجاح!");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error rejecting doctor:", error);
       toast.error("حدث خطأ أثناء إلغاء الاعتماد");
     } finally {
@@ -121,7 +117,7 @@ const AdminDoctors = () => {
       setAllDoctors((prev) => prev.filter((doc) => doc.userId !== selectedDoctorId));
       setIsDeleteModalOpen(false);
       toast.success("تم حذف الطبيب نهائياً!");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error deleting doctor:", error);
       toast.error("حدث خطأ أثناء الحذف");
     } finally {
@@ -179,26 +175,38 @@ const AdminDoctors = () => {
             className={styles.searchInput} 
             placeholder="البحث بالاسم أو البريد الإلكتروني..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1); // إرجاع الصفحة للأولى عند البحث
+            }}
           />
         </div>
         
         <div className={styles.tabsContainer}>
           <button 
             className={`${styles.tabBtn} ${filter === 'ALL' ? styles.tabActive : ''}`}
-            onClick={() => setFilter('ALL')}
+            onClick={() => {
+              setFilter('ALL');
+              setPage(1); // إرجاع الصفحة للأولى عند تغيير التاب
+            }}
           >
             الكل
           </button>
           <button 
             className={`${styles.tabBtn} ${filter === 'PENDING' ? styles.tabActive : ''}`}
-            onClick={() => setFilter('PENDING')}
+            onClick={() => {
+              setFilter('PENDING');
+              setPage(1); // إرجاع الصفحة للأولى عند تغيير التاب
+            }}
           >
             قيد الانتظار
           </button>
           <button 
             className={`${styles.tabBtn} ${filter === 'APPROVED' ? styles.tabActive : ''}`}
-            onClick={() => setFilter('APPROVED')}
+            onClick={() => {
+              setFilter('APPROVED');
+              setPage(1); // إرجاع الصفحة للأولى عند تغيير التاب
+            }}
           >
             المعتمدين
           </button>
@@ -268,9 +276,9 @@ const AdminDoctors = () => {
                              title="إلغاء الاعتماد" 
                              className={`${styles.actionBtn} ${styles.actionReject}`}
                              onClick={() => openRejectModal(doctor.userId)}
-                          >
-                            <UserX size={22} />
-                          </button>
+                           >
+                             <UserX size={22} />
+                           </button>
                          )}
 
                          <button 

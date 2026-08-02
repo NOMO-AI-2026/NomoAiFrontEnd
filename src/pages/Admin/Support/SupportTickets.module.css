@@ -1,4 +1,4 @@
-/* AdminParents.module.css */
+/* SupportTickets.module.css */
 
 .pageContainer {
   padding: 2rem;
@@ -29,7 +29,7 @@
 }
 
 .title {
-  color: #211A44; /* توحيد لون العناوين */
+  color: #211A44;
   font-size: 1.75rem;
   font-weight: 800;
   margin: 0 0 0.5rem 0;
@@ -42,7 +42,7 @@
   font-weight: 600;
 }
 
-/* --- الفلتر والبحث --- */
+/* --- قسم الفلتر والبحث --- */
 .filterSection {
   display: flex;
   flex-wrap: wrap; 
@@ -85,7 +85,7 @@
   color: #9CA3AF;
 }
 
-/* --- الأزرار (Tabs) الموحدة بدل الـ Dropdowns --- */
+/* --- الأزرار (Tabs) --- */
 .tabsContainer {
   display: flex;
   gap: 0.5rem;
@@ -120,7 +120,7 @@
   box-shadow: 1px 1px 0px #211A44;
 }
 
-/* --- الجدول --- */
+/* --- الجدول والـ Responsive --- */
 .tableWrapper {
   border: 2px solid #6C34AF;
   border-radius: 12px;
@@ -163,14 +163,13 @@
   background-color: #F5F3FF;
 }
 
-.parentInfo {
+.senderInfo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   color: #211A44;
 }
 
-/* توحيد شكل الصورة الرمزية */
 .avatar {
   width: 40px;
   height: 40px;
@@ -185,21 +184,34 @@
   flex-shrink: 0;
 }
 
-/* شارة عدد الأطفال */
-.childrenBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #FEF9C3; /* لون أصفر خفيف ليتناسب مع الثيم */
-  color: #CA8A04;
-  font-weight: 800;
-  font-size: 0.9rem;
+.ticketSubject {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #211A44;
 }
 
-/* الإجراءات (توحيد الأزرار لتكون بدون حواف مع تأثير التكبير) */
+/* --- حالات التذاكر --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.badgeOpen { background-color: #FEF9C3; color: #CA8A04; }
+.badgeClosed { background-color: #DCFCE7; color: #16A34A; }
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -276,7 +288,7 @@
   cursor: not-allowed;
 }
 
-/* --- ريسبونسيف للشاشات الصغيرة --- */
+/* --- تخصيصات الشاشات الصغيرة --- */
 @media (max-width: 768px) {
   .pageContainer { padding: 1rem; }
   .title { font-size: 1.5rem; }

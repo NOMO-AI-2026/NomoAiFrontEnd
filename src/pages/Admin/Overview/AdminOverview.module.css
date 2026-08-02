@@ -1,0 +1,593 @@
+.pageContainer {
+  padding: 2rem;
+  background-color: #F8F9FA;
+  min-height: calc(100vh - 70px);
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= الهيدر والترحيب ================= */
+.header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcomeTitle {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.welcomeSubtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #6B7280;
+  margin-top: 0.4rem;
+}
+
+.dateBadge {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 9999px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #581C87;
+  box-shadow: 3px 3px 0 #581C87;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ================= كروت الإحصائيات (Stat Cards) ================= */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.statCard {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 6px 6px 0 #581C87;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.statCard:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 10px 10px 0 #581C87;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.iconWrapper {
+  background-color: #F3E8FF;
+  color: #581C87;
+  padding: 0.8rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.statCard:hover .iconWrapper {
+  background-color: #FACC15;
+  color: #1E1B4B;
+  transform: rotate(-8deg);
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #4B5563;
+  margin: 0;
+}
+
+.cardValue {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin: 0.5rem 0;
+}
+
+.cardBadge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.8rem;
+  background-color: #F3F4F6;
+  color: #374151;
+  align-self: stretch;
+  border: 1px solid #E5E7EB;
+}
+
+/* ألوان مخصصة للكروت */
+.statCardUsers { border-color: #581C87; }
+.statCardChildren { border-color: #581C87; }
+.statCardSupport { border-color: #D97706; box-shadow: 6px 6px 0 #D97706; }
+.statCardSupport:hover { box-shadow: 10px 10px 0 #D97706; }
+.statCardSupport .iconWrapper { background-color: #FEF3C7; color: #D97706; }
+
+.statCardLevels { border-color: #059669; box-shadow: 6px 6px 0 #059669; }
+.statCardLevels:hover { box-shadow: 10px 10px 0 #059669; }
+.statCardLevels .iconWrapper { background-color: #D1FAE5; color: #059669; }
+
+/* ================= شبكة المخططات (Charts Section) ================= */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rightChartsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.chartCard {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 1.8rem;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
+  height: auto;
+}
+
+.chartCardAlerts {
+  border-color: #3B82F6;
+  box-shadow: 8px 8px 0 rgba(59, 130, 246, 0.15);
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.chartTitle {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* مخطط توزيع فئات النطق (Speech Levels Bar Chart) */
+.barChartContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.barRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.barInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.barName {
+  color: #374151;
+}
+
+.barCount {
+  color: #581C87;
+  background-color: #F3E8FF;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+}
+
+.barTrack {
+  height: 12px;
+  background-color: #E5E7EB;
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #581C87 0%, #C084FC 100%);
+  border-radius: 9999px;
+  width: 0;
+  transition: width 1.2s cubic-bezier(0.1, 1, 0.1, 1);
+}
+
+/* مخطط النسب الدائري المتناسب (Proportional Distribution Bar) */
+.pieChartContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.ratioBar {
+  width: 100%;
+  height: 32px;
+  border-radius: 9999px;
+  overflow: hidden;
+  display: flex;
+  border: 2px solid #1E1B4B;
+}
+
+.ratioSegment {
+  height: 100%;
+  transition: width 1s ease-in-out;
+  position: relative;
+}
+
+.ratioSegment:hover {
+  filter: brightness(0.9);
+}
+
+.ratioLegend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.legendItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #F9FAFB;
+  border-radius: 0.8rem;
+  border: 1px solid #E5E7EB;
+}
+
+.legendLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legendValue {
+  font-weight: 900;
+  color: #1E1B4B;
+  font-size: 1rem;
+}
+
+/* ================= قسم البيانات التفصيلية السفلية (Bottom Grid) ================= */
+.bottomSectionGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr; /* تذاكر الدعم: 1.2، مخرجات الجلسات تمتد بالعرض: 1.8 */
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  align-items: stretch; /* نفس الطول تماماً */
+}
+
+@media (max-width: 1024px) {
+  .bottomSectionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detailCard {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 1.8rem;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* نوزع المساحة ليتساوى الطول مع المحتوى */
+}
+
+.detailCardSupport {
+  border-color: #D97706;
+  box-shadow: 8px 8px 0 rgba(217, 119, 6, 0.15);
+}
+
+.detailCardTherapy {
+  border-color: #059669;
+  box-shadow: 8px 8px 0 rgba(5, 150, 105, 0.15);
+}
+
+/* الدعم الفني وتذاكر الدعم */
+.supportList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  flex: 1;
+}
+
+.supportItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px dashed #E5E7EB;
+}
+
+.supportItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.supportLabel {
+  font-weight: 800;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.supportProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 55%;
+}
+
+.supportBar {
+  flex: 1;
+  height: 8px;
+  background-color: #F3F4F6;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.supportBarFill {
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.supportVal {
+  font-weight: 900;
+  color: #1E1B4B;
+  min-width: 20px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+/* التنسيق لبيانات الميتا-داتا الملحقة للدعم */
+.metadataGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* جعلناها صفين متناسقين للشبكة */
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #F3F4F6;
+}
+
+.metadataItem {
+  background-color: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.8rem;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #4B5563;
+  transition: all 0.2s ease;
+}
+
+.metadataItem:hover {
+  background-color: #F3F4F6;
+  transform: translateY(-2px);
+}
+
+.metadataVal {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin-top: 0.2rem;
+}
+
+/* ملخص جلسات العلاج */
+.sessionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.sessionItemContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 أعمدة لعرض الجلسات عرضياً وتوفير المساحة */
+  gap: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .sessionItemContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sessionItem {
+  background-color: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 1rem;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sessionInfoLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sessionIcon {
+  padding: 0.5rem;
+  border-radius: 0.6rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sessionDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.sessionName {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6B7280;
+}
+
+.sessionVal {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #1E1B4B;
+}
+
+/* ميتاداتا الجلسات الممتدة */
+.metadataGridTherapy {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* ممتدة بالعرض في 3 أعمدة */
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #F3F4F6;
+}
+
+@media (max-width: 768px) {
+  .metadataGridTherapy {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* التنبيهات وإشعارات التقدم (Alerts Card) */
+.alertsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.alertItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.8rem;
+  border: 1px solid #E5E7EB;
+  font-size: 0.9rem;
+}
+
+.alertLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 800;
+}
+
+.alertVal {
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+/* ================= حالات التحميل والخطأ ================= */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 120px);
+  gap: 1.5rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #E2E8F0;
+  border-top-color: #581C87;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 120px);
+  gap: 1rem;
+  color: #EF4444;
+}
+
+.retryBtn {
+  background-color: #581C87;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retryBtn:hover {
+  background-color: #431407;
+}

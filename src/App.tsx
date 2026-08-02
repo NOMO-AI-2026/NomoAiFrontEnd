@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ModalProvider } from "./context/ModalContext"; 
 import { Toaster } from "react-hot-toast";
 import HomePage from "./pages/HomePage/HomePage";
@@ -18,9 +18,11 @@ import ParentChildren from "./pages/ParentChildren/ParentChildren";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 import AdminRoute from "./components/ProtectedRoute/AdminRoute";
+import AdminOverview from "./pages/Admin/Overview/AdminOverview";
 import AdminDoctors from "./pages/Admin/Doctors/AdminDoctors";
 import AdminParents from "./pages/Admin/Parents/AdminParents";
 import SessionScreen from "./pages/SessionScreen/SessionScreen";
+import SupportTickets from "./pages/Admin/Support/SupportTickets";
 
 function App() {
   return (
@@ -51,11 +53,11 @@ function App() {
               {/* مسارات ولي الأمر */}
               <Route path="/parent/children" element={<ParentChildren />} />
               <Route path="/session" element={<SessionScreen />} />
-              {/* مسارات الأدمن محمية بـ AdminRoute ومحاطة بالداشبورد الموحد */}
               <Route element={<AdminRoute />}>
-                <Route path="/admin" element={<Navigate to="/admin/doctors" replace />} />
+                <Route path="/admin" element={<AdminOverview />} />
                 <Route path="/admin/doctors" element={<AdminDoctors />} />
                 <Route path="/admin/parents" element={<AdminParents />} />
+                <Route path="/admin/tickets" element={<SupportTickets />} />
               </Route>
             </Route>
           </Route>

@@ -67,9 +67,6 @@ const HomePage = () => {
             <Link to={targetRoute} className={styles.primaryBtn} style={{ textDecoration: 'none' }}>
               امنح طفلك صوته اليوم
             </Link>
-            <Link to="/demo" className={styles.secondaryBtn} style={{ textDecoration: 'none' }}>
-              اكتشف كيف يعمل النظام
-            </Link>
           </div>
         </div>
 

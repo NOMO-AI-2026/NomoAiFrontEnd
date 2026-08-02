@@ -32,7 +32,7 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
         {profileData && (
           <div className={styles.welcomeContainer}>
             <span className={styles.welcomeText}>
-              أهلاً بك، {isDoctor ? 'د. ' : ''}{profileData.fullName} 👋
+              أهلاً بك، {isDoctor ? 'د. ' : ''}{profileData.fullName}
             </span>
           </div>
         )}
