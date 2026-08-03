@@ -2,8 +2,6 @@ import {
   AudioLines, 
   LayoutDashboard, 
   Users, 
-  MessageSquare, 
-  BellRing,
   Gamepad2, 
   HelpCircle, 
   LogOut, 
@@ -40,16 +38,13 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
   const doctorLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
     { title: "المرضى", icon: Users, path: "/doctor/children" },
-    { title: "طلبات الأهالي", icon: MessageSquare, path: "#" },
-    { title: "التقارير والتنبيهات", icon: BellRing, path: "#" },
     { title: "الدعم الفني", icon: HeadphonesIcon, path: "/doctor/support" },
   ];
 
   // روابط ولي الأمر (تم إضافة الدعم الفني)
   const parentLinks = [
-    { title: "الرئيسية", icon: LayoutDashboard, path: "#" },
+    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
     { title: "الأطفال", icon: Users, path: "/parent/children" },
-    { title: "تواصل مع الطبيب", icon: MessageSquare, path: "#" },
     { title: "الدعم الفني", icon: HeadphonesIcon, path: "/parent/support" },
   ];
 

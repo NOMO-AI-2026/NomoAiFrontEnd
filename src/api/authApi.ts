@@ -55,3 +55,16 @@ export const confirmEmailChangeApi = async (payload: ConfirmEmailChangePayload) 
   const response = await axiosInstance.post('/auth/confirm-email-change', payload);
   return response.data;
 };
+
+export interface ResetPasswordPayload {
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
+// إعادة تعيين كلمة المرور باستخدام الـ OTP
+export const resetPasswordApi = async (payload: ResetPasswordPayload) => {
+  const response = await axiosInstance.post('/auth/reset-password', payload);
+  return response.data;
+};
