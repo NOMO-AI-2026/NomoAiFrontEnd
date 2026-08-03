@@ -1,17 +1,8 @@
-/* ChangeEmailModal.module.css */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* درجة التعتيم للون الخلفية */
-  background-color: rgba(33, 26, 68, 0.4); 
-  
-  /* إضافة تأثير التغبيش (Blur) للخلفية */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px); /* لدعم متصفح سفاري */
-  
+  inset: 0;
+  background-color: rgba(30, 27, 75, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -21,86 +12,70 @@
 
 .modal {
   background-color: #FFFFFF;
-  border-radius: 20px;
+  border: 4px solid #1E1B4B;
+  border-radius: 1.5rem;
   width: 100%;
-  max-width: 400px;
-  /* تأثير الـ Neo-Brutalism (حدود سميكة وظل قوي) */
-  border: 2px solid #6C34AF; 
-  box-shadow: 8px 8px 0px #6C34AF;
-  padding: 2.5rem 2rem 1.5rem;
-  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 480px;
+  box-shadow: 8px 8px 0px #581C87; 
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  position: relative;
+  max-height: 90vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #F8F7FF; 
+  border-bottom: 2px solid #EBE5F7;
+}
+
+.title {
+  color: #1E1B4B;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .closeButton {
-  background: none;
-  border: none;
-  color: #4B5563;
-  cursor: pointer;
-  padding: 0.5rem;
-  position: absolute;
-  top: 1rem;
-  left: 1rem; /* زر الإغلاق على اليسار */
+  background: #FFFFFF;
+  border: 2px solid #1E1B4B;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  transition: opacity 0.2s;
+  justify-content: center;
+  cursor: pointer;
+  color: #1E1B4B;
+  box-shadow: 2px 2px 0px #1E1B4B;
+  transition: all 0.2s;
 }
 
 .closeButton:hover {
-  opacity: 0.7;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px #1E1B4B;
 }
 
-/* تنسيقات رأس الخطوة الأولى */
-.headerStep1 {
-  text-align: right;
-  margin-bottom: 1.5rem;
-}
-
-/* تنسيقات رأس الخطوة الثانية */
-.headerStep2 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-/* الأيقونة الدائرية في الخطوة الثانية */
-.iconCircle {
-  width: 64px;
-  height: 64px;
-  background-color: #FFD11A;
-  border: 2px solid #211A44;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 3px 3px 0px #211A44;
-  color: #211A44;
-  margin-bottom: 0.5rem;
-}
-
-/* النصوص */
-.title {
-  color: #211A44; 
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin: 0 0 0.5rem 0;
+.content {
+  padding: 1.5rem;
+  background-color: #FFFFFF;
+  overflow-y: auto;
 }
 
 .subtitle {
   color: #6B7280;
-  font-size: 0.85rem;
-  margin: 0;
+  font-size: 0.95rem;
+  margin: 0 0 1.25rem 0;
   font-weight: 600;
   line-height: 1.6;
 }
 
-/* النموذج والحقول */
 .form {
   display: flex;
   flex-direction: column;
@@ -114,42 +89,39 @@
 }
 
 .inputLabel {
-  color: #6C34AF; 
-  font-size: 0.85rem;
+  display: block;
+  color: #1E1B4B;
+  font-size: 0.95rem;
   font-weight: 800;
   text-align: right;
 }
 
 .inputContainer {
+  background-color: #FFFFFF;
+  border: 2px solid #1E1B4B;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
-  background-color: #FFFFFF;
-  border: 2px solid #D1D5DB; 
-  border-radius: 12px;
-  padding: 0 1rem;
-  transition: border-color 0.2s;
-}
-
-/* منع أي أيقونة داخل الحقل من الانكماش والاختفاء في الموبايل */
-.inputContainer svg {
-  flex-shrink: 0;
+  gap: 0.5rem;
 }
 
 .inputContainer:focus-within {
-  border-color: #6C34AF; 
+  border-color: #581C87;
+  box-shadow: 3px 3px 0px #581C87;
 }
 
 .input {
-  flex: 1;
+  width: 100%;
   border: none;
   outline: none;
-  padding: 0.85rem 0;
-  font-size: 0.95rem;
-  color: #211A44;
   background: transparent;
-  text-align: right; 
-  /* السماح للحقل بالانكماش بدلاً من الأيقونات */
-  min-width: 0; 
+  color: #1E1B4B;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: right;
 }
 
 .inputLtr {
@@ -162,133 +134,137 @@
   font-weight: 500;
 }
 
-/* الأيقونات بداخل الحقول */
 .inputIcon {
   color: #6B7280;
-  flex-shrink: 0; /* لمنع الاختفاء */
-}
-.inputIconRight {
-  margin-left: 0.5rem;
-  flex-shrink: 0; /* لمنع الاختفاء */
-}
-.inputIconLeft {
-  margin-right: 0.5rem;
-  cursor: pointer; 
-  flex-shrink: 0; /* لمنع الاختفاء */
+  flex-shrink: 0;
 }
 
 /* حاوية حقول الـ OTP */
 .otpContainer {
   display: flex;
   justify-content: space-between;
-  gap: 0.25rem;
+  gap: 0.5rem;
   margin: 0.5rem 0;
   direction: ltr; 
 }
 
 .otpInput {
-  width: 45px;
+  width: 50px;
   height: 55px;
-  border: 1px solid #D1D5DB;
-  border-radius: 8px;
+  border: 2px solid #1E1B4B;
+  border-radius: 12px;
   text-align: center;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #211A44;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1E1B4B;
   background-color: #FFFFFF;
   outline: none;
-  transition: border-color 0.2s;
+  box-shadow: 2px 2px 0px #1E1B4B;
+  transition: all 0.2s ease;
 }
 
 .otpInput:focus {
-  border-color: #FFD11A; 
+  border-color: #581C87;
+  box-shadow: 4px 4px 0px #581C87;
+  transform: translateY(-2px);
 }
 
-/* الأزرار الرئيسية */
+.buttonsRow {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .primaryBtn {
+  background-color: #FACC15;
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #1E1B4B;
+  box-shadow: 4px 4px 0px #1E1B4B;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #FFD11A;
-  color: #211A44;
-  font-weight: 800;
-  font-size: 1rem;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  border: 2px solid #6C34AF;
-  box-shadow: 4px 4px 0px #6C34AF; 
-  cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
-  width: 100%;
-  margin-top: 0.5rem;
 }
 
-/* تعديل لون ظل الزر للخطوة الثانية ليتناسب مع الصورة */
-.primaryBtnStep2 {
-  border: 2px solid #211A44;
-  box-shadow: 4px 4px 0px #211A44;
+.primaryBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px #1E1B4B;
 }
 
-.primaryBtn:active, .primaryBtnStep2:active {
+.primaryBtn:active:not(:disabled) {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px transparent;
+  box-shadow: 0px 0px 0px #1E1B4B;
 }
 
 .primaryBtn:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
-/* الروابط والنصوص القابلة للضغط (إلغاء / إعادة الإرسال) */
-.secondaryLink {
-  background: none;
-  border: none;
-  color: #6C34AF;
-  font-weight: 700;
-  font-size: 0.85rem;
+.cancelBtn {
+  background-color: #FFFFFF;
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #1E1B4B;
+  box-shadow: 4px 4px 0px #1E1B4B;
   cursor: pointer;
-  text-align: center;
-  width: 100%;
-  padding: 0.5rem;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease-in-out;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.secondaryLink:hover:not(:disabled) {
-  opacity: 0.7;
+.cancelBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px #1E1B4B;
+  background-color: #F8F7FF;
 }
 
-.secondaryLink:disabled {
-  color: #9CA3AF;
+.cancelBtn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #1E1B4B;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* التنبيهات (خطأ / نجاح) */
 .errorMsg {
-  color: #EF4444;
-  font-size: 0.85rem;
-  font-weight: 700;
   background-color: #FEF2F2;
+  color: #EF4444;
   padding: 0.75rem;
   border-radius: 8px;
-  text-align: center;
-  border: 1px solid #FECACA;
+  border: 2px dashed #EF4444;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: right;
   margin-bottom: 1rem;
 }
 
 .successMsg {
-  color: #16A34A;
-  font-size: 0.85rem;
-  font-weight: 700;
   background-color: #F0FDF4;
+  color: #16A34A;
   padding: 0.75rem;
   border-radius: 8px;
-  text-align: center;
-  border: 1px solid #BBF7D0;
+  border: 2px dashed #16A34A;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: right;
   margin-bottom: 1rem;
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 0.5rem;
 }

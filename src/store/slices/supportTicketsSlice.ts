@@ -1,7 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchSupportTickets, type PaginatedTicketsResponse,type GetTicketsQueryParams } from '../../api/supportTicketsApi';
+import { 
+  fetchSupportTickets, 
+  fetchTicketById,
+  updateTicketAction,
+  type PaginatedTicketsResponse, 
+  type GetTicketsQueryParams,
+  type SupportTicketDetails,
+  type TicketActionPayload
+} from '../../api/supportTicketsApi';
 
-// تعريف الـ Thunk لجلب التذاكر
+// Thunk لجلب قائمة التذاكر
 export const getTickets = createAsyncThunk(
   'supportTickets/getTickets',
   async (params: GetTicketsQueryParams, { rejectWithValue }) => {
@@ -9,7 +17,36 @@ export const getTickets = createAsyncThunk(
       const data = await fetchSupportTickets(params);
       return data;
     } catch (error: unknown) {
-      return rejectWithValue((error as { response?: { data: string } }).response?.data || 'حدث خطأ أثناء جلب التذاكر');
+      const msg = (error as { response?: { data?: { message?: string } }; message?: string }).response?.data?.message || (error as { message?: string }).message || 'حدث خطأ أثناء جلب التذاكر';
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+// Thunk لجلب تفاصيل تذكرة معينة
+export const getTicketDetails = createAsyncThunk(
+  'supportTickets/getTicketDetails',
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const data = await fetchTicketById(id);
+      return data;
+    } catch (error: unknown) {
+      const msg = (error as { response?: { data?: { message?: string } }; message?: string }).response?.data?.message || (error as { message?: string }).message || 'حدث خطأ أثناء جلب تفاصيل التذكرة';
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+// Thunk لاتخاذ إجراء على التذكرة (تغيير الحالة أو كتابة رد)
+export const respondToTicket = createAsyncThunk(
+  'supportTickets/respondToTicket',
+  async (payload: TicketActionPayload, { rejectWithValue }) => {
+    try {
+      const data = await updateTicketAction(payload);
+      return data;
+    } catch (error: unknown) {
+      const msg = (error as { response?: { data?: { message?: string } }; message?: string }).response?.data?.message || (error as { message?: string }).message || 'حدث خطأ أثناء إرسال الرد';
+      return rejectWithValue(msg);
     }
   }
 );
@@ -17,35 +54,87 @@ export const getTickets = createAsyncThunk(
 // هيكل الـ State
 interface SupportTicketsState {
   data: PaginatedTicketsResponse | null;
+  selectedTicket: SupportTicketDetails | null;
   loading: boolean;
+  detailsLoading: boolean;
+  actionLoading: boolean;
   error: string | null;
 }
 
 const initialState: SupportTicketsState = {
   data: null,
+  selectedTicket: null,
   loading: false,
+  detailsLoading: false,
+  actionLoading: false,
   error: null,
 };
 
 const supportTicketsSlice = createSlice({
   name: 'supportTickets',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSelectedTicket: (state) => {
+      state.selectedTicket = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
+      // جلب قائمة التذاكر
       .addCase(getTickets.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(getTickets.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        const payload = action.payload as any;
+        state.data = payload?.value || payload || null;
       })
       .addCase(getTickets.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      // جلب تفاصيل التذكرة
+      .addCase(getTicketDetails.pending, (state) => {
+        state.detailsLoading = true;
+        state.error = null;
+      })
+      .addCase(getTicketDetails.fulfilled, (state, action) => {
+        state.detailsLoading = false;
+        const payload = action.payload as any;
+        state.selectedTicket = payload?.value || payload || null;
+      })
+      .addCase(getTicketDetails.rejected, (state, action) => {
+        state.detailsLoading = false;
+        state.error = action.payload as string;
+      })
+      // اتخاذ إجراء على التذكرة
+      .addCase(respondToTicket.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(respondToTicket.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const payload = action.payload as any;
+        const updatedVal = payload?.value || payload;
+        
+        // تحديث التذكرة المحددة الحالية
+        if (state.selectedTicket && state.selectedTicket.id === action.meta.arg.id) {
+          state.selectedTicket = { ...state.selectedTicket, ...updatedVal };
+        }
+        // تحديث القائمة أيضاً إذا كانت التذكرة موجودة فيها
+        if (state.data?.items) {
+          state.data.items = state.data.items.map((item) => 
+            item.id === action.meta.arg.id ? { ...item, ...updatedVal } : item
+          );
+        }
+      })
+      .addCase(respondToTicket.rejected, (state, action) => {
+        state.actionLoading = false;
         state.error = action.payload as string;
       });
   },
 });
 
+export const { clearSelectedTicket } = supportTicketsSlice.actions;
 export default supportTicketsSlice.reducer;

@@ -42,7 +42,7 @@ export interface AdminAnalyticsState {
     support: {
       ticketsTotal: number;
       byStatus: {
-        open: number;
+        unread: number;
         inProgress: number;
         resolved: number;
         closed: number;

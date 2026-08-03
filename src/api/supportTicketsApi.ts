@@ -27,12 +27,28 @@ export interface GetTicketsQueryParams {
   PageNumber?: number;
   PageSize?: number;
   Status?: string;
+  Name?: string;
 }
 
 export interface TicketActionPayload {
   id: number;
   status?: number;
   adminNote?: string;
+}
+
+export interface SupportTicketDetails {
+  id: number;
+  subject: string;
+  message: string;
+  status: number;
+  adminNote: string | null;
+  handledByAdminUserId: string | null;
+  handledAt: string | null;
+  createdAt: string;
+  userId: string;
+  userFullName: string;
+  userEmail: string;
+  userRole: string;
 }
 
 // --- API Calls ---
@@ -42,7 +58,7 @@ export const fetchSupportTickets = async (params: GetTicketsQueryParams) => {
 };
 
 export const fetchTicketById = async (id: number) => {
-  const response = await axiosInstance.get<SupportTicket>(`/admin/support/tickets/${id}`);
+  const response = await axiosInstance.get<SupportTicketDetails>(`/admin/support/tickets/${id}`);
   return response.data;
 };
 

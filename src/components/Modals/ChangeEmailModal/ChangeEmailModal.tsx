@@ -134,74 +134,79 @@ export default function ChangeEmailModal({ isOpen, onClose }: ChangeEmailModalPr
   return (
     <div className={styles.overlay} dir="rtl">
       <div className={styles.modal}>
-        
-        <button onClick={handleClose} className={styles.closeButton}>
-          <X size={24} />
-        </button>
+        <div className={styles.header}>
+          <h2 className={styles.title}>
+            <Mail size={22} style={{ color: '#581C87' }} />
+            {step === 1 ? 'تغيير البريد الإلكتروني' : 'تأكيد البريد الإلكتروني'}
+          </h2>
+          <button onClick={handleClose} disabled={isLoading} className={styles.closeButton}>
+            <X size={20} />
+          </button>
+        </div>
 
-        {error && <div className={styles.errorMsg}>{error}</div>}
-        {successMsg && <div className={styles.successMsg}><CheckCircle2 size={18} />{successMsg}</div>}
+        <div className={styles.content}>
+          {error && <div className={styles.errorMsg}>{error}</div>}
+          {successMsg && <div className={styles.successMsg}><CheckCircle2 size={18} />{successMsg}</div>}
 
-       {/* ================= الخطوة الأولى ================= */}
-        {step === 1 && (
-          <form onSubmit={handleRequestChange} className={styles.form} style={{marginTop: '1.5rem'}} autoComplete="off">
-            <p className={styles.subtitle} style={{textAlign: 'center', marginBottom: '1rem'}}>
-              يرجى إدخال كلمة المرور الحالية والبريد الجديد.
-            </p>
-            
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>كلمة المرور الحالية</label>
-              <div className={styles.inputContainer}>
-                <Lock className={`${styles.inputIcon} ${styles.inputIconRight}`} size={20} />
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  value={formData.currentPassword} 
-                  onChange={(e) => setFormData({...formData, currentPassword: e.target.value})} 
-                  placeholder="••••••••" 
-                  className={styles.input} 
-                  autoComplete="new-password"
-                />
-                <Eye 
-                  className={`${styles.inputIcon} ${styles.inputIconLeft}`} 
-                  size={20} 
-                  onClick={() => setShowPassword(!showPassword)} 
-                />
-              </div>
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>البريد الإلكتروني الجديد</label>
-              <div className={styles.inputContainer}>
-                <Mail className={`${styles.inputIcon} ${styles.inputIconRight}`} size={20} />
-                <input 
-                  type="email" 
-                  value={formData.newEmail} 
-                  onChange={(e) => setFormData({...formData, newEmail: e.target.value})} 
-                  placeholder="أدخل البريد الجديد" 
-                  className={`${styles.input} ${styles.inputLtr}`} 
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-
-            <button disabled={isLoading} type="submit" className={styles.primaryBtn}>
-              {isLoading ? 'جاري التحقق...' : 'إرسال كود التحقق'}
-            </button>
-          </form>
-        )}
-        {step === 2 && (
-          <>
-            <div className={styles.headerStep2}>
-              <div className={styles.iconCircle}>
-                <Mail size={32} />
-              </div>
-              <h2 className={styles.title}>تأكيد البريد الإلكتروني</h2>
-              <p className={styles.subtitle}>
-                تم إرسال رمز التحقق إلى بريدك الجديد. يرجى إدخال الرمز المكون من 6 أرقام
+         {/* ================= الخطوة الأولى ================= */}
+          {step === 1 && (
+            <form onSubmit={handleRequestChange} className={styles.form} autoComplete="off">
+              <p className={styles.subtitle} style={{textAlign: 'center', marginBottom: '1rem'}}>
+                يرجى إدخال كلمة المرور الحالية والبريد الجديد.
               </p>
-            </div>
+              
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>كلمة المرور الحالية</label>
+                <div className={styles.inputContainer}>
+                  <Lock className={styles.inputIcon} size={20} />
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    value={formData.currentPassword} 
+                    onChange={(e) => setFormData({...formData, currentPassword: e.target.value})} 
+                    placeholder="••••••••" 
+                    className={styles.input} 
+                    autoComplete="new-password"
+                  />
+                  <Eye 
+                    className={styles.inputIcon} 
+                    size={20} 
+                    style={{ cursor: 'pointer', marginRight: 'auto' }}
+                    onClick={() => setShowPassword(!showPassword)} 
+                  />
+                </div>
+              </div>
 
+              <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>البريد الإلكتروني الجديد</label>
+                <div className={styles.inputContainer}>
+                  <Mail className={styles.inputIcon} size={20} />
+                  <input 
+                    type="email" 
+                    value={formData.newEmail} 
+                    onChange={(e) => setFormData({...formData, newEmail: e.target.value})} 
+                    placeholder="أدخل البريد الجديد" 
+                    className={`${styles.input} ${styles.inputLtr}`} 
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.buttonsRow}>
+                <button disabled={isLoading} type="submit" className={styles.primaryBtn}>
+                  {isLoading ? 'جاري التحقق...' : 'إرسال كود التحقق'}
+                </button>
+                <button type="button" onClick={handleClose} disabled={isLoading} className={styles.cancelBtn}>
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          )}
+
+          {step === 2 && (
             <form onSubmit={handleVerifyOTP} className={styles.form}>
+              <p className={styles.subtitle} style={{textAlign: 'center', marginBottom: '1rem'}}>
+                تم إرسال رمز التحقق إلى بريدك الجديد. يرجى إدخال الرمز المكون من 6 أرقام.
+              </p>
               
               <div className={styles.otpContainer}>
                 {otp.map((digit, index) => (
@@ -219,8 +224,8 @@ export default function ChangeEmailModal({ isOpen, onClose }: ChangeEmailModalPr
                 ))}
               </div>
 
-              <div>
-                <button disabled={isLoading || successMsg !== ''} type="submit" className={`${styles.primaryBtn} ${styles.primaryBtnStep2}`}>
+              <div className={styles.buttonsRow}>
+                <button disabled={isLoading || successMsg !== ''} type="submit" className={styles.primaryBtn}>
                   <span>تأكيد</span>
                   <CheckCircle2 size={18} />
                 </button>
@@ -228,14 +233,14 @@ export default function ChangeEmailModal({ isOpen, onClose }: ChangeEmailModalPr
                   type="button" 
                   onClick={handleResendOTP} 
                   disabled={isLoading || timer > 0} 
-                  className={styles.secondaryLink}
+                  className={styles.cancelBtn}
                 >
-                  {timer > 0 ? `إعادة الإرسال بعد (${timer}) ثانية` : 'إعادة إرسال الرمز'}
+                  {timer > 0 ? `إعادة الإرسال (${timer})` : 'إعادة إرسال الرمز'}
                 </button>
               </div>
             </form>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

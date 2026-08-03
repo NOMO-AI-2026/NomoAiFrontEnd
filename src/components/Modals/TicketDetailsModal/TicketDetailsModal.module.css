@@ -1,0 +1,328 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(30, 27, 75, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background-color: #FFFFFF;
+  border: 4px solid #1E1B4B;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 8px 8px 0px #581C87; 
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #F8F7FF; 
+  border-bottom: 2px solid #EBE5F7;
+}
+
+.title {
+  color: #1E1B4B;
+  font-size: 1.35rem;
+  font-weight: 900;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.closeButton {
+  background: #FFFFFF;
+  border: 2px solid #1E1B4B;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1E1B4B;
+  box-shadow: 2px 2px 0px #1E1B4B;
+  transition: all 0.2s;
+}
+
+.closeButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0px #1E1B4B;
+}
+
+.content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+}
+
+/* حالة التحميل */
+.loadingSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 1rem;
+  color: #581C87;
+  font-weight: 800;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #F3F4F6;
+  border-top-color: #581C87;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* محتوى التذكرة */
+.ticketBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.senderSection {
+  background-color: #F9FAFB;
+  border: 2px solid #E5E7EB;
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.senderItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: #4B5563;
+  font-weight: 700;
+}
+
+.senderItem a {
+  color: #581C87;
+  text-decoration: underline;
+}
+
+.roleBadge {
+  background-color: #E0E7FF;
+  color: #4338CA;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 800;
+  margin-right: 0.5rem;
+}
+
+.messageBox {
+  border: 2px solid #1E1B4B;
+  border-radius: 1.2rem;
+  padding: 1.2rem;
+  background-color: #FAF5FF;
+  box-shadow: 4px 4px 0 #1E1B4B;
+}
+
+.subjectText {
+  color: #581C87;
+  font-size: 1.15rem;
+  font-weight: 900;
+  margin: 0 0 0.8rem 0;
+}
+
+.messageText {
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.statusDisplay {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.statusBadge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 0.8rem;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* استمارة الإجراء */
+.actionForm {
+  border-top: 2px dashed #E5E7EB;
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1E1B4B;
+}
+
+.formSelect {
+  padding: 0.75rem 1rem;
+  border-radius: 0.8rem;
+  border: 2px solid #1E1B4B;
+  font-weight: 700;
+  font-size: 0.9rem;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 2px 2px 0 #1E1B4B;
+  transition: all 0.2s;
+}
+
+.formSelect:focus {
+  border-color: #581C87;
+  box-shadow: 4px 4px 0 #581C87;
+}
+
+.formTextarea {
+  padding: 0.8rem 1rem;
+  border-radius: 0.8rem;
+  border: 2px solid #1E1B4B;
+  font-weight: 700;
+  font-size: 0.9rem;
+  outline: none;
+  box-shadow: 2px 2px 0 #1E1B4B;
+  transition: all 0.2s;
+  resize: vertical;
+}
+
+.formTextarea:focus {
+  border-color: #581C87;
+  box-shadow: 4px 4px 0 #581C87;
+}
+
+.errorMsg {
+  background-color: #FEF2F2;
+  color: #EF4444;
+  padding: 0.75rem;
+  border-radius: 0.8rem;
+  border: 2px dashed #EF4444;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.submitBtn {
+  background-color: #FACC15; 
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #1E1B4B;
+  box-shadow: 4px 4px 0px #1E1B4B;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px #1E1B4B;
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #1E1B4B;
+}
+
+.cancelBtn {
+  background-color: #FFFFFF;
+  color: #1E1B4B;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #1E1B4B;
+  box-shadow: 4px 4px 0px #1E1B4B;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: #F8F7FF;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px #1E1B4B;
+}
+
+.cancelBtn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #1E1B4B;
+}
+
+.adminNoteBox {
+  border: 2px solid #1E1B4B;
+  border-radius: 1.2rem;
+  padding: 1.2rem;
+  background-color: #ECFDF5;
+  box-shadow: 4px 4px 0 #1E1B4B;
+}
+
+.adminNoteTitle {
+  color: #065F46;
+  font-size: 1.05rem;
+  font-weight: 900;
+  margin: 0 0 0.6rem 0;
+}
+
+.adminNoteText {
+  color: #047857;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}

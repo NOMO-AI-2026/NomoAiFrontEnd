@@ -349,18 +349,18 @@ const AdminOverview = () => {
           
           <div className={styles.supportList}>
             <div className={styles.supportItem}>
-              <span className={styles.supportLabel}>التذاكر المفتوحة</span>
+              <span className={styles.supportLabel}>تذاكر غير مقروءة</span>
               <div className={styles.supportProgress}>
                 <div className={styles.supportBar}>
                   <div 
                     className={styles.supportBarFill} 
                     style={{ 
-                      width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.open / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
+                      width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.unread / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
                       backgroundColor: '#3B82F6' 
                     }}
                   ></div>
                 </div>
-                <span className={styles.supportVal}>{overview.support.byStatus.open}</span>
+                <span className={styles.supportVal}>{overview.support.byStatus.unread}</span>
               </div>
             </div>
 
