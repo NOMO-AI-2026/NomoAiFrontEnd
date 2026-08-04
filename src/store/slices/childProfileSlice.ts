@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getChildProfileApi, getSpeechLevelHistoryApi } from '../../api/doctorApi';
+import { getChildProfileApi, getSpeechLevelHistoryApi, getChildNotesApi, deleteDoctorNoteApi, type PaginatedNotesResponse } from '../../api/doctorApi';
 import { type ChildProfileData, type PaginatedSpeechHistory } from '../../types/child.types';
 
 interface ChildProfileState {
@@ -9,6 +9,9 @@ interface ChildProfileState {
   speechHistory: PaginatedSpeechHistory | null;
   isHistoryLoading: boolean;
   historyError: string | null;
+  notesData: PaginatedNotesResponse | null;
+  isNotesLoading: boolean;
+  notesError: string | null;
 }
 
 const initialState: ChildProfileState = {
@@ -18,6 +21,9 @@ const initialState: ChildProfileState = {
   speechHistory: null,
   isHistoryLoading: false,
   historyError: null,
+  notesData: null,
+  isNotesLoading: false,
+  notesError: null,
 };
 
 export const fetchChildProfile = createAsyncThunk(
@@ -47,13 +53,50 @@ export const fetchSpeechHistory = createAsyncThunk(
   }
 );
 
+export const fetchChildNotes = createAsyncThunk(
+  'childProfile/fetchChildNotes',
+  async ({ childId, pageNumber = 1, pageSize = 5 }: { childId: number; pageNumber?: number; pageSize?: number }, { rejectWithValue }) => {
+    try {
+      const data = await getChildNotesApi(childId, pageNumber, pageSize);
+      if (data && 'value' in data && data.value) {
+        return data.value as PaginatedNotesResponse;
+      }
+      if (data && 'items' in data && Array.isArray((data as PaginatedNotesResponse).items)) {
+        return data as PaginatedNotesResponse;
+      }
+      return {
+        items: Array.isArray(data) ? data : [],
+        pageNumber: 1,
+        totalPages: 1,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      };
+    } catch (error: unknown) {
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في جلب الملاحظات');
+    }
+  }
+);
+
+export const deleteChildNote = createAsyncThunk(
+  'childProfile/deleteChildNote',
+  async (noteId: number, { rejectWithValue }) => {
+    try {
+      await deleteDoctorNoteApi(noteId);
+      return noteId;
+    } catch (error: unknown) {
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في حذف الملاحظة');
+    }
+  }
+);
+
 const childProfileSlice = createSlice({
   name: 'childProfile',
   initialState,
   reducers: {
     clearProfileData: (state) => {
       state.profileData = null;
-      state.speechHistory = null; 
+      state.speechHistory = null;
+      state.notesData = null;
     }
   },
   extraReducers: (builder) => {
@@ -81,6 +124,23 @@ const childProfileSlice = createSlice({
       .addCase(fetchSpeechHistory.rejected, (state, action) => {
         state.isHistoryLoading = false;
         state.historyError = action.payload as string;
+      })
+      .addCase(fetchChildNotes.pending, (state) => {
+        state.isNotesLoading = true;
+        state.notesError = null;
+      })
+      .addCase(fetchChildNotes.fulfilled, (state, action) => {
+        state.isNotesLoading = false;
+        state.notesData = action.payload;
+      })
+      .addCase(fetchChildNotes.rejected, (state, action) => {
+        state.isNotesLoading = false;
+        state.notesError = action.payload as string;
+      })
+      .addCase(deleteChildNote.fulfilled, (state, action) => {
+        if (state.notesData && state.notesData.items) {
+          state.notesData.items = state.notesData.items.filter((n) => n.id !== action.payload);
+        }
       });
   },
 });

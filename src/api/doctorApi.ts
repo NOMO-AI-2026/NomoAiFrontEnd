@@ -144,3 +144,36 @@ export const deleteActivityApi = async (activityId: number) => {
   const response = await axiosInstance.delete(`/activities/${activityId}`);
   return response.data;
 };
+
+export interface DoctorNote {
+  id: number;
+  title: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface PaginatedNotesResponse {
+  items: DoctorNote[];
+  pageNumber: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+export type ChildNotesApiResponse = PaginatedNotesResponse | {
+  value: PaginatedNotesResponse;
+  isSuccess?: boolean;
+  isFailure?: boolean;
+};
+
+export const getChildNotesApi = async (childId: number, pageNumber = 1, pageSize = 10) => {
+  const response = await axiosInstance.get<ChildNotesApiResponse>(`/children/${childId}/notes`, {
+    params: { pageNumber, pageSize }
+  });
+  return response.data;
+};
+
+export const deleteDoctorNoteApi = async (noteId: number) => {
+  const response = await axiosInstance.delete(`/notes/${noteId}`);
+  return response.data;
+};

@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, Edit2, Link as LinkIcon, History, Activity, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2} from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchChildProfile, clearProfileData, fetchSpeechHistory } from '../../store/slices/childProfileSlice';
+import { fetchChildProfile, clearProfileData, fetchSpeechHistory, fetchChildNotes, deleteChildNote } from '../../store/slices/childProfileSlice';
 import styles from './ChildProfile.module.css';
 import { useModal } from '../../context/ModalContext';
 import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/SpeechHistoryModal';
@@ -17,8 +17,8 @@ const ChildProfile = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   
-  // جلب بيانات الطفل من الريدكس
-  const { profileData, isLoading, error } = useAppSelector((state) => state.childProfile);
+  // جلب بيانات الطفل والملاحظات من الريدكس
+  const { profileData, isLoading, error, notesData, isNotesLoading } = useAppSelector((state) => state.childProfile);
   
   const rawRole = useAppSelector((state) => state.auth?.role);
   const isDoctor = rawRole === 'doctor';
@@ -26,8 +26,10 @@ const ChildProfile = () => {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<number | null>(null);
+  const [noteToDelete, setNoteToDelete] = useState<number | null>(null);
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
   const [activityToEdit, setActivityToEdit] = useState<ActivityItem | null>(null);
+  const [notesPage, setNotesPage] = useState(1);
 
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -67,6 +69,12 @@ const ChildProfile = () => {
       dispatch(clearProfileData());
     };
   }, [dispatch, id, fetchActivities]);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
+    }
+  }, [dispatch, id, notesPage]);
 
   const handleOpenHistory = () => {
     if (id) {
@@ -229,6 +237,90 @@ const ChildProfile = () => {
         </div>
       </div>
 
+      {/* قسم ملاحظات الطبيب */}
+      <div className={`${styles.card} mt-6`}>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>
+            ملاحظات الطبيب
+          </h2>
+        </div>
+
+        <div className="flex flex-col gap-3 mt-4">
+          {isNotesLoading ? (
+            <div className="text-center py-4 text-[#6C34AF] font-bold">جاري تحميل الملاحظات...</div>
+          ) : notesData && notesData.items && notesData.items.length > 0 ? (
+            <>
+              {notesData.items.map((note) => (
+                <div 
+                  key={note.id} 
+                  className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl border-2 border-[#1E1B4B] gap-4 transition hover:shadow-[4px_4px_0px_#1E1B4B]"
+                >
+                  <div className="flex flex-col gap-2 w-full sm:w-auto">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="font-extrabold text-[#1E1B4B] text-xl">
+                        {note.title}
+                      </span>
+                      {note.createdAt && (
+                        <span className="text-xs font-bold text-[#581C87] bg-[#EBE5F7] px-2.5 py-1 rounded-md">
+                          {new Date(note.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-base font-bold text-gray-700 leading-relaxed whitespace-pre-wrap">
+                      {note.description}
+                    </p>
+                  </div>
+
+                  {/* زر الحذف يظهر للدكتور فقط */}
+                  {isDoctor && (
+                    <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
+                      <button 
+                        onClick={() => setNoteToDelete(note.id)}
+                        className="flex items-center justify-center p-2 rounded-lg bg-[#EF4444] border-2 border-[#1E1B4B] text-white hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all cursor-pointer"
+                        title="حذف الملاحظة"
+                      >
+                        <Trash2 size={18} strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* عناصر التحكم في الصفحات Pagination */}
+              {notesData && (
+                <div className={styles.pagination}>
+                  <div className={styles.pageInfo}>
+                    صفحة <strong className="text-[#1E1B4B]">{notesData.pageNumber || 1}</strong> من {notesData.totalPages || 1}
+                  </div>
+                  <div className={styles.pageControls}>
+                    <button
+                      className={styles.pageBtn}
+                      disabled={!notesData.hasPreviousPage}
+                      onClick={() => setNotesPage((p) => Math.max(1, p - 1))}
+                    >
+                      السابق
+                      <ChevronRight size={16} />
+                    </button>
+                    <button
+                      className={styles.pageBtn}
+                      disabled={!notesData.hasNextPage}
+                      onClick={() => setNotesPage((p) => p + 1)}
+                    >
+                      التالي
+                      <ChevronLeft size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
+              لا توجد ملاحظات مضافة لهذا الطفل حالياً.
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* المودالز - تظهر فقط للدكتور لحماية إضافية للواجهة */}
       {isDoctor && (
         <>
@@ -247,6 +339,20 @@ const ChildProfile = () => {
             title="تأكيد الحذف"
             message="هل أنت متأكد من رغبتك في حذف هذا النشاط من السجل؟"
             deleteBtnText="نعم، احذف النشاط"
+          />
+
+          <DeleteConfirmModal 
+            isOpen={noteToDelete !== null}
+            onClose={() => setNoteToDelete(null)}
+            onConfirm={async () => {
+              if (noteToDelete !== null) {
+                await dispatch(deleteChildNote(noteToDelete));
+                setNoteToDelete(null);
+              }
+            }}
+            title="تأكيد حذف الملاحظة"
+            message="هل أنت متأكد من رغبتك في حذف هذه الملاحظة؟"
+            deleteBtnText="نعم، احذف الملاحظة"
           />
 
           <ActivityModal
