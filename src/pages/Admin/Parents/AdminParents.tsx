@@ -16,52 +16,69 @@ interface Parent {
 }
 
 const AdminParents = () => {
-  const [allParents, setAllParents] = useState<Parent[]>([]);
+  const [parents, setParents] = useState<Parent[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // حالات الـ Pagination والبحث
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
+  // 1. تفعيل الـ Debounce للبحث
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      if (searchTerm) setPage(1); // نرجع للصفحة الأولى لو بيبحث
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
+  // 2. جلب البيانات من الباك إند
   useEffect(() => {
     const fetchParents = async () => {
       setLoading(true);
       try {
-        const params = {
-          pageNumber: 1,
-          pageSize: 50, 
+        const params: any = {
+          pageNumber: page,
+          pageSize: 10, // بنطلب 10 بس
         };
+
+        if (debouncedSearch) {
+          params.name = debouncedSearch; // بنبعت الاسم للبحث
+        }
 
         const response = await getAdminParentsApi(params);
         console.log("Parents API Response:", response);
         
         if (response?.value?.items && Array.isArray(response.value.items)) {
-          setAllParents(response.value.items);
+          setParents(response.value.items);
+          setTotalPages(response.value.totalPages || 1);
         } else if (response?.value && Array.isArray(response.value)) {
-          setAllParents(response.value);
+          // Fallback لو الباك إند بيرجع Data Array مباشرة
+          setParents(response.value);
+          setTotalPages(response.value.totalPages || 1);
         } else {
-          setAllParents([]);
+          setParents([]);
+          setTotalPages(1);
         }
 
       } catch (error: unknown) {
         console.error("Error fetching parents:", error);
         const msg = (error as { response?: { data?: { message?: string } }; message?: string }).response?.data?.message || (error as { message?: string }).message || "حدث خطأ أثناء جلب أولياء الأمور";
         toast.error(`خطأ: ${msg}`);
-        setAllParents([]); 
+        setParents([]); 
       } finally {
         setLoading(false);
       }
     };
 
-    // استدعاء الدالة
     fetchParents();
-  }, []);
-
-  // تم مسح الـ useEffect الخاص بالـ searchTerm ونقل الـ setPage(1) إلى الـ onChange في حقل البحث بالأسفل
+  }, [page, debouncedSearch]); // تشتغل تاني كل ما الـ Page أو الـ Debounced Search يتغيروا
 
   const openDeleteModal = (userId: string) => {
     setSelectedParentId(userId);
@@ -73,7 +90,7 @@ const AdminParents = () => {
     setIsActionLoading(true);
     try {
       await deleteParentByAdminApi({ userId: selectedParentId });
-      setAllParents((prev) => prev.filter((p) => p.userId !== selectedParentId));
+      setParents((prev) => prev.filter((p) => p.userId !== selectedParentId));
       setIsDeleteModalOpen(false);
       toast.success("تم حذف حساب ولي الأمر نهائياً!");
     } catch (error: unknown) {
@@ -95,20 +112,6 @@ const AdminParents = () => {
     return parts[0].substring(0, 1); 
   };
 
-  // 1. Filter local records
-  const filteredParents = allParents.filter(p => {
-    const name = getParentName(p).toLowerCase();
-    const email = (p.email || '').toLowerCase();
-    const search = searchTerm.toLowerCase();
-    return name.includes(search) || email.includes(search);
-  });
-
-  // 2. Paginate filtered local records
-  const PAGE_SIZE = 10;
-  const totalPages = Math.ceil(filteredParents.length / PAGE_SIZE) || 1;
-  const startIndex = (page - 1) * PAGE_SIZE;
-  const paginatedParents = filteredParents.slice(startIndex, startIndex + PAGE_SIZE);
-
   return (
     <div className={styles.pageContainer} dir="rtl">
       
@@ -129,10 +132,7 @@ const AdminParents = () => {
             className={styles.searchInput} 
             placeholder="البحث عن طريق الاسم أو البريد الإلكتروني..." 
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1); // تم النقل هنا: بمجرد الكتابة في البحث نعود للصفحة الأولى
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)} 
           />
         </div>
       </div>
@@ -157,7 +157,7 @@ const AdminParents = () => {
                  </td>
                </tr>
              </tbody>
-          ) : filteredParents.length === 0 ? (
+          ) : parents.length === 0 ? (
              <tbody>
                <tr>
                  <td colSpan={6} className={styles.loadingOrEmpty}>
@@ -167,7 +167,7 @@ const AdminParents = () => {
              </tbody>
           ) : (
              <tbody>
-               {paginatedParents.map((parent, index) => {
+               {parents.map((parent, index) => {
                  const name = getParentName(parent);
                  return (
                    <tr key={`${parent.userId}-${index}`}>
@@ -204,7 +204,7 @@ const AdminParents = () => {
         </table>
         
         {/* ================= الترقيم (Pagination) ================= */}
-        {!loading && filteredParents.length > 0 && (
+        {!loading && totalPages > 0 && (
           <div className={styles.pagination}>
             <div className={styles.pageInfo}>
               صفحة <span style={{color: '#211A44', fontWeight: 900}}>{page}</span> من {totalPages}

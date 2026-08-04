@@ -1,0 +1,242 @@
+import React, { useEffect, useState } from 'react';
+import { Plus, Eye, Edit2, Trash2, Calendar } from 'lucide-react';
+import toast from 'react-hot-toast';
+import styles from './SupportTickets.module.css';
+
+// استيراد الـ API
+import { 
+  fetchMyTickets, 
+  fetchMyTicketById, 
+  createMyTicket, 
+  updateMyTicket, 
+  deleteMyTicket 
+} from '../../api/supportTicketsApi';
+
+// استيراد المودالز
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
+import TicketFormModal from '../../components/Modals/TicketFormModal/TicketFormModal';
+import TicketViewModal from '../../components/Modals/TicketViewModal/TicketViewModal';
+interface Ticket {
+  id: number;
+  subject: string;
+  status: number; 
+  createdAt: string;
+}
+
+const SupportTickets = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // حالات المودالز
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
+  // الداتا
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [activeTicketDetails, setActiveTicketDetails] = useState<any>(null);
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loadTickets = async () => {
+    setLoading(true);
+    try {
+      const response = await fetchMyTickets({ pageNumber: page, pageSize: 12 });
+      if (response?.items) {
+        setTickets(response.items);
+        setTotalPages(response.totalPages || 1);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('حدث خطأ أثناء جلب التذاكر');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTickets();
+  }, [page]);
+
+  const getStatusDisplay = (status: number) => {
+    switch(status) {
+      case 0: return { label: 'مفتوحة', className: styles.badgeOpen };
+      case 1: return { label: 'جاري العمل', className: styles.badgeInProgress };
+      case 2: return { label: 'مغلقة', className: styles.badgeClosed };
+      default: return { label: 'غير معروف', className: styles.badgeOpen };
+    }
+  };
+
+  const handleOpenCreate = () => {
+    setSelectedTicketId(null);
+    setActiveTicketDetails(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleOpenEdit = async (id: number) => {
+    setSelectedTicketId(id);
+    const loadingToast = toast.loading('جاري تحميل بيانات التذكرة...');
+    try {
+      const details = await fetchMyTicketById(id);
+      setActiveTicketDetails(details);
+      toast.dismiss(loadingToast);
+      setIsFormModalOpen(true);
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error('فشل في تحميل التذكرة');
+    }
+  };
+
+  // دالة الحفظ اللي هنمررها لمودال الفورم
+  const handleSaveTicket = async (formData: { subject: string; message: string }) => {
+    setIsSubmitting(true);
+    try {
+      if (selectedTicketId) {
+        await updateMyTicket(selectedTicketId, formData);
+        toast.success('تم تعديل التذكرة بنجاح');
+      } else {
+        await createMyTicket(formData);
+        toast.success('تم إرسال التذكرة بنجاح');
+      }
+      setIsFormModalOpen(false);
+      loadTickets();
+    } catch (error: any) {
+      console.error("Backend Error:", error.response?.data);
+      const errorMsg = error.response?.data?.detail || error.response?.data?.message || 'حدث خطأ أثناء الحفظ';
+      toast.error(errorMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleViewTicket = async (id: number) => {
+    const loadingToast = toast.loading('جاري تحميل التفاصيل...');
+    try {
+      const details = await fetchMyTicketById(id);
+      setActiveTicketDetails(details);
+      toast.dismiss(loadingToast);
+      setIsViewModalOpen(true);
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error('فشل في تحميل التفاصيل');
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedTicketId) throw new Error("لم يتم تحديد تذكرة");
+    await deleteMyTicket(selectedTicketId);
+    toast.success('تم حذف التذكرة بنجاح');
+    loadTickets();
+  };
+
+  return (
+    <div className={styles.pageContainer} dir="rtl">
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>تذاكر الدعم الفني</h1>
+          <p className={styles.subtitle}>تواصل معنا لحل مشاكلك وتابع ردود الإدارة.</p>
+        </div>
+        <button className={styles.addBtn} onClick={handleOpenCreate}>
+          <Plus size={20} />
+          إنشاء تذكرة
+        </button>
+      </div>
+
+      <div className={styles.cardsContainer}>
+        {loading ? (
+          <div className={styles.loading}>جاري تحميل التذاكر...</div>
+        ) : tickets.length === 0 ? (
+          <div className={styles.empty}>لا يوجد تذاكر لعرضها. انقر على "إنشاء تذكرة" للبدء.</div>
+        ) : (
+          tickets.map((ticket) => {
+            const statusInfo = getStatusDisplay(ticket.status);
+            const isOpen = ticket.status === 0; 
+
+            return (
+              <div key={ticket.id} className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <span className={`${styles.badge} ${statusInfo.className}`}>
+                    {statusInfo.label}
+                  </span>
+                </div>
+                
+                <h3 className={styles.cardTitle}>{ticket.subject}</h3>
+                
+                <div className={styles.cardFooter}>
+                  <div className={styles.date}>
+                    <Calendar size={16} />
+                    <span>{new Date(ticket.createdAt).toLocaleDateString('ar-EG')}</span>
+                  </div>
+                  
+                  <div className={styles.actions}>
+                    <button 
+                      title="عرض التفاصيل" 
+                      className={`${styles.actionBtn} ${styles.actionView}`}
+                      onClick={() => handleViewTicket(ticket.id)}
+                    >
+                      <Eye size={18} />
+                    </button>
+                    
+                    {isOpen && (
+                      <>
+                        <button 
+                          title="تعديل" 
+                          className={`${styles.actionBtn} ${styles.actionEdit}`}
+                          onClick={() => handleOpenEdit(ticket.id)}
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                        <button 
+                          title="حذف" 
+                          className={`${styles.actionBtn} ${styles.actionDelete}`}
+                          onClick={() => {
+                            setSelectedTicketId(ticket.id);
+                            setIsDeleteModalOpen(true);
+                          }}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* ================= المودالز المفصولة ================= */}
+
+      <TicketFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        onSubmit={handleSaveTicket}
+        initialData={selectedTicketId ? activeTicketDetails : null}
+        isSubmitting={isSubmitting}
+        isEditMode={!!selectedTicketId}
+      />
+
+      <TicketViewModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        ticketDetails={activeTicketDetails}
+      />
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="حذف التذكرة"
+        message="هل أنت متأكد من رغبتك في حذف هذه التذكرة؟ لا يمكن التراجع عن هذا الإجراء."
+        deleteBtnText="حذف التذكرة"
+      />
+
+    </div>
+  );
+};
+
+export default SupportTickets;

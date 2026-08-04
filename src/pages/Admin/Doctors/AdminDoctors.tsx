@@ -17,13 +17,18 @@ interface Doctor {
 }
 
 const AdminDoctors = () => {
-  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // حالات الـ Pagination والبحث
   const [filter, setFilter] = useState<'ALL' | 'APPROVED' | 'PENDING'>('ALL');
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
+  // حالات المودالز
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -32,44 +37,61 @@ const AdminDoctors = () => {
   const [doctorToReject, setDoctorToReject] = useState<string | null>(null);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
 
-  // تم نقل الدالة بالكامل داخل الـ useEffect
+  // 1. تفعيل الـ Debounce للبحث
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      if (searchTerm) setPage(1); // نرجع للصفحة الأولى لو بيبحث
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // 2. جلب البيانات من الباك إند
   useEffect(() => {
     const fetchDoctors = async () => {
       setLoading(true);
       try {
-        const params = {
-          pageNumber: 1,
-          pageSize: 1000, 
+        // تجهيز الباراميترز اللي هتتبعت للباك إند
+        const params: any = {
+          pageNumber: page,
+          pageSize: 10, // بنطلب 10 بس
         };
+        
+        // إرسال الاسم للبحث في الباك إند
+        if (debouncedSearch) {
+          params.name = debouncedSearch;
+        }
+
+        // إرسال حالة الاعتماد للفلترة في الباك إند
+        if (filter === 'APPROVED') params.isApproved = true;
+        if (filter === 'PENDING') params.isApproved = false;
 
         const response = await getAdminDoctorsApi(params);
         
         if (response?.value?.items && Array.isArray(response.value.items)) {
-          setAllDoctors(response.value.items);
+          setDoctors(response.value.items);
+          // تأكدي إن الباك إند بيرجع totalPages، لو اسمه مختلف عدليه هنا
+          setTotalPages(response.value.totalPages || 1); 
         } else {
-          setAllDoctors([]);
+          setDoctors([]);
+          setTotalPages(1);
         }
 
       } catch (error: unknown) {
         console.error("Error fetching doctors:", error);
-        setAllDoctors([]); 
+        setDoctors([]); 
       } finally {
         setLoading(false);
       }
     };
 
     fetchDoctors();
-  }, []); // مصفوفة فارغة تمنع أي لوب
+  }, [page, debouncedSearch, filter]); // الدالة دي هتتنفذ مع كل تغيير في الصفحة، البحث، أو الفلتر
 
-  // دالة القبول (تحديث فوري للواجهة)
   const handleApproveInstant = async (userId: string) => {
     try {
       await handleDoctorApprovalApi({ userId, approveStatus: true });
-      
-      setAllDoctors((prev) => 
-        prev.map((doc) => doc.userId === userId ? { ...doc, isApproved: true } : doc)
-      );
-
+      setDoctors((prev) => prev.map((doc) => doc.userId === userId ? { ...doc, isApproved: true } : doc));
       toast.success("تم قبول الطبيب بنجاح!");
     } catch (error: unknown) {
       console.error("Error approving doctor:", error);
@@ -82,17 +104,12 @@ const AdminDoctors = () => {
     setIsRejectModalOpen(true);
   };
 
-  // دالة إلغاء الاعتماد (تحديث فوري للواجهة)
   const confirmReject = async () => {
     if (!doctorToReject) return;
     setIsRejectLoading(true);
     try {
       await handleDoctorApprovalApi({ userId: doctorToReject, approveStatus: false });
-      
-      setAllDoctors((prev) => 
-        prev.map((doc) => doc.userId === doctorToReject ? { ...doc, isApproved: false } : doc)
-      );
-
+      setDoctors((prev) => prev.map((doc) => doc.userId === doctorToReject ? { ...doc, isApproved: false } : doc));
       setIsRejectModalOpen(false);
       toast.success("تم إلغاء اعتماد الطبيب بنجاح!");
     } catch (error: unknown) {
@@ -114,7 +131,7 @@ const AdminDoctors = () => {
     setIsActionLoading(true);
     try {
       await deleteDoctorByAdminApi({ userId: selectedDoctorId });
-      setAllDoctors((prev) => prev.filter((doc) => doc.userId !== selectedDoctorId));
+      setDoctors((prev) => prev.filter((doc) => doc.userId !== selectedDoctorId));
       setIsDeleteModalOpen(false);
       toast.success("تم حذف الطبيب نهائياً!");
     } catch (error: unknown) {
@@ -132,34 +149,11 @@ const AdminDoctors = () => {
     if (parts.length > 1) {
       return parts[0][0] + '.' + parts[1][0];
     }
-    
     return name.substring(0, 2);
   };
 
-  // 1. Filter local records
-  const filteredDoctors = allDoctors.filter(doc => {
-    // A. status filter
-    let matchesFilter = true;
-    if (filter === 'APPROVED') matchesFilter = doc.isApproved === true;
-    if (filter === 'PENDING') matchesFilter = doc.isApproved === false;
-
-    // B. search query filter
-    const name = (doc.fullName || '').toLowerCase();
-    const email = (doc.email || '').toLowerCase();
-    const search = searchTerm.toLowerCase();
-    
-    return matchesFilter && (name.includes(search) || email.includes(search));
-  });
-
-  // 2. Paginate filtered local records
-  const PAGE_SIZE = 10;
-  const totalPages = Math.ceil(filteredDoctors.length / PAGE_SIZE) || 1;
-  const startIndex = (page - 1) * PAGE_SIZE;
-  const paginatedDoctors = filteredDoctors.slice(startIndex, startIndex + PAGE_SIZE);
-
   return (
     <div className={styles.pageContainer} dir="rtl">
-      
       <div className={styles.header}>
         <div className={styles.titleArea}>
           <h1 className={styles.title}>إدارة الأطباء</h1>
@@ -175,38 +169,26 @@ const AdminDoctors = () => {
             className={styles.searchInput} 
             placeholder="البحث بالاسم أو البريد الإلكتروني..." 
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1); // إرجاع الصفحة للأولى عند البحث
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)} // مبقناش نعمل setPage(1) هنا عشان الـ Debounce بيهندلها
           />
         </div>
         
         <div className={styles.tabsContainer}>
           <button 
             className={`${styles.tabBtn} ${filter === 'ALL' ? styles.tabActive : ''}`}
-            onClick={() => {
-              setFilter('ALL');
-              setPage(1); // إرجاع الصفحة للأولى عند تغيير التاب
-            }}
+            onClick={() => { setFilter('ALL'); setPage(1); }}
           >
             الكل
           </button>
           <button 
             className={`${styles.tabBtn} ${filter === 'PENDING' ? styles.tabActive : ''}`}
-            onClick={() => {
-              setFilter('PENDING');
-              setPage(1); // إرجاع الصفحة للأولى عند تغيير التاب
-            }}
+            onClick={() => { setFilter('PENDING'); setPage(1); }}
           >
             قيد الانتظار
           </button>
           <button 
             className={`${styles.tabBtn} ${filter === 'APPROVED' ? styles.tabActive : ''}`}
-            onClick={() => {
-              setFilter('APPROVED');
-              setPage(1); // إرجاع الصفحة للأولى عند تغيير التاب
-            }}
+            onClick={() => { setFilter('APPROVED'); setPage(1); }}
           >
             المعتمدين
           </button>
@@ -232,17 +214,17 @@ const AdminDoctors = () => {
                  </td>
                </tr>
              </tbody>
-          ) : filteredDoctors.length === 0 ? (
+          ) : doctors.length === 0 ? (
              <tbody>
                <tr>
                  <td colSpan={5} className={styles.loadingOrEmpty}>
-                   لا يوجد أطباء لعرضهم في هذا التصنيف.
+                   لا يوجد أطباء لعرضهم.
                  </td>
                </tr>
              </tbody>
           ) : (
              <tbody>
-               {paginatedDoctors.map((doctor, index) => {
+               {doctors.map((doctor, index) => {
                  return (
                    <tr key={`${doctor.userId}-${index}`}>
                      <td>
@@ -254,7 +236,6 @@ const AdminDoctors = () => {
                        </div>
                      </td>
                      <td><span dir="ltr">{doctor.email}</span></td>
-                     
                      <td>
                        <span className={`${styles.badge} ${doctor.isApproved ? styles.badgeApproved : styles.badgePending}`}>
                          <span className={styles.dot} style={{ backgroundColor: doctor.isApproved ? '#16A34A' : '#CA8A04' }}></span>
@@ -297,7 +278,7 @@ const AdminDoctors = () => {
           )}
         </table>
         
-        {!loading && filteredDoctors.length > 0 && (
+        {!loading && totalPages > 0 && (
           <div className={styles.pagination}>
             <div className={styles.pageInfo}>
               صفحة <span style={{color: '#211A44', fontWeight: 900}}>{page}</span> من {totalPages}

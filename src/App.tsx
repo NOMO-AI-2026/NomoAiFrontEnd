@@ -23,7 +23,12 @@ import AdminOverview from "./pages/Admin/Overview/AdminOverview";
 import AdminDoctors from "./pages/Admin/Doctors/AdminDoctors";
 import AdminParents from "./pages/Admin/Parents/AdminParents";
 import SessionScreen from "./pages/SessionScreen/SessionScreen";
+
+// صفحة الدعم الفني الخاصة بالأدمن
 import SupportTickets from "./pages/Admin/Support/SupportTickets";
+
+// 👇 (جديد) صفحة الدعم الفني الخاصة بالطبيب وولي الأمر (تأكدي من مسار الفولدر بتاعك)
+import UserSupportTickets from "./pages/SupportTickets/SupportTickets"; 
 
 function App() {
   return (
@@ -51,10 +56,16 @@ function App() {
               
               {/* مسارات الطبيب */}
               <Route path="/doctor/children" element={<DoctorChildren />} />
+              {/* 👇 (جديد) مسار الدعم الفني للطبيب */}
+              <Route path="/doctor/support" element={<UserSupportTickets />} />
 
               {/* مسارات ولي الأمر */}
               <Route path="/parent/children" element={<ParentChildren />} />
               <Route path="/session" element={<SessionScreen />} />
+              {/* 👇 (جديد) مسار الدعم الفني لولي الأمر */}
+              <Route path="/parent/support" element={<UserSupportTickets />} />
+
+              {/* مسارات الأدمن */}
               <Route element={<AdminRoute />}>
                 <Route path="/admin" element={<AdminOverview />} />
                 <Route path="/admin/doctors" element={<AdminDoctors />} />
