@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, ChevronRight, ChevronLeft, Eye, Trash2 } from 'lucide-react';
+import { Search, ChevronRight, ChevronLeft, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { getTickets } from '../../../store/slices/supportTicketsSlice';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal'; 
@@ -185,7 +185,11 @@ const SupportTickets = () => {
                 const statusData = getTicketStatus(ticket.status);
                 
                 return (
-                  <tr key={ticket.id}>
+                  <tr 
+                    key={ticket.id}
+                    className={styles.clickableRow}
+                    onClick={() => handleViewDetails(ticket.id)}
+                  >
                     <td>
                       <div className={styles.senderInfo}>
                         <div className={styles.avatar}>
@@ -205,12 +209,11 @@ const SupportTickets = () => {
                       </div>
                     </td>
                     <td>
-                      {/* استخدام الألوان الديناميكية للحالة */}
                       <span 
                         className={styles.badge} 
                         style={{ 
                           color: statusData.color, 
-                          backgroundColor: `${statusData.color}15`, // لون خلفية شفاف قليلاً
+                          backgroundColor: `${statusData.color}15`,
                           border: `1px solid ${statusData.color}40`
                         }}
                       >
@@ -224,16 +227,9 @@ const SupportTickets = () => {
                     <td>
                       <div className={styles.actions}>
                         <button 
-                          className={`${styles.actionBtn} ${styles.actionView}`}
-                          title="عرض التفاصيل"
-                          onClick={() => handleViewDetails(ticket.id)}
-                        >
-                          <Eye size={20} />
-                        </button>
-                        <button 
                           className={`${styles.actionBtn} ${styles.actionDelete}`}
                           title="حذف التذكرة"
-                          onClick={() => handleDeleteClick(ticket.id)}
+                          onClick={(e) => { e.stopPropagation(); handleDeleteClick(ticket.id); }}
                         >
                           <Trash2 size={20} />
                         </button>

@@ -105,7 +105,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
         <div className={styles.header}>
           <h2 className={styles.title}>
             <Shield className="inline-block ml-2 mb-1" size={24} style={{ color: '#581C87' }} />
-            تفاصيل تذكرة الدعم الفني #{ticketId}
+            تفاصيل تذكرة الدعم الفني
           </h2>
           <button onClick={onClose} disabled={detailsLoading || actionLoading} className={styles.closeButton}>
             <X size={20} />

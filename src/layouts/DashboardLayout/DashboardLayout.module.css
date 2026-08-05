@@ -1,7 +1,7 @@
 .layout {
   display: flex;
   height: 100vh;
-  background-color: #FAFAFE;
+  background-color: #F8F7FF;
   font-family: system-ui, -apple-system, sans-serif;
   overflow: hidden;
 }

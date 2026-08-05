@@ -1,6 +1,6 @@
 .pageContainer {
   padding: 2rem;
-  background-color: #F8F9FA;
+  background-color: #F8F7FF;
   min-height: calc(100vh - 70px);
   animation: fadeIn 0.6s ease-out;
 }

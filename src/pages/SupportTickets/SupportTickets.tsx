@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Eye, Edit2, Trash2, Calendar, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './SupportTickets.module.css';
 
@@ -175,7 +175,12 @@ const SupportTickets = () => {
             const isOpen = ticket.status === 0; 
 
             return (
-              <div key={ticket.id} className={styles.card}>
+              <div 
+                key={ticket.id} 
+                className={styles.card} 
+                onClick={() => handleViewTicket(ticket.id)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardHeader}>
                   <span className={`${styles.badge} ${statusInfo.className}`}>
                     {statusInfo.label}
@@ -190,37 +195,24 @@ const SupportTickets = () => {
                     <span>{new Date(ticket.createdAt).toLocaleDateString('ar-EG')}</span>
                   </div>
                   
-                  <div className={styles.actions}>
-                    <button 
-                      title="عرض التفاصيل" 
-                      className={`${styles.actionBtn} ${styles.actionView}`}
-                      onClick={() => handleViewTicket(ticket.id)}
-                    >
-                      <Eye size={18} />
-                    </button>
-                    
-                    {isOpen && (
-                      <>
-                        <button 
-                          title="تعديل" 
-                          className={`${styles.actionBtn} ${styles.actionEdit}`}
-                          onClick={() => handleOpenEdit(ticket.id)}
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button 
-                          title="حذف" 
-                          className={`${styles.actionBtn} ${styles.actionDelete}`}
-                          onClick={() => {
-                            setSelectedTicketId(ticket.id);
-                            setIsDeleteModalOpen(true);
-                          }}
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </>
-                    )}
-                  </div>
+                  {isOpen && (
+                    <div className={styles.actions}>
+                      <button 
+                        title="تعديل" 
+                        className={`${styles.actionBtn} ${styles.actionEdit}`}
+                        onClick={(e) => { e.stopPropagation(); handleOpenEdit(ticket.id); }}
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button 
+                        title="حذف" 
+                        className={`${styles.actionBtn} ${styles.actionDelete}`}
+                        onClick={(e) => { e.stopPropagation(); setSelectedTicketId(ticket.id); setIsDeleteModalOpen(true); }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

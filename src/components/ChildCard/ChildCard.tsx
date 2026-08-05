@@ -1,4 +1,4 @@
-import { ChevronLeft, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import styles from "./ChildCard.module.css";
 import UserAvatar from "../UserAvatar/UserAvatar";
 
@@ -22,7 +22,7 @@ const ChildCard = ({ id, name, age, gender, onDelete, onView }: ChildCardProps) 
   }`;
 
   return (
-    <div className={styles.patientCard}>
+    <div className={styles.patientCard} onClick={() => onView(id)} style={{ cursor: 'pointer' }}>
       <div className={styles.cardInfo}>
         <div className={styles.avatarWrapper}>
           <div className={styles.patientAvatar}>
@@ -41,16 +41,17 @@ const ChildCard = ({ id, name, age, gender, onDelete, onView }: ChildCardProps) 
         </div>
       </div>
       
-      <div className={styles.cardActions}>
-        <button onClick={() => onView(id)} className={styles.viewBtn} title="عرض التفاصيل">
-          <ChevronLeft size={20} />
-        </button>
-        {onDelete && (
-          <button onClick={() => onDelete(id)} className={styles.deleteBtn} title="حذف الطفل">
+      {onDelete && (
+        <div className={styles.cardActions}>
+          <button 
+            onClick={(e) => { e.stopPropagation(); onDelete(id); }} 
+            className={styles.deleteBtn} 
+            title="حذف الطفل"
+          >
             <Trash2 size={18} />
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
