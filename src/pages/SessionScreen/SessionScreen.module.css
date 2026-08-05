@@ -1,0 +1,281 @@
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #f4f0ff 0%, #f8f7ff 100%);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem 0.5rem;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid #1e1b4b;
+  background: #ffffff;
+  color: #1e1b4b;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.backBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0px #1e1b4b;
+}
+
+.stepBadge {
+  background: #ebe5f7;
+  color: #581c87;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+}
+
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1.5rem 1.5rem 3rem;
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 6px solid #1e1b4b;
+  box-shadow: 6px 6px 0px rgba(30, 27, 75, 0.15);
+  object-fit: cover;
+  background: #fff;
+}
+
+.avatar_recording .avatarImage,
+.avatar_ready_to_record .avatarImage {
+  border-color: #a78bfa;
+}
+
+.avatar_speaking .avatarImage,
+.avatar_playing_feedback .avatarImage {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.avatar_error .avatarImage {
+  border-color: #ef4444;
+}
+
+.speakingPulse {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 3px solid #34d399;
+  animation: pulseRing 1.4s ease-out infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.contentPanel {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border: 2px solid #1e1b4b;
+  border-radius: 1.25rem;
+  box-shadow: 6px 6px 0px #1e1b4b;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+
+.statusBlock {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.statusText {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.promptText {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #581c87;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.attemptInfo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #6c34af;
+  margin: 0;
+}
+
+.errorText {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ef4444;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.iconAccent {
+  color: #581c87;
+}
+
+.iconDanger {
+  color: #ef4444;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 5px solid #ebe5f7;
+  border-top-color: #581c87;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid #1e1b4b;
+  background: #facc15;
+  color: #1e1b4b;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.75rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0px #1e1b4b;
+}
+
+.secondaryBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid #1e1b4b;
+  background: #ef4444;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.75rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.secondaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0px #1e1b4b;
+}
+
+.recordingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 800;
+  color: #ef4444;
+  font-size: 1.05rem;
+}
+
+.recordingDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (max-width: 576px) {
+  .header {
+    padding: 1.25rem 1.25rem 0.5rem;
+  }
+
+  .avatarWrapper {
+    width: 190px;
+    height: 190px;
+  }
+
+  .contentPanel {
+    padding: 1.5rem;
+  }
+
+  .promptText {
+    font-size: 1.25rem;
+  }
+}

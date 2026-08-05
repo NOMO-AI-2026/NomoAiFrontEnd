@@ -95,8 +95,8 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
       </nav>
 
       <div className={styles.sidebarFooter}>
-        {/* زر بدء الجلسة يظهر فقط لولي الأمر */}
-        {role === 'parent' && (
+        {/* زر بدء الجلسة يظهر لولي الأمر والطبيب */}
+        {(role === 'parent' || role === 'doctor') && (
           <button className={styles.newSessionBtn}
           onClick={() => navigate('/session')}>
             <Gamepad2 size={20} />

@@ -1,0 +1,199 @@
+.pageContent {
+  padding: 2rem;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.pageTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0 0 0.5rem 0;
+}
+
+.pageSubtitle {
+  color: #1e1b4b;
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.card {
+  background: #ffffff;
+  border: 2px solid #1e1b4b;
+  border-radius: 1.25rem;
+  box-shadow: 4px 4px 0px #1e1b4b;
+  padding: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #581c87;
+  margin: 0 0 1rem 0;
+}
+
+.centerMessage {
+  text-align: center;
+  padding: 1rem;
+  color: #6c34af;
+  font-weight: 700;
+}
+
+.errorMessage {
+  text-align: center;
+  padding: 1rem;
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.chipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.chip {
+  border: 2px solid #1e1b4b;
+  background: #f4f0ff;
+  color: #1e1b4b;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0px #1e1b4b;
+}
+
+.chipActive {
+  background: #facc15;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activityCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+  text-align: right;
+  border: 2px solid #1e1b4b;
+  background: #f8f7ff;
+  border-radius: 0.9rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.activityCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0px #1e1b4b;
+}
+
+.activityCardActive {
+  background: #ebe5f7;
+  border-color: #581c87;
+  box-shadow: 3px 3px 0px #581c87;
+}
+
+.activityCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.activityContent {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1e1b4b;
+}
+
+.recommendedBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #facc15;
+  color: #1e1b4b;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.activityMeta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #581c87;
+}
+
+.startBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: 2px solid #1e1b4b;
+  background: #facc15;
+  color: #1e1b4b;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.startBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0px #1e1b4b;
+}
+
+.startBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinIcon {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 576px) {
+  .pageContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+}
