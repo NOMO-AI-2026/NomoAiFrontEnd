@@ -1,5 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getChildProfileApi, getSpeechLevelHistoryApi, getChildNotesApi, deleteDoctorNoteApi, type PaginatedNotesResponse } from '../../api/doctorApi';
+import { 
+  getChildProfileApi, 
+  getSpeechLevelHistoryApi, 
+  getChildNotesApi, 
+  deleteDoctorNoteApi, 
+  addDoctorNoteApi, 
+  updateDoctorNoteApi, 
+  type PaginatedNotesResponse 
+} from '../../api/doctorApi';
 import { type ChildProfileData, type PaginatedSpeechHistory } from '../../types/child.types';
 
 interface ChildProfileState {
@@ -85,6 +93,38 @@ export const deleteChildNote = createAsyncThunk(
       return noteId;
     } catch (error: unknown) {
       return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في حذف الملاحظة');
+    }
+  }
+);
+
+// الدالة الجديدة لإضافة ملاحظة
+export const addChildNote = createAsyncThunk(
+  'childProfile/addChildNote',
+  async (payload: { childId: number; noteTitle: string; noteContent: string }, { rejectWithValue }) => {
+    try {
+      const response = await addDoctorNoteApi(payload.childId, {
+        noteTitle: payload.noteTitle,
+        noteContent: payload.noteContent,
+      });
+      return response;
+    } catch (error: unknown) {
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في إضافة الملاحظة');
+    }
+  }
+);
+
+// الدالة الجديدة لتعديل ملاحظة
+export const updateChildNote = createAsyncThunk(
+  'childProfile/updateChildNote',
+  async (payload: { noteId: number; title: string; description: string }, { rejectWithValue }) => {
+    try {
+      const response = await updateDoctorNoteApi(payload.noteId, {
+        title: payload.title,
+        description: payload.description,
+      });
+      return response;
+    } catch (error: unknown) {
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في تعديل الملاحظة');
     }
   }
 );

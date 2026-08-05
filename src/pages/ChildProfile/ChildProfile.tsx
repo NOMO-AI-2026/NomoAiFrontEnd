@@ -9,6 +9,7 @@ import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/Speec
 import UpdateSpeechLevelModal from '../../components/Modals/UpdateSpeechLevelModal/UpdateSpeechLevelModal';
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/DeleteConfirmModal";
 import ActivityModal from '../../components/Modals/ActivityModal/ActivityModal';
+import NoteModal from '../../components/Modals/NoteModal/NoteModal'; // تم استيراد مودال الملاحظات
 import { getChildActivitiesApi, deleteActivityApi, type ActivityItem } from '../../api/doctorApi';
 
 const ChildProfile = () => {
@@ -31,9 +32,14 @@ const ChildProfile = () => {
   const [activityToEdit, setActivityToEdit] = useState<ActivityItem | null>(null);
   const [notesPage, setNotesPage] = useState(1);
 
+  // States الخاصة بمودال الملاحظات
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [noteToEdit, setNoteToEdit] = useState<any | null>(null);
+
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
 
+  // دوال فتح مودال الأنشطة
   const handleOpenAddActivity = () => {
     setActivityToEdit(null);
     setIsActivityModalOpen(true);
@@ -42,6 +48,17 @@ const ChildProfile = () => {
   const handleOpenEditActivity = (activity: ActivityItem) => {
     setActivityToEdit(activity);
     setIsActivityModalOpen(true);
+  };
+
+  // دوال فتح مودال الملاحظات
+  const handleOpenAddNote = () => {
+    setNoteToEdit(null);
+    setIsNoteModalOpen(true);
+  };
+
+  const handleOpenEditNote = (note: any) => {
+    setNoteToEdit(note);
+    setIsNoteModalOpen(true);
   };
 
   // تم استخدام useCallback لمنع إعادة بناء الدالة وتفادي تحذيرات الـ useEffect
@@ -249,6 +266,12 @@ const ChildProfile = () => {
           <h2 className={styles.cardTitle}>
             ملاحظات الطبيب
           </h2>
+          {/* زر إضافة ملاحظة يظهر للدكتور فقط */}
+          {isDoctor && (
+            <button onClick={handleOpenAddNote} className={styles.primaryBtn}>
+              إضافة ملاحظة
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 mt-4">
@@ -277,9 +300,16 @@ const ChildProfile = () => {
                     </p>
                   </div>
 
-                  {/* زر الحذف يظهر للدكتور فقط */}
+                  {/* زراير التعديل والحذف تظهر للدكتور فقط */}
                   {isDoctor && (
                     <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
+                      <button 
+                        onClick={() => handleOpenEditNote(note)}
+                        className="flex items-center justify-center p-2 rounded-lg bg-[#FACC15] border-2 border-[#1E1B4B] text-[#1E1B4B] hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all cursor-pointer"
+                        title="تعديل الملاحظة"
+                      >
+                        <Edit2 size={18} strokeWidth={2.5} />
+                      </button>
                       <button 
                         onClick={() => setNoteToDelete(note.id)}
                         className="flex items-center justify-center p-2 rounded-lg bg-[#EF4444] border-2 border-[#1E1B4B] text-white hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all cursor-pointer"
@@ -368,6 +398,18 @@ const ChildProfile = () => {
             activityToEdit={activityToEdit}
             onSuccess={() => {
               fetchActivities();
+            }}
+          />
+
+          {/* إضافة مودال الملاحظات */}
+          <NoteModal
+            isOpen={isNoteModalOpen}
+            onClose={() => setIsNoteModalOpen(false)}
+            childId={Number(id)}
+            noteToEdit={noteToEdit}
+            onSuccess={() => {
+              // إعادة تحميل الملاحظات بعد الإضافة أو التعديل بنجاح
+              dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
             }}
           />
         </>
