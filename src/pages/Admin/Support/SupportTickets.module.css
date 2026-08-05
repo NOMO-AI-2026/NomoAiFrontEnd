@@ -3,7 +3,7 @@
 .pageContainer {
   padding: 2rem;
   font-family: system-ui, -apple-system, sans-serif;
-  background-color: #FFFFFF;
+  background-color: #F8F7FF;
   min-height: 100vh;
   position: relative;
   animation: fadeIn 0.3s ease;
@@ -48,10 +48,11 @@
   flex-wrap: wrap; 
   gap: 1rem;
   background-color: #FFFFFF;
-  border: 2px solid #6C34AF;
+  border: none;
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
 .searchWrapper {
@@ -161,6 +162,14 @@
 
 .table tr:hover {
   background-color: #F5F3FF;
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.clickableRow:hover {
+  background-color: #EDE9FF !important;
 }
 
 .senderInfo {
