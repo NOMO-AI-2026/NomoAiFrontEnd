@@ -102,7 +102,7 @@ const AdminOverview = () => {
       <div className={styles.header}>
         <div>
           <h1 className={styles.welcomeTitle}>
-            مرحباً بك مجدداً، {profileData?.fullName || 'المسؤول'} 👋
+            مرحباً بك مجدداً، {profileData?.fullName || 'المسؤول'} 
           </h1>
           <p className={styles.welcomeSubtitle}>
             إليك نظرة عامة شاملة حول أداء المنصة والمستخدمين اليوم.

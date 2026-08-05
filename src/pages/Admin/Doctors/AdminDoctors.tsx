@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import styles from './AdminDoctors.module.css';
 import { getAdminDoctorsApi, handleDoctorApprovalApi, deleteDoctorByAdminApi } from '../../../api/adminApi';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
+import UserAvatar from '../../../components/UserAvatar/UserAvatar';
 
 interface Doctor {
   userId: string;
@@ -143,14 +144,7 @@ const AdminDoctors = () => {
     }
   };
 
-  const getInitials = (name: string) => {
-    if (!name) return 'د';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length > 1) {
-      return parts[0][0] + '.' + parts[1][0];
-    }
-    return name.substring(0, 2);
-  };
+
 
   return (
     <div className={styles.pageContainer} dir="rtl">
@@ -230,7 +224,7 @@ const AdminDoctors = () => {
                      <td>
                        <div className={styles.doctorInfo}>
                          <div className={styles.avatar}>
-                           {getInitials(doctor.fullName)}
+                           <UserAvatar type="doctor" size={28} />
                          </div>
                          <span style={{ fontWeight: 800 }}>{doctor.fullName || 'غير محدد'}</span>
                        </div>

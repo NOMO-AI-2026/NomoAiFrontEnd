@@ -3,16 +3,17 @@
   border: 3px solid #581C87;
   border-radius: 1.5rem;
   padding: 1.5rem;
-  box-shadow: 6px 6px 0px #581C87;
+  box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 1rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .patientCard:hover {
   transform: translateY(-4px);
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.2);
 }
 
 .cardInfo {

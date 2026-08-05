@@ -15,11 +15,11 @@
 
 .modal {
   background-color: #FFFFFF;
-  border: 4px solid #1E1B4B;
+  border: 4px solid #581C87;
   border-radius: 1.5rem;
   width: 100%;
   max-width: 550px;
-  box-shadow: 8px 8px 0px #581C87;
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
   overflow: hidden;
   font-family: system-ui, -apple-system, sans-serif;
   display: flex;

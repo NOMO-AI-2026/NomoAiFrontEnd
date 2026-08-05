@@ -1,10 +1,11 @@
-import { useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminParents.module.css';
 
 import { getAdminParentsApi, deleteParentByAdminApi } from '../../../api/adminApi';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
+import UserAvatar from '../../../components/UserAvatar/UserAvatar';
 
 interface Parent {
   userId: string;
@@ -106,11 +107,7 @@ const AdminParents = () => {
     return parent.fullName || parent.fullname || parent.name || 'غير محدد';
   };
 
-  const getInitials = (name: string) => {
-    if (!name || name === 'غير محدد' || name.trim() === '') return 'أ';
-    const parts = name.trim().split(/\s+/);
-    return parts[0].substring(0, 1); 
-  };
+
 
   return (
     <div className={styles.pageContainer} dir="rtl">
@@ -172,12 +169,12 @@ const AdminParents = () => {
                  return (
                    <tr key={`${parent.userId}-${index}`}>
                      <td>
-                       <div className={styles.parentInfo}>
-                         <div className={styles.avatar}>
-                           {getInitials(name)}
-                         </div>
-                         <span style={{ fontWeight: 800 }}>{name}</span>
-                       </div>
+                        <div className={styles.parentInfo}>
+                          <div className={styles.avatar}>
+                            <UserAvatar type="parent" size={28} />
+                          </div>
+                          <span style={{ fontWeight: 800 }}>{name}</span>
+                        </div>
                      </td>
                      <td><span dir="ltr">{parent.email}</span></td>
                      <td>
