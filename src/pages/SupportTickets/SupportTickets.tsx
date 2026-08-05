@@ -232,24 +232,24 @@ const SupportTickets = () => {
       {!loading && tickets.length > 0 && (
         <div className={styles.pagination}>
           <div className={styles.pageInfo}>
-            صفحة <strong className="text-[#1E1B4B]">{page}</strong> من {totalPages}
+            الصفحة {page} من {totalPages}
           </div>
           <div className={styles.pageControls}>
-            <button
-              className={styles.pageBtn}
+            <button 
+              className={styles.pageBtn} 
+              disabled={page >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
+              <ChevronRight size={18} />
+              التالي
+            </button>
+            <button 
+              className={styles.pageBtn} 
               disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
             >
               السابق
-              <ChevronRight size={16} />
-            </button>
-            <button
-              className={styles.pageBtn}
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              التالي
-              <ChevronLeft size={16} />
+              <ChevronLeft size={18} />
             </button>
           </div>
         </div>
