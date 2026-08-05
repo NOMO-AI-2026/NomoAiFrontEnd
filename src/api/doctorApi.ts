@@ -1,7 +1,6 @@
 import { axiosInstance } from './axiosInstance';
 import { type ChildProfileData } from '../types/child.types';
 
-
 export const getChildProfileApi = async (id: number) => {
   const response = await axiosInstance.get<ChildProfileData>(`/children/${id}`);
   return response.data;
@@ -39,9 +38,11 @@ export const addChildApi = async (childData: AddChildPayload) => {
   const response = await axiosInstance.post('/children', childData);
   return response.data;
 };
+
 export const updateChildApi = async (childId: number, data: Partial<AddChildPayload>) => {
   return await axiosInstance.put(`/children/${childId}`, data);
 };
+
 export const searchParentByPhoneApi = async (searchTerm: string) => {
   const response = await axiosInstance.get('/parents/search', {
     params: {
@@ -81,8 +82,6 @@ export interface SpeechLevelsResponse {
   isFailure?: boolean;
 }
 
-
-
 export const deleteChildApi = async (childId: number) => {
   const response = await axiosInstance.delete(`/children/${childId}`);
   return response.data;
@@ -93,7 +92,7 @@ export const getSpeechLevelsApi = async () => {
   return response.data; 
 };
 
-// تعريف البيانات المطلوبة لإضافة نشاط جديد (POST)
+// ================= الأنشطة =================
 export interface CreateActivityPayload {
   childId: number;
   activityTarget: number;
@@ -101,14 +100,12 @@ export interface CreateActivityPayload {
   estimatedDurationMinutes: number;
 }
 
-// تعريف البيانات المطلوبة لتعديل نشاط (PUT)
 export interface UpdateActivityPayload {
   activityTarget: number;
   content: string;
   estimatedDurationMinutes: number;
 }
 
-// واجهة لتمثيل النشاط نفسه عند تمريره للمودال للتعديل
 export interface ActivityItem {
   id: number;
   activityTarget: number;
@@ -133,18 +130,16 @@ export type ActivitiesResponse = ActivityItem[] | {
 };
 
 export const getChildActivitiesApi = async (childId: number) => {
-  // شيلنا كلمة /api من هنا لأن الـ axiosInstance بيضيفها تلقائي
   const response = await axiosInstance.get<ActivitiesResponse>(`/children/${childId}/activities`); 
   return response.data;
 };
-
-
 
 export const deleteActivityApi = async (activityId: number) => {
   const response = await axiosInstance.delete(`/activities/${activityId}`);
   return response.data;
 };
 
+// ================= الملاحظات =================
 export interface DoctorNote {
   id: number;
   title: string;
@@ -175,5 +170,29 @@ export const getChildNotesApi = async (childId: number, pageNumber = 1, pageSize
 
 export const deleteDoctorNoteApi = async (noteId: number) => {
   const response = await axiosInstance.delete(`/notes/${noteId}`);
+  return response.data;
+};
+
+// 👇 الدوال الجديدة اللي ضفناها للإضافة والتعديل بناءً على الـ Swagger 👇
+
+export interface CreateNotePayload {
+  noteTitle: string;
+  noteContent: string;
+}
+
+// دالة إضافة ملاحظة جديدة (POST)
+export const addDoctorNoteApi = async (childId: number, payload: CreateNotePayload) => {
+  const response = await axiosInstance.post(`/children/${childId}/notes`, payload);
+  return response.data;
+};
+
+export interface UpdateNotePayload {
+  title: string;
+  description: string;
+}
+
+// دالة تعديل ملاحظة موجودة (PUT)
+export const updateDoctorNoteApi = async (noteId: number, payload: UpdateNotePayload) => {
+  const response = await axiosInstance.put(`/notes/${noteId}`, payload);
   return response.data;
 };
