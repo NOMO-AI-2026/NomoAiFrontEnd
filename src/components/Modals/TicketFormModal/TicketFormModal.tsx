@@ -18,6 +18,7 @@ const TicketFormModal: React.FC<TicketFormModalProps> = ({
   const [formData, setFormData] = useState({ subject: '', message: '' });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (initialData) setFormData(initialData);
     else setFormData({ subject: '', message: '' });
   }, [initialData, isOpen]);

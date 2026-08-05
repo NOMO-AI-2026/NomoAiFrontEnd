@@ -78,7 +78,8 @@ export const fetchAdminAnalyticsOverview = createAsyncThunk(
     try {
       const data = await getAdminAnalyticsOverviewApi();
       return data;
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
       console.error('Error fetching admin analytics:', error);
       const msg = error.response?.data?.message || error.message || 'فشل تحميل بيانات الإحصائيات';
       return rejectWithValue(msg);

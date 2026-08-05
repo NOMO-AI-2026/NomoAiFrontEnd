@@ -43,7 +43,7 @@ const AdminParents = () => {
     const fetchParents = async () => {
       setLoading(true);
       try {
-        const params: any = {
+        const params: { pageNumber: number; pageSize: number; name?: string } = {
           pageNumber: page,
           pageSize: 10, // بنطلب 10 بس
         };

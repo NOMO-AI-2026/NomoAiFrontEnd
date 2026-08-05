@@ -87,8 +87,8 @@ const supportTicketsSlice = createSlice({
       })
       .addCase(getTickets.fulfilled, (state, action) => {
         state.loading = false;
-        const payload = action.payload as any;
-        state.data = payload?.value || payload || null;
+        const payload = action.payload as unknown as Record<string, unknown>;
+        state.data = (payload?.value || payload || null) as unknown as PaginatedTicketsResponse;
       })
       .addCase(getTickets.rejected, (state, action) => {
         state.loading = false;
@@ -101,8 +101,8 @@ const supportTicketsSlice = createSlice({
       })
       .addCase(getTicketDetails.fulfilled, (state, action) => {
         state.detailsLoading = false;
-        const payload = action.payload as any;
-        state.selectedTicket = payload?.value || payload || null;
+        const payload = action.payload as unknown as Record<string, unknown>;
+        state.selectedTicket = (payload?.value || payload || null) as unknown as SupportTicketDetails;
       })
       .addCase(getTicketDetails.rejected, (state, action) => {
         state.detailsLoading = false;
@@ -115,8 +115,8 @@ const supportTicketsSlice = createSlice({
       })
       .addCase(respondToTicket.fulfilled, (state, action) => {
         state.actionLoading = false;
-        const payload = action.payload as any;
-        const updatedVal = payload?.value || payload;
+        const payload = action.payload as unknown as Record<string, unknown>;
+        const updatedVal = (payload?.value || payload) as Partial<SupportTicketDetails>;
         
         // تحديث التذكرة المحددة الحالية
         if (state.selectedTicket && state.selectedTicket.id === action.meta.arg.id) {

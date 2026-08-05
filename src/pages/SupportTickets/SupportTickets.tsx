@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Eye, Edit2, Trash2, Calendar } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Plus, Eye, Edit2, Trash2, Calendar, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './SupportTickets.module.css';
 
@@ -16,11 +16,19 @@ import {
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
 import TicketFormModal from '../../components/Modals/TicketFormModal/TicketFormModal';
 import TicketViewModal from '../../components/Modals/TicketViewModal/TicketViewModal';
+
 interface Ticket {
   id: number;
   subject: string;
   status: number; 
   createdAt: string;
+}
+
+interface TicketDetails {
+  id: number;
+  subject: string;
+  message: string;
+  adminNote?: string | null;
 }
 
 const SupportTickets = () => {
@@ -29,6 +37,7 @@ const SupportTickets = () => {
   
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // حالات المودالز
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -37,29 +46,38 @@ const SupportTickets = () => {
   
   // الداتا
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [activeTicketDetails, setActiveTicketDetails] = useState<any>(null);
+  const [activeTicketDetails, setActiveTicketDetails] = useState<TicketDetails | null>(null);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const loadTickets = async () => {
-    setLoading(true);
-    try {
-      const response = await fetchMyTickets({ pageNumber: page, pageSize: 12 });
-      if (response?.items) {
-        setTickets(response.items);
-        setTotalPages(response.totalPages || 1);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error('حدث خطأ أثناء جلب التذاكر');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadTickets();
-  }, [page]);
+    let isMounted = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+
+    fetchMyTickets({ pageNumber: page, pageSize: 12 })
+      .then((response) => {
+        if (isMounted && response?.items) {
+          setTickets(response.items);
+          setTotalPages(response.totalPages || 1);
+        }
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+        toast.error('حدث خطأ أثناء جلب التذاكر');
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [page, refreshTrigger]);
+
+  const loadTickets = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   const getStatusDisplay = (status: number) => {
     switch(status) {
@@ -84,7 +102,7 @@ const SupportTickets = () => {
       setActiveTicketDetails(details);
       toast.dismiss(loadingToast);
       setIsFormModalOpen(true);
-    } catch (error) {
+    } catch {
       toast.dismiss(loadingToast);
       toast.error('فشل في تحميل التذكرة');
     }
@@ -103,7 +121,8 @@ const SupportTickets = () => {
       }
       setIsFormModalOpen(false);
       loadTickets();
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string; message?: string } } };
       console.error("Backend Error:", error.response?.data);
       const errorMsg = error.response?.data?.detail || error.response?.data?.message || 'حدث خطأ أثناء الحفظ';
       toast.error(errorMsg);
@@ -119,7 +138,7 @@ const SupportTickets = () => {
       setActiveTicketDetails(details);
       toast.dismiss(loadingToast);
       setIsViewModalOpen(true);
-    } catch (error) {
+    } catch {
       toast.dismiss(loadingToast);
       toast.error('فشل في تحميل التفاصيل');
     }
@@ -208,6 +227,33 @@ const SupportTickets = () => {
           })
         )}
       </div>
+
+      {/* عناصر التحكم في الصفحات Pagination */}
+      {!loading && tickets.length > 0 && (
+        <div className={styles.pagination}>
+          <div className={styles.pageInfo}>
+            صفحة <strong className="text-[#1E1B4B]">{page}</strong> من {totalPages}
+          </div>
+          <div className={styles.pageControls}>
+            <button
+              className={styles.pageBtn}
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              السابق
+              <ChevronRight size={16} />
+            </button>
+            <button
+              className={styles.pageBtn}
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              التالي
+              <ChevronLeft size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ================= المودالز المفصولة ================= */}
 
