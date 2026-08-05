@@ -1,7 +1,7 @@
 .layout {
   display: flex;
   height: 100vh;
-  background-color: #FFFFFF;
+  background-color: #FAFAFE;
   font-family: system-ui, -apple-system, sans-serif;
   overflow: hidden;
 }
@@ -24,7 +24,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(30, 27, 75, 0.4); /* match dark blue theme colors */
-  backdrop-filter: blur(2px);
+  background-color: rgba(30, 27, 75, 0.35);
+  backdrop-filter: blur(3px);
   z-index: 40;
 }

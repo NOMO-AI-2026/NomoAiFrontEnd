@@ -6,6 +6,7 @@ import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/De
 import TicketDetailsModal from '../../../components/Modals/TicketDetailsModal/TicketDetailsModal';
 import { deleteTicket } from '../../../api/supportTicketsApi'; 
 import styles from './SupportTickets.module.css';
+import UserAvatar from '../../../components/UserAvatar/UserAvatar';
 
 // تعريف نوع التابات الجديد بناءً على الحالات الـ 4
 type TabType = 'all' | 'unread' | 'inProgress' | 'resolved' | 'closed';
@@ -79,9 +80,7 @@ const SupportTickets = () => {
     setTicketToDelete(null);
   };
 
-  const getInitials = (name: string) => {
-    return name.substring(0, 2).toUpperCase();
-  };
+
 
   // دالة مساعدة لترجمة الرقم لبيانات الحالة (اسم ولون)
   const getTicketStatus = (status: number) => {
@@ -189,7 +188,9 @@ const SupportTickets = () => {
                   <tr key={ticket.id}>
                     <td>
                       <div className={styles.senderInfo}>
-                        <div className={styles.avatar}>{getInitials(ticket.userFullName)}</div>
+                        <div className={styles.avatar}>
+                          <UserAvatar type={ticket.userRole === 'Doctor' ? 'doctor' : 'parent'} size={28} />
+                        </div>
                         <div>
                           <div style={{ fontWeight: 800 }}>{ticket.userFullName}</div>
                           <div style={{ fontSize: '0.85rem', color: '#6B7280' }}>

@@ -61,10 +61,10 @@
 
 .card {
   background-color: #FFFFFF;
-  border: 3px solid #1E1B4B;
+  border: 3px solid #581C87;
   border-radius: 1.2rem;
   padding: 1.5rem;
-  box-shadow: 6px 6px 0px #581C87; /* ظل بنفسجي زي المودال */
+  box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
   display: flex;
   flex-direction: column;
   transition: all 0.2s;
@@ -72,7 +72,7 @@
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 8px 8px 0px #581C87;
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.2);
 }
 
 .cardHeader {
@@ -255,10 +255,10 @@
   align-items: center;
   padding: 1rem 1.5rem;
   margin-top: 2rem;
-  border: 3px solid #1E1B4B;
+  border: 3px solid #581C87;
   border-radius: 1.2rem;
   background-color: #FFFFFF;
-  box-shadow: 6px 6px 0px #581C87;
+  box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
   flex-wrap: wrap; 
   gap: 1rem;
 }

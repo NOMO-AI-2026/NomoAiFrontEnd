@@ -43,10 +43,10 @@
 
 .card {
   background-color: #FFFFFF;
-  border: 3px solid #1E1B4B;
+  border: 3px solid #581C87;
   border-radius: 1.5rem;
   padding: 2rem;
-  box-shadow: 6px 6px 0px #581C87; 
+  box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15); 
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -57,7 +57,7 @@
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 8px 8px 0px #581C87;
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.2);
 }
 
 .cardHeader {
@@ -252,6 +252,6 @@
   }
 
   .card {
-    box-shadow: 4px 4px 0px #581C87; 
+    box-shadow: 4px 4px 0 rgba(88, 28, 135, 0.15);
   }
 }

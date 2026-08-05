@@ -1,5 +1,6 @@
 import { ChevronLeft, Trash2 } from "lucide-react";
 import styles from "./ChildCard.module.css";
+import UserAvatar from "../UserAvatar/UserAvatar";
 
 interface ChildCardProps {
   id: number;
@@ -24,7 +25,9 @@ const ChildCard = ({ id, name, age, gender, onDelete, onView }: ChildCardProps) 
     <div className={styles.patientCard}>
       <div className={styles.cardInfo}>
         <div className={styles.avatarWrapper}>
-          <div className={styles.patientAvatar}>{name.charAt(0)}</div>
+          <div className={styles.patientAvatar}>
+            <UserAvatar type="child" gender={gender} size={34} />
+          </div>
         </div>
         <div className={styles.patientDetails}>
           <h3 className={nameClass}>

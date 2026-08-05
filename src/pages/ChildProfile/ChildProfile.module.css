@@ -68,10 +68,10 @@
 
 .card {
   background-color: #FFFFFF;
-  border: 3px solid #1E1B4B;
+  border: 3px solid #581C87;
   border-radius: 1.5rem;
   padding: 2rem;
-  box-shadow: 6px 6px 0px #581C87; 
+  box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -176,6 +176,19 @@
   text-align: center;
 }
 
+.levelActionsStack {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.levelActionsStack .primaryBtn,
+.levelActionsStack .secondaryBtn {
+  width: auto;
+}
+
 /* =========================================
    Responsive Design 
    ========================================= */
@@ -240,7 +253,7 @@
   }
 
   .card {
-    box-shadow: 4px 4px 0px #581C87; 
+    box-shadow: 4px 4px 0 rgba(88, 28, 135, 0.15);
   }
 }
 

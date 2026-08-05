@@ -3,7 +3,7 @@ import {
   LayoutDashboard, 
   Users, 
   Gamepad2, 
-  HelpCircle, 
+  UserPlus,
   LogOut, 
   X,
   UserCheck,
@@ -15,6 +15,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAppDispatch } from "../../store/hooks"; 
 import { logout } from "../../store/slices/authSlice"; 
 import { clearProfile } from "../../store/slices/profileSlice"; 
+import { useModal } from "../../context/ModalContext";
 
 interface SidebarProps {
   role?: 'doctor' | 'parent' | 'admin';
@@ -27,6 +28,7 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
   const location = useLocation();
   const currentPath = location.pathname;
   const dispatch = useAppDispatch();
+  const { openAddChildModal } = useModal();
 
   const handleLogout = () => {
     dispatch(logout()); 
@@ -104,14 +106,16 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
           </button>
         )}
         
+        {/* زر إضافة طفل يظهر فقط للطبيب */}
+        {role === 'doctor' && (
+          <button className={styles.newSessionBtn}
+          onClick={() => openAddChildModal(null)}>
+            <UserPlus size={20} />
+            إضافة طفل
+          </button>
+        )}
+        
         <div className={styles.bottomLinks}>
-          {/* زر المساعدة يختفي من عند الأدمن */}
-          {role !== 'admin' && (
-            <button className={styles.footerBtn}>
-              <HelpCircle className={styles.navIcon} size={20} />
-              المساعدة
-            </button>
-          )}
           <button className={styles.footerBtn} onClick={handleLogout}>
             <LogOut className={styles.navIcon} size={20} />
             تسجيل الخروج

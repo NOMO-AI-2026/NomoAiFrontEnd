@@ -135,11 +135,17 @@ const ChildProfile = () => {
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardTitle}><Activity size={24} />مستوى الكلام الحالي</h2>
-                <button className={styles.secondaryBtn} onClick={handleOpenHistory}><History size={18} />سجل المستويات</button>
+                <span className={styles.stageBadge}>
+                  {profileData.speechLevel ? profileData.speechLevel.levelName : 'لم يتم تحديد مستوى'}
+                </span>
               </div>
-              <div className="flex flex-col gap-4 items-start">
-                <span className={styles.stageBadge}>{profileData.speechLevel ? profileData.speechLevel.levelName : 'لم يتم تحديد مستوى'}</span>
-                <button className={styles.primaryBtn} onClick={() => setIsUpdateLevelModalOpen(true)}><Edit2 size={18} />تحديث المستوى</button>
+              <div className={styles.levelActionsStack}>
+                <button className={styles.primaryBtn} onClick={() => setIsUpdateLevelModalOpen(true)}>
+                  <Edit2 size={18} /> تحديث المستوى
+                </button>
+                <button className={styles.secondaryBtn} onClick={handleOpenHistory}>
+                  <History size={18} /> سجل المستويات
+                </button>
               </div>
             </div>
           )}

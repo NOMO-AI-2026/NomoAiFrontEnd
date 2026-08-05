@@ -4,6 +4,7 @@ import styles from './AssignParentModal.module.css';
 import { searchParentByPhoneApi, assignParentToChildApi } from '../../../api/doctorApi';
 import { useAppDispatch } from '../../../store/hooks'; // 1. استيراد الـ hook الخاص بـ Redux
 import { fetchChildProfile } from '../../../store/slices/childProfileSlice'; // 2. استيراد دالة التحديث
+import UserAvatar from '../../UserAvatar/UserAvatar';
 
 interface AssignParentModalProps {
   childId: number;
@@ -126,7 +127,7 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
                 <div key={parent.parentId || index} className={styles.resultCard}>
                   <div className={styles.userInfo}>
                     <div className={`${styles.avatar} ${index % 2 === 0 ? styles.avatarPurple : styles.avatarLight}`}>
-                      {parent.fullname ? parent.fullname.charAt(0) : 'أ'}
+                      <UserAvatar type="parent" size={30} />
                     </div>
                     <div className={styles.userDetails}>
                       <h3 className={styles.userName}>{parent.fullname || 'بدون اسم'}</h3>
