@@ -69,15 +69,9 @@
   position: relative;
   overflow: hidden;
   box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-
-.statCard:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 10px 10px 0 rgba(88, 28, 135, 0.2);
 }
 
 .cardTop {
@@ -95,13 +89,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.statCard:hover .iconWrapper {
-  background-color: #FACC15;
-  color: #1E1B4B;
-  transform: rotate(-8deg);
 }
 
 .cardTitle {
@@ -136,11 +123,10 @@
 .statCardUsers { border-color: #581C87; }
 .statCardChildren { border-color: #581C87; }
 .statCardSupport { border-color: #D97706; box-shadow: 6px 6px 0 rgba(217, 119, 6, 0.15); }
-.statCardSupport:hover { box-shadow: 10px 10px 0 rgba(217, 119, 6, 0.22); }
 .statCardSupport .iconWrapper { background-color: #FEF3C7; color: #D97706; }
 
 .statCardLevels { border-color: #059669; box-shadow: 6px 6px 0 rgba(5, 150, 105, 0.15); }
-.statCardLevels:hover { box-shadow: 10px 10px 0 rgba(5, 150, 105, 0.22); }
+.statCardLevels .iconWrapper { background-color: #D1FAE5; color: #059669; }
 .statCardLevels .iconWrapper { background-color: #D1FAE5; color: #059669; }
 
 /* ================= شبكة المخططات (Charts Section) ================= */

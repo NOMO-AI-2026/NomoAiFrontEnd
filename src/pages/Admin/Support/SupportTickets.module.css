@@ -94,38 +94,36 @@
 }
 
 .tabBtn {
-  background-color: #F8F7FF;
-  border: 2px solid #211A44;
-  border-radius: 8px;
-  padding: 0.5rem 1.5rem;
+  background-color: rgba(88, 28, 135, 0.05);
+  border: 1.5px solid rgba(88, 28, 135, 0.15);
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
   font-weight: 800;
   font-size: 0.95rem;
-  color: #211A44;
+  color: #581C87;
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+  transition: all 0.2s ease;
   flex: 1;
   text-align: center;
 }
 
 .tabActive {
-  background-color: #FFD11A;
-  box-shadow: 3px 3px 0px #211A44;
+  background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);
+  border-color: transparent;
+  color: #1E1B4B;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
 }
 
 .tabBtn:not(.tabActive):hover {
-  background-color: #EBE5F7;
-}
-
-.tabActive:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px #211A44;
+  background-color: rgba(88, 28, 135, 0.12);
+  border-color: #581C87;
 }
 
 /* --- الجدول والـ Responsive --- */
 .tableWrapper {
-  border: 2px solid #6C34AF;
-  border-radius: 12px;
-  box-shadow: 4px 4px 0px #6C34AF;
+  border: 2px solid #581C87;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(88, 28, 135, 0.12);
   background-color: #FFFFFF;
   overflow-x: auto; 
   -webkit-overflow-scrolling: touch;

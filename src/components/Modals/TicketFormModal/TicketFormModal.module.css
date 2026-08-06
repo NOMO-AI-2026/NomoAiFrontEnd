@@ -104,14 +104,14 @@
 }
 
 .submitBtn {
-  background-color: #FACC15; 
+  background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%); 
   color: #1E1B4B;
   font-weight: 800;
   font-size: 1.1rem;
   padding: 0.85rem 1.5rem;
   border-radius: 12px;
-  border: 2px solid #1E1B4B;
-  box-shadow: 4px 4px 0px #1E1B4B;
+  border: none;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
   cursor: pointer;
   transition: all 0.2s;
   flex: 1;
@@ -119,25 +119,26 @@
 
 .submitBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 6px 6px 0px #1E1B4B;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
 .cancelBtn {
-  background-color: #FFFFFF;
-  color: #1E1B4B;
+  background-color: rgba(88, 28, 135, 0.06);
+  color: #581C87;
   font-weight: 800;
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
-  border: 2px solid #1E1B4B;
-  box-shadow: 4px 4px 0px #1E1B4B;
+  border: 1.5px solid rgba(88, 28, 135, 0.25);
+  box-shadow: 0 2px 8px rgba(88, 28, 135, 0.06);
   cursor: pointer;
   transition: all 0.2s;
   flex: 1;
 }
 
 .cancelBtn:hover:not(:disabled) {
-  background-color: #F8F7FF;
+  background-color: rgba(88, 28, 135, 0.12);
+  border-color: #581C87;
   transform: translateY(-2px);
-  box-shadow: 6px 6px 0px #1E1B4B;
+  box-shadow: 0 4px 14px rgba(88, 28, 135, 0.12);
 }

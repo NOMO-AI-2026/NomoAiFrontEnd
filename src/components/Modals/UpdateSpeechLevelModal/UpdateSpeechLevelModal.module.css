@@ -96,8 +96,10 @@
   font-size: 1.1rem;
   padding: 0.85rem 1.5rem;
   border-radius: 12px;
-  border: 2px solid #1E1B4B;
-  box-shadow: 4px 4px 0px #1E1B4B;
+  border: none;
+  background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);
+  color: #1E1B4B;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   width: 100%;
@@ -106,12 +108,12 @@
 
 .primaryBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 6px 6px 0px #1E1B4B;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
 .primaryBtn:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 0px 0px 0px #1E1B4B;
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
 }
 
 .primaryBtn:disabled {

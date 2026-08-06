@@ -266,26 +266,27 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #FACC15;
+  background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);
   color: #1E1B4B;
   font-weight: 800;
   font-size: 1.125rem;
   padding: 0.875rem 2rem;
   border-radius: 9999px;
-  border: 3px solid #581C87;
-  box-shadow: 4px 4px 0px #581C87;
+  border: none;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .addBtn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
 .patientsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   width: 100%;
 }
 
@@ -340,7 +341,7 @@
     align-self: flex-start;
     padding: 0.6rem 1.25rem;
     font-size: 0.9rem;
-    border: 2px solid #581C87;
-    box-shadow: 2px 2px 0px #581C87;
+    border: none;
+    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
   }
 }
