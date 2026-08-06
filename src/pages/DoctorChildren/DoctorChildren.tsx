@@ -76,6 +76,8 @@ const DoctorChildren = () => {
                 name={child.fullName} 
                 age={`${child.age} سنوات`} 
                 gender={child.gender} 
+                speechLevelNumber={(child as any).speechLevelNumber || (child as any).speechLevelId || (child as any).speechLevel?.id}
+                speechLevelName={(child as any).speechLevelName || (child as any).speechLevel?.levelName}
                 onDelete={handleDeleteClick} 
                 onView={handleView} 
             />

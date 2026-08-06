@@ -14,6 +14,9 @@ export interface ChildProfileData {
   parentFullName: string | null;
   parentEmail: string | null;
   parentPhoneNumber: string | null;
+  doctorFullName?: string | null;
+  doctorEmail?: string | null;
+  doctorPhoneNumber?: string | null;
   speechLevel: {
     id: number;
     levelName: string;

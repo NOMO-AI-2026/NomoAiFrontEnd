@@ -41,8 +41,8 @@
 }
 
 .closeButton {
-  background: #FFFFFF;
-  border: 2px solid #1E1B4B;
+  background: rgba(88, 28, 135, 0.08);
+  border: 1.5px solid rgba(88, 28, 135, 0.15);
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -50,14 +50,16 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #1E1B4B;
-  box-shadow: 2px 2px 0px #1E1B4B;
-  transition: all 0.2s;
+  color: #581C87;
+  transition: all 0.2s ease;
 }
 
 .closeButton:hover {
+  background-color: #581C87;
+  border-color: #581C87;
+  color: #FFFFFF;
   transform: translateY(-2px);
-  box-shadow: 4px 4px 0px #1E1B4B;
+  box-shadow: 0 4px 12px rgba(88, 28, 135, 0.25);
 }
 
 .content {

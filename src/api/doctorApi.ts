@@ -11,6 +11,13 @@ export interface Child {
   fullName: string;
   gender: number;
   age: number;
+  speechLevelId?: number | null;
+  speechLevelNumber?: number | null;
+  speechLevelName?: string | null;
+  speechLevel?: {
+    id: number;
+    levelName: string;
+  } | null;
 }
 
 export interface ApiResponse {

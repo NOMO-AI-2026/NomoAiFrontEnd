@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2} from 'lucide-react';
+import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchChildProfile, clearProfileData, fetchSpeechHistory, fetchChildNotes, deleteChildNote } from '../../store/slices/childProfileSlice';
 import styles from './ChildProfile.module.css';
@@ -76,22 +76,21 @@ const ChildProfile = () => {
     }
   }, [id]);
 
+  const fetchNotes = useCallback(() => {
+    if (!id) return;
+    dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
+  }, [dispatch, id, notesPage]);
+
   useEffect(() => {
     if (id) {
       dispatch(fetchChildProfile(Number(id)));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchActivities();
+      fetchNotes();
     }
     return () => {
       dispatch(clearProfileData());
     };
-  }, [dispatch, id, fetchActivities]);
-
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
-    }
-  }, [dispatch, id, notesPage]);
+  }, [dispatch, id, fetchActivities, fetchNotes]);
 
   const handleOpenHistory = () => {
     if (id) {
@@ -124,76 +123,138 @@ const ChildProfile = () => {
         </div>
       </div>
 
-      <div className={styles.gridContainer}>
-        {/* بيانات الطفل ومستوى الكلام */}
-        <div className={styles.cardsStack}>
-          {/* كارت بيانات الطفل */}
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>بيانات الطفل</h2>
-              {/* زر التعديل يظهر للدكتور فقط */}
-              {isDoctor && (
+      {/* قسم كروت المعلومات العلوية (بيانات الطفل بعرض أكبر، وبيانات ولي الأمر ومستوى الكلام تحت بعض في العمود الثاني بنفس الارتفاع الكلي) */}
+      {isDoctor ? (
+        <div className={styles.topProfileSection}>
+          {/* العمود الأول (أعرض): بيانات الطفل */}
+          <div className={styles.childInfoCol}>
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>بيانات الطفل</h2>
                 <button className={styles.primaryBtn} onClick={() => openAddChildModal({ ...profileData, id: Number(id) })}>
-                  <Edit2 size={18} /> تعديل
+                  <Edit2 size={16} /> تعديل
                 </button>
-              )}
-            </div>
-            <div className={styles.infoGrid}>
-              <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم بالكامل</span><span className={styles.infoValue}>{profileData.fullName}</span></div>
-              <div className={styles.infoItem}><span className={styles.infoLabel}>العمر</span><span className={styles.infoValue}>{profileData.age} سنوات</span></div>
-              <div className={styles.infoItem}><span className={styles.infoLabel}>تاريخ الميلاد</span><span className={styles.infoValue}>{profileData.dateOfBirth}</span></div>
-              <div className={styles.infoItem}><span className={styles.infoLabel}>النوع</span><span className={styles.infoValue}>{profileData.gender === 0 ? 'ذكر' : 'أنثى'}</span></div>
-              <div className={styles.infoItem}><span className={styles.infoLabel}>تاريخ بدء العلاج</span><span className={styles.infoValue}>{profileData.therapyStartDate}</span></div>
+              </div>
+              <div className={styles.childInfoGrid}>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم بالكامل</span><span className={styles.infoValue}>{profileData.fullName}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>العمر</span><span className={styles.infoValue}>{profileData.age} سنوات</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>تاريخ الميلاد</span><span className={styles.infoValue}>{profileData.dateOfBirth}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>النوع</span><span className={styles.infoValue}>{profileData.gender === 0 ? 'ذكر' : 'أنثى'}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>تاريخ بدء العلاج</span><span className={styles.infoValue}>{profileData.therapyStartDate}</span></div>
+              </div>
             </div>
           </div>
 
-          {/* كارت مستوى الكلام يظهر للدكتور فقط */}
-          {isDoctor && (
+          {/* العمود الثاني: كارت ولي الأمر وكارت مستوى الكلام تحت بعض بنفس الارتفاع الكلي */}
+          <div className={styles.stackedInfoCol}>
+            {/* كارت 2: ولي الأمر */}
             <div className={styles.card}>
               <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}><Activity size={24} />مستوى الكلام الحالي</h2>
-                <span className={styles.stageBadge}>
-                  {profileData.speechLevel ? profileData.speechLevel.levelName : 'لم يتم تحديد مستوى'}
-                </span>
-              </div>
-              <div className={styles.levelActionsStack}>
-                <button className={styles.primaryBtn} onClick={() => setIsUpdateLevelModalOpen(true)}>
-                  <Edit2 size={18} /> تحديث المستوى
-                </button>
-                <button className={styles.secondaryBtn} onClick={handleOpenHistory}>
-                  <History size={18} /> سجل المستويات
+                <h2 className={styles.cardTitle}>ولي الأمر</h2>
+                <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn}>
+                  <LinkIcon size={16} /> {profileData.parentFullName ? 'تغيير' : 'ربط'}
                 </button>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* بيانات ولي الأمر تظهر للدكتور فقط */}
-        {isDoctor && (
-          <div className={styles.cardsStack}>
-            <div className={styles.card}>
-              <div className={styles.cardHeader}><h2 className={styles.cardTitle}>بيانات ولي الأمر</h2></div>
               {profileData.parentFullName ? (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
                   <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم</span><span className={styles.infoValue}>{profileData.parentFullName}</span></div>
                   <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{profileData.parentEmail}</span></div>
                   <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{profileData.parentPhoneNumber || 'غير مسجل'}</span></div>
-                  <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn}>تغيير ولي الأمر</button>
                 </div>
               ) : (
-                <div className="flex flex-col items-center text-center gap-4 py-4">
-                  <div className="text-gray-400"><LinkIcon size={48} /></div>
-                  <p className="font-bold text-[#1E1B4B]">لم يتم ربط الطفل بولي أمر حتى الآن.</p>
-                  <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn} style={{ width: '100%' }}><LinkIcon size={18} />ربط بولي أمر</button>
+                <div className="flex flex-col items-center text-center gap-2 py-2 flex-1 justify-center">
+                  <div className="text-gray-400"><LinkIcon size={32} /></div>
+                  <p className="font-bold text-[#1E1B4B] text-sm">لم يتم ربط الطفل بولي أمر حتى الآن.</p>
                 </div>
               )}
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* قسم الأنشطة */}
-      <div className={`${styles.card} mt-6`}>
+            {/* كارت 3: مستوى الكلام الحالي */}
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}><Activity size={22} />مستوى الكلام</h2>
+                <button className={styles.primaryBtn} onClick={() => setIsUpdateLevelModalOpen(true)}>
+                  <Edit2 size={16} /> تحديث
+                </button>
+              </div>
+              <div className="flex flex-col gap-3 flex-1 justify-between">
+                <span className={styles.stageBadge}>
+                  {profileData.speechLevel ? profileData.speechLevel.levelName : 'لم يتم تحديد مستوى'}
+                </span>
+                <button className={styles.secondaryBtn} onClick={handleOpenHistory} style={{ width: '100%' }}>
+                  <History size={16} /> سجل المستويات
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* في حال كان اليوزر ولي أمر: كارت بيانات الطفل + كارت بيانات الطبيب المعالج وكارت مستوى الكلام مع الـ Progress Bar وبدون أزرار */
+        <div className={styles.topProfileSection}>
+          {/* العمود الأول: بيانات الطفل */}
+          <div className={styles.childInfoCol}>
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>بيانات الطفل</h2>
+              </div>
+              <div className={styles.childInfoGrid}>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم بالكامل</span><span className={styles.infoValue}>{profileData.fullName}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>العمر</span><span className={styles.infoValue}>{profileData.age} سنوات</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>تاريخ الميلاد</span><span className={styles.infoValue}>{profileData.dateOfBirth}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>النوع</span><span className={styles.infoValue}>{profileData.gender === 0 ? 'ذكر' : 'أنثى'}</span></div>
+                <div className={styles.infoItem}><span className={styles.infoLabel}>تاريخ بدء العلاج</span><span className={styles.infoValue}>{profileData.therapyStartDate}</span></div>
+              </div>
+            </div>
+          </div>
+
+          {/* العمود الثاني: كارت بيانات الطبيب المعالج وكارت مستوى الكلام بالـ Progress Bar */}
+          <div className={styles.stackedInfoCol}>
+            {/* كارت بيانات الطبيب المعالج (يستفيد من المساحة المتبقية) */}
+            <div className={styles.card} style={{ flex: 1.4 }}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}><UserCheck size={22} />الطبيب المعالج</h2>
+              </div>
+              {(profileData as any)?.doctorFullName ? (
+                <div className="flex flex-col gap-3 flex-1 justify-center">
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>اسم الطبيب</span><span className={styles.infoValue}>{(profileData as any).doctorFullName}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{(profileData as any).doctorEmail || 'غير مسجل'}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{(profileData as any).doctorPhoneNumber || 'غير مسجل'}</span></div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center text-center gap-2 py-4 flex-1 justify-center">
+                  <div className="text-[#581C87]"><UserCheck size={40} /></div>
+                  <p className="font-extrabold text-[#1E1B4B] text-base">د. الطبيب المعالج</p>
+                  <span className="text-xs font-bold text-gray-500">سيتم المتابعة والتواصل المباشر مع الطبيب المختص</span>
+                </div>
+              )}
+            </div>
+
+            {/* كارت مستوى الكلام بالـ Progress Bar فقط وبدون أي أزرار أو نصوص للمستوى */}
+            <div className={styles.card} style={{ flex: 'none' }}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}><Activity size={22} />مستوى الكلام الحالي</h2>
+              </div>
+              <div className="flex flex-col gap-2 bg-[#F8F7FF] p-3.5 rounded-xl">
+                <div className="flex justify-between items-center text-xs font-bold text-[#581C87]">
+                  <span>مستوى التقدم</span>
+                  <span className="bg-[#EBE5F7] text-[#1E1B4B] px-2.5 py-0.5 rounded-full font-extrabold">
+                    {profileData.speechLevel ? `المستوى ${Math.min(Math.max(profileData.speechLevel.id, 1), 10)} من 10` : 'لم يحدد بعد'}
+                  </span>
+                </div>
+                <div className="w-full h-3.5 bg-[#EBE5F7] rounded-full overflow-hidden mt-1">
+                  <div 
+                    className="h-full bg-gradient-to-r from-[#FACC15] to-[#F59E0B] rounded-full transition-all duration-500"
+                    style={{ width: `${profileData.speechLevel ? (Math.min(Math.max(profileData.speechLevel.id, 1), 10) / 10) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* قسم الأنشطة الحالية */}
+      <div className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>الأنشطة الحالية</h2>
           {/* زر إضافة نشاط يظهر للدكتور فقط */}
@@ -209,33 +270,30 @@ const ChildProfile = () => {
             <div className="text-center py-4 text-[#6C34AF] font-bold">جاري تحميل الأنشطة...</div>
           ) : activities.length > 0 ? (
             activities.map((activity) => (
-              <div 
-                key={activity.id} 
-                className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl border-2 border-[#1E1B4B] gap-4 transition hover:shadow-[4px_4px_0px_#1E1B4B]"
-              >
-                
-                <div className="flex flex-col gap-3 w-full sm:w-auto">
-                  {/* محتوى النشاط */}
-                  <span className="font-extrabold text-[#1E1B4B] text-xl">
-                    {activity.content}
-                  </span>
-                  
-                  <div className="flex flex-wrap gap-2 sm:gap-3 text-sm font-bold">
-                    <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
-                      الهدف: {getActivityTargetText(activity.activityTarget)}
+              isDoctor ? (
+                /* واجهة الدكتور: محتوى النشاط وأسفله الأهداف، وعلى الشمال زراير التعديل والحذف */
+                <div 
+                  key={activity.id} 
+                  className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-4"
+                >
+                  <div className="flex flex-col gap-3 w-full sm:w-auto">
+                    <span className="font-extrabold text-[#1E1B4B] text-xl">
+                      {activity.content}
                     </span>
-                    <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
-                      المدة: {activity.estimatedDurationMinutes} دقائق
-                    </span>
+                    <div className="flex flex-wrap gap-2 sm:gap-3 text-sm font-bold">
+                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
+                        الهدف: {getActivityTargetText(activity.activityTarget)}
+                      </span>
+                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
+                        المدة: {activity.estimatedDurationMinutes} دقائق
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {/* زراير الأكشن (تعديل/حذف) تظهر للدكتور فقط */}
-                {isDoctor && (
                   <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
                     <button 
                       onClick={() => handleOpenEditActivity(activity)}
-                      className="flex items-center justify-center p-2 rounded-lg bg-[#FACC15] border-2 border-[#1E1B4B] text-[#1E1B4B] hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
+                      className={styles.itemEditBtn}
                       title="تعديل"
                     >
                       <Edit2 size={18} strokeWidth={2.5} />
@@ -243,14 +301,33 @@ const ChildProfile = () => {
                     
                     <button 
                       onClick={() => setActivityToDelete(activity.id)}
-                      className="flex items-center justify-center p-2 rounded-lg bg-[#EF4444] border-2 border-[#1E1B4B] text-white hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all"
+                      className={styles.itemDeleteBtn}
                       title="حذف"
                     >
                       <Trash2 size={18} strokeWidth={2.5} />
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                /* واجهة ولي الأمر: اسم النشاط ع اليمين، والهدف والمدة ع الشمال ف نفس السطر ومكبرين لتوحيد التوازن */
+                <div 
+                  key={activity.id} 
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-4"
+                >
+                  <span className="font-extrabold text-[#1E1B4B] text-xl">
+                    {activity.content}
+                  </span>
+                  
+                  <div className="flex flex-wrap items-center gap-3 text-sm sm:text-base font-extrabold flex-shrink-0">
+                    <span className="bg-[#EBE5F7] text-[#581C87] px-3.5 py-1.5 rounded-lg whitespace-nowrap">
+                      الهدف: {getActivityTargetText(activity.activityTarget)}
+                    </span>
+                    <span className="bg-[#EBE5F7] text-[#581C87] px-3.5 py-1.5 rounded-lg whitespace-nowrap">
+                      المدة: {activity.estimatedDurationMinutes} دقائق
+                    </span>
+                  </div>
+                </div>
+              )
             ))
           ) : (
             <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
@@ -261,7 +338,7 @@ const ChildProfile = () => {
       </div>
 
       {/* قسم ملاحظات الطبيب */}
-      <div className={`${styles.card} mt-6`}>
+      <div className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>
             ملاحظات الطبيب
@@ -280,18 +357,58 @@ const ChildProfile = () => {
           ) : notesData && notesData.items && notesData.items.length > 0 ? (
             <>
               {notesData.items.map((note) => (
-                <div 
-                  key={note.id} 
-                  className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl border-2 border-[#1E1B4B] gap-4 transition hover:shadow-[4px_4px_0px_#1E1B4B]"
-                >
-                  <div className="flex flex-col gap-2 w-full sm:w-auto">
-                    <div className="flex items-center gap-3 flex-wrap">
+                isDoctor ? (
+                  /* واجهة الدكتور: العنوان والجريدة وزراير التعديل والحذف */
+                  <div 
+                    key={note.id} 
+                    className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-4"
+                  >
+                    <div className="flex flex-col gap-2 w-full sm:w-auto">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="font-extrabold text-[#1E1B4B] text-xl">
+                          {note.title}
+                        </span>
+                        {note.createdAt && (
+                          <span className="text-xs font-bold text-[#581C87] bg-[#EBE5F7] px-2.5 py-1 rounded-md">
+                            {note.createdAt.split('T')[0]}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-base font-bold text-gray-700 leading-relaxed whitespace-pre-wrap">
+                        {note.description}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
+                      <button 
+                        onClick={() => handleOpenEditNote(note)}
+                        className={styles.itemEditBtn}
+                        title="تعديل الملاحظة"
+                      >
+                        <Edit2 size={18} strokeWidth={2.5} />
+                      </button>
+                      <button 
+                        onClick={() => setNoteToDelete(note.id)}
+                        className={styles.itemDeleteBtn}
+                        title="حذف الملاحظة"
+                      >
+                        <Trash2 size={18} strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* واجهة ولي الأمر: العنوان ع اليمين والتاريخ ع الشمال ف نفس السطر ومكبر */
+                  <div 
+                    key={note.id} 
+                    className="flex flex-col gap-3 p-4 bg-[#F8F7FF] rounded-xl"
+                  >
+                    <div className="flex justify-between items-center gap-4 flex-wrap w-full">
                       <span className="font-extrabold text-[#1E1B4B] text-xl">
                         {note.title}
                       </span>
                       {note.createdAt && (
-                        <span className="text-xs font-bold text-[#581C87] bg-[#EBE5F7] px-2.5 py-1 rounded-md">
-                          {new Date(note.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        <span className="text-sm sm:text-base font-extrabold text-[#581C87] bg-[#EBE5F7] px-3.5 py-1.5 rounded-lg flex-shrink-0">
+                          {note.createdAt.split('T')[0]}
                         </span>
                       )}
                     </div>
@@ -299,27 +416,7 @@ const ChildProfile = () => {
                       {note.description}
                     </p>
                   </div>
-
-                  {/* زراير التعديل والحذف تظهر للدكتور فقط */}
-                  {isDoctor && (
-                    <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
-                      <button 
-                        onClick={() => handleOpenEditNote(note)}
-                        className="flex items-center justify-center p-2 rounded-lg bg-[#FACC15] border-2 border-[#1E1B4B] text-[#1E1B4B] hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all cursor-pointer"
-                        title="تعديل الملاحظة"
-                      >
-                        <Edit2 size={18} strokeWidth={2.5} />
-                      </button>
-                      <button 
-                        onClick={() => setNoteToDelete(note.id)}
-                        className="flex items-center justify-center p-2 rounded-lg bg-[#EF4444] border-2 border-[#1E1B4B] text-white hover:translate-y-[-2px] hover:shadow-[2px_2px_0px_#1E1B4B] transition-all cursor-pointer"
-                        title="حذف الملاحظة"
-                      >
-                        <Trash2 size={18} strokeWidth={2.5} />
-                      </button>
-                    </div>
-                  )}
-                </div>
+                )
               ))}
 
               {/* عناصر التحكم في الصفحات Pagination */}

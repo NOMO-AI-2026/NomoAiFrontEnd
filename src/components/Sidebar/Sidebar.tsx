@@ -82,7 +82,7 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
       <nav className={styles.navMenu}>
         {currentLinks.map((link) => {
           const Icon = link.icon;
-          const isActive = currentPath === link.path || (link.path === '/doctor/children' && currentPath.startsWith('/child/'));
+          const isActive = currentPath === link.path || ((link.path === '/doctor/children' || link.path === '/parent/children') && currentPath.startsWith('/child/'));
           return (
             <Link 
               key={link.title} 
@@ -97,8 +97,8 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
       </nav>
 
       <div className={styles.sidebarFooter}>
-        {/* زر بدء الجلسة يظهر لولي الأمر والطبيب */}
-        {(role === 'parent' || role === 'doctor') && (
+        {/* زر بدء الجلسة يظهر لولي الأمر فقط */}
+        {role === 'parent' && (
           <button className={styles.newSessionBtn}
           onClick={() => navigate('/session')}>
             <Gamepad2 size={20} />
