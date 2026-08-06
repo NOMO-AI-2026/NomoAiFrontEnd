@@ -48,9 +48,23 @@ export default function LoginPage() {
     setServerError('');
 
     try {
-      const data = (await loginApi(formData)) as { token?: string; value?: { token?: string } };
+      const data = (await loginApi(formData)) as {
+        token?: string;
+        userRole?: string;
+        isSuccess?: boolean;
+        isFailure?: boolean;
+        value?: { token?: string; userRole?: string };
+        error?: { description?: string; code?: string };
+      };
+
+      if (data.isFailure === true) {
+        setServerError(data.error?.description || 'فشل تسجيل الدخول.');
+        return;
+      }
+
       const token = data.token || data.value?.token;
-      
+      const apiRole = (data.userRole || data.value?.userRole || '').toLowerCase().trim();
+
       if (token) {
         localStorage.setItem('token', token);
 
@@ -74,13 +88,12 @@ export default function LoginPage() {
             }
           }
 
+          let finalRole: 'doctor' | 'parent' | 'admin' | null = null;
+
           if (roleClaim) {
             const roles = Array.isArray(roleClaim) ? roleClaim : [roleClaim];
             const normalizedRoles = roles.map(r => String(r).toLowerCase().trim());
-            
-            // 1. نجهز متغير نوعه مطابق بالظبط للنوع اللي في الريدكس
-            let finalRole: 'doctor' | 'parent' | 'admin' | null = null;
-            
+
             if (normalizedRoles.includes("admin") || normalizedRoles.includes("2")) {
               finalRole = 'admin';
             } else if (normalizedRoles.includes("doctor") || normalizedRoles.includes("0")) {
@@ -88,57 +101,81 @@ export default function LoginPage() {
             } else if (normalizedRoles.includes("parent") || normalizedRoles.includes("1")) {
               finalRole = 'parent';
             }
+          }
 
-            // 2. نعمل dispatch للرول النهائي المطابق للشروط
-            dispatch(setCredentials({ token, role: finalRole }));
-            
-            // 3. التوجيه بناءً على الرول
-            if (finalRole === 'admin') {
-              navigate('/admin');
-              return; 
-            }
-            if (finalRole === 'doctor') {
-              navigate('/doctor/children');
-              return;
-            }
-            if (finalRole === 'parent') {
-              navigate('/parent/children'); 
-              return;
-            }
+          // Fallback to API userRole when JWT claim parsing is unclear.
+          if (!finalRole && apiRole) {
+            if (apiRole.includes('admin')) finalRole = 'admin';
+            else if (apiRole.includes('doctor')) finalRole = 'doctor';
+            else if (apiRole.includes('parent')) finalRole = 'parent';
+          }
+
+          dispatch(setCredentials({ token, role: finalRole }));
+
+          if (finalRole === 'admin') {
+            navigate('/admin');
+            return;
+          }
+          if (finalRole === 'doctor') {
+            navigate('/doctor/children');
+            return;
+          }
+          if (finalRole === 'parent') {
+            navigate('/parent/children');
+            return;
           }
         } catch (decodeError) {
           console.error("Error decoding token on login:", decodeError);
         }
         // ==================================================================== //
+
+        dispatch(setCredentials({ token, role: null }));
+        navigate(apiRole.includes('parent') ? '/parent/children' : '/doctor/children');
+        return;
       }
-      
-      // التوجيه الافتراضي لو حصل أي مشكلة في فك التوكن بس في توكن موجود
-      if (token) {
-          // نحدث الريدكس بالتوكن على الأقل حتى لو مفيش رول واضح
-          dispatch(setCredentials({ token, role: null }));
-      }
-      navigate('/doctor/children'); 
-      
+
+      setServerError('لم يتم استلام رمز الدخول من الخادم.');
     } catch (err: unknown) {
-      const apiError = err as { response?: { status?: number; data?: { message?: string; title?: string; detail?: string } } };
-      console.error("Login Error Response:", apiError.response?.data); 
+      const apiError = err as {
+        message?: string;
+        code?: string;
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+            title?: string;
+            detail?: string;
+            error?: { description?: string };
+          };
+        };
+      };
+      console.error("Login Error Response:", apiError.response?.data ?? apiError.message);
 
       const status = apiError.response?.status;
       const responseData = apiError.response?.data;
       const errorString = JSON.stringify(responseData || "").toLowerCase();
 
-      if (status === 401) {
+      if (!apiError.response) {
+        // Typical when the browser blocks a cross-origin response (CORS) or the network is down.
+        setServerError(
+          'تعذر الوصول إلى الخادم من المتصفح (غالبًا بسبب CORS). تأكد أن إعدادات التطوير تستخدم proxy أو أن السيرفر يسمح بـ localhost:5173.',
+        );
+      } else if (status === 401) {
         if (errorString.includes('confirm') || errorString.includes('تأكيد')) {
           setErrors({ email: 'يرجى تأكيد بريدك الإلكتروني أولاً.' });
-        } 
-        else {
+        } else {
           setServerError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
           setErrors({ email: ' ', password: ' ' });
         }
       } else if (status === 404) {
         setErrors({ email: 'هذا الحساب غير مسجل لدينا.' });
       } else {
-        const genericMessage = responseData?.message || responseData?.title || responseData?.detail || 'حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة لاحقاً.';
+        const genericMessage =
+          responseData?.error?.description ||
+          responseData?.message ||
+          responseData?.title ||
+          responseData?.detail ||
+          'حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة لاحقاً.';
         setServerError(genericMessage);
       }
     } finally {

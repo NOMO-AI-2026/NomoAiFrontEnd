@@ -55,6 +55,9 @@ export interface SessionFeedback {
   spokenText: string;
   emotion?: string | null;
   scores?: SessionFeedbackScores | null;
+  /** Pre-synthesized feedback audio from submit — skip GET feedback-speech when set. */
+  audioBase64?: string | null;
+  audioContentType?: string | null;
 }
 
 export interface SessionRuntimeResponse {
@@ -65,6 +68,9 @@ export interface SessionRuntimeResponse {
   feedback?: SessionFeedback | null;
   activityType?: string | null;
   prompt?: string | null;
+  /** Pre-synthesized instruction audio — skip GET .../speech when set. */
+  speechAudioBase64?: string | null;
+  speechAudioContentType?: string | null;
 }
 
 export interface StartSessionPayload {
@@ -120,11 +126,15 @@ export const fetchSessionSpeechBlobApi = async (
   sessionId: number | string,
   options?: ApiCallOptions,
 ): Promise<Blob> => {
-  const response = await axiosInstance.get(`/sessions/${sessionId}/speech`, {
-    responseType: 'blob',
-    signal: options?.signal,
-  });
-  return response.data as Blob;
+  try {
+    const response = await axiosInstance.get(`/sessions/${sessionId}/speech`, {
+      responseType: 'blob',
+      signal: options?.signal,
+    });
+    return response.data as Blob;
+  } catch (err) {
+    throw await rethrowBlobApiError(err);
+  }
 };
 
 /** GET /sessions/{sessionId}/attempts/{attemptId}/feedback-speech — fetches feedback audio as a Blob. */
@@ -133,12 +143,55 @@ export const fetchFeedbackSpeechBlobApi = async (
   attemptId: number | string,
   options?: ApiCallOptions,
 ): Promise<Blob> => {
-  const response = await axiosInstance.get(
-    `/sessions/${sessionId}/attempts/${attemptId}/feedback-speech`,
-    { responseType: 'blob', signal: options?.signal },
-  );
-  return response.data as Blob;
+  try {
+    const response = await axiosInstance.get(
+      `/sessions/${sessionId}/attempts/${attemptId}/feedback-speech`,
+      { responseType: 'blob', signal: options?.signal },
+    );
+    return response.data as Blob;
+  } catch (err) {
+    throw await rethrowBlobApiError(err);
+  }
 };
+
+/** When responseType is blob, error bodies are Blobs — parse JSON ProblemDetails for UI. */
+async function rethrowBlobApiError(err: unknown): Promise<never> {
+  if (err && typeof err === 'object' && 'response' in err) {
+    const axiosErr = err as {
+      response?: { data?: unknown; status?: number };
+      message?: string;
+    };
+    const data = axiosErr.response?.data;
+    if (typeof Blob !== 'undefined' && data instanceof Blob) {
+      try {
+        const text = await data.text();
+        const parsed = JSON.parse(text) as {
+          detail?: string;
+          title?: string;
+          type?: string;
+          description?: string;
+          code?: string;
+        };
+        const message =
+          parsed.detail ||
+          parsed.description ||
+          parsed.title ||
+          axiosErr.message ||
+          `Request failed with status code ${axiosErr.response?.status ?? ''}`.trim();
+        const enriched = Object.assign(new Error(message), {
+          response: {
+            status: axiosErr.response?.status,
+            data: parsed,
+          },
+        });
+        throw enriched;
+      } catch (inner) {
+        if (inner instanceof Error && 'response' in inner) throw inner;
+      }
+    }
+  }
+  throw err;
+}
 
 /** POST /sessions/{sessionId}/attempts — uploads the recorded child response (multipart field "audio"). */
 export const submitSessionAttemptApi = async (

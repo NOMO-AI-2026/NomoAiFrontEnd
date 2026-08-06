@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowRight,
   Coffee,
-  Mic,
   PartyPopper,
   RefreshCw,
   Square,
@@ -24,30 +23,50 @@ import {
   getErrorMessage,
   getMaxRecordingMs,
   getStepTypeLabel,
+  isAutoplayBlockedError,
   type SessionUiState,
 } from './sessionScreenHelpers';
+import { getSilenceDurationMs, startEnergyVad, type VadController } from './sessionVad';
+
+function blobFromBase64(base64: string, contentType?: string | null): Blob {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new Blob([bytes], { type: contentType || 'audio/wav' });
+}
 
 const SessionScreen = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const bootRuntimeRef = useRef<SessionRuntimeResponse | null>(
+    (location.state as { runtime?: SessionRuntimeResponse } | null)?.runtime ?? null,
+  );
 
   const [uiState, setUiState] = useState<SessionUiState>('loading_plan');
   const [runtime, setRuntime] = useState<SessionRuntimeResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [heardSpeech, setHeardSpeech] = useState(false);
 
   const isMountedRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+  const pendingAudioEndedRef = useRef<(() => void) | null>(null);
+  const audioUnlockedRef = useRef(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const vadRef = useRef<VadController | null>(null);
   const isFinishingRecordingRef = useRef(false);
+  const autoListenStartedForStepRef = useRef<string | null>(null);
   // Holds the latest `finishRecording` closure so the auto-stop timeout
   // (scheduled inside `startRecording`) always calls the freshest version.
   const finishRecordingRef = useRef<(() => Promise<void>) | null>(null);
@@ -55,6 +74,7 @@ const SessionScreen = () => {
   // (e.g. after `continueSessionStepApi`) without a direct self-reference,
   // which the compiler can't safely memoize.
   const applyRuntimeRef = useRef<((next: SessionRuntimeResponse) => Promise<void>) | null>(null);
+  const startRecordingRef = useRef<(() => Promise<void>) | null>(null);
 
   const cleanupAudio = useCallback(() => {
     if (audioRef.current) {
@@ -68,6 +88,7 @@ const SessionScreen = () => {
       URL.revokeObjectURL(objectUrlRef.current);
       objectUrlRef.current = null;
     }
+    pendingAudioEndedRef.current = null;
   }, []);
 
   const cleanupRecorder = useCallback(() => {
@@ -79,6 +100,8 @@ const SessionScreen = () => {
       clearInterval(recordIntervalRef.current);
       recordIntervalRef.current = null;
     }
+    vadRef.current?.stop();
+    vadRef.current = null;
     const recorder = mediaRecorderRef.current;
     if (recorder && recorder.state !== 'inactive') {
       try {
@@ -110,30 +133,74 @@ const SessionScreen = () => {
   const handleError = useCallback((err: unknown) => {
     if (!isMountedRef.current) return;
     console.error('Session runner error:', err);
+    cleanupRecorder();
     setErrorMessage(getErrorMessage(err));
     setUiState('error');
-  }, []);
+  }, [cleanupRecorder]);
 
   const playBlob = useCallback(
-    (blob: Blob, onEnded: () => void) => {
+    (blob: Blob, onEnded: () => void, mode: 'speaking' | 'playing_feedback' = 'speaking') => {
       cleanupAudio();
       const url = URL.createObjectURL(blob);
       objectUrlRef.current = url;
       const audio = new Audio(url);
       audioRef.current = audio;
+      pendingAudioEndedRef.current = onEnded;
       audio.onended = () => {
+        pendingAudioEndedRef.current = null;
         onEnded();
       };
       audio.onerror = () => {
         handleError(new Error('فشل تشغيل الصوت.'));
       };
+
+      const markSpeakingUi = () => {
+        if (!isMountedRef.current) return;
+        setUiState(mode);
+      };
+
       const playResult = audio.play();
-      if (playResult && typeof playResult.catch === 'function') {
-        playResult.catch((err) => handleError(err));
+      if (playResult && typeof playResult.then === 'function') {
+        playResult
+          .then(() => {
+            audioUnlockedRef.current = true;
+            markSpeakingUi();
+          })
+          .catch((err) => {
+            if (isAutoplayBlockedError(err)) {
+              // Browser autoplay policy — wait for an explicit tap.
+              if (isMountedRef.current) setUiState('awaiting_play');
+              return;
+            }
+            handleError(err);
+          });
+      } else {
+        markSpeakingUi();
       }
     },
     [cleanupAudio, handleError],
   );
+
+  const handleResumePlayback = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const playResult = audio.play();
+    if (playResult && typeof playResult.then === 'function') {
+      playResult
+        .then(() => {
+          audioUnlockedRef.current = true;
+          if (!isMountedRef.current) return;
+          // Prefer feedback UI if last runtime command was play_feedback.
+          setUiState((prev) => (prev === 'awaiting_play' ? 'speaking' : prev));
+          if (runtime?.command === 'play_feedback') {
+            setUiState('playing_feedback');
+          } else {
+            setUiState('speaking');
+          }
+        })
+        .catch((err) => handleError(err));
+    }
+  }, [handleError, runtime?.command]);
 
   // Central dispatcher: applies a freshly received runtime snapshot to the UI,
   // and (when the server asks for it) plays avatar / feedback speech, chaining
@@ -145,16 +212,27 @@ const SessionScreen = () => {
       setErrorMessage(null);
 
       if (next.status === 'completed' || next.command === 'session_completed') {
-        cleanupAudio();
-        setUiState('completed');
-        return;
+        // Still allow a final feedback clip to play before showing the completion screen.
+        if (next.command !== 'play_feedback') {
+          cleanupAudio();
+          setUiState('completed');
+          return;
+        }
       }
 
       const sid = next.sessionId ?? sessionId;
 
       const onAudioFinished = async () => {
         if (!isMountedRef.current) return;
-        if (next.currentStep?.expectsChildResponse) {
+        if (next.status === 'completed') {
+          setUiState('completed');
+          return;
+        }
+        const step = next.currentStep;
+        const canRecordMore =
+          !!step?.expectsChildResponse &&
+          (step.attemptNumber ?? 0) < (step.maximumAttempts ?? 1);
+        if (canRecordMore) {
           setUiState('ready_to_record');
           return;
         }
@@ -168,6 +246,7 @@ const SessionScreen = () => {
           });
           await applyRuntimeRef.current?.(fresh);
         } catch (err) {
+          // If continue is rejected because the step still expects speech, surface a calm end.
           handleError(err);
         }
       };
@@ -176,33 +255,48 @@ const SessionScreen = () => {
         case 'play_avatar_speech': {
           setUiState('speaking');
           try {
-            const blob = await fetchSessionSpeechBlobApi(sid, {
-              signal: abortControllerRef.current?.signal,
-            });
+            let blob: Blob;
+            if (next.speechAudioBase64) {
+              blob = blobFromBase64(next.speechAudioBase64, next.speechAudioContentType);
+            } else {
+              blob = await fetchSessionSpeechBlobApi(sid, {
+                signal: abortControllerRef.current?.signal,
+              });
+            }
             if (!isMountedRef.current) return;
             playBlob(blob, () => {
               void onAudioFinished();
-            });
+            }, 'speaking');
           } catch (err) {
             handleError(err);
           }
           break;
         }
         case 'play_feedback': {
-          setUiState('evaluating');
+          // Show spoken feedback text immediately while audio starts (no extra round-trip when embedded).
+          setUiState('playing_feedback');
           try {
             const attemptId = next.feedback?.attemptId;
             if (attemptId == null) {
               throw new Error('لا توجد نتيجة تقييم متاحة لهذه المحاولة.');
             }
-            const blob = await fetchFeedbackSpeechBlobApi(sid, attemptId, {
-              signal: abortControllerRef.current?.signal,
-            });
+
+            let blob: Blob | null = null;
+            if (next.feedback?.audioBase64) {
+              blob = blobFromBase64(
+                next.feedback.audioBase64,
+                next.feedback.audioContentType,
+              );
+            } else {
+              blob = await fetchFeedbackSpeechBlobApi(sid, attemptId, {
+                signal: abortControllerRef.current?.signal,
+              });
+            }
+
             if (!isMountedRef.current) return;
-            setUiState('playing_feedback');
             playBlob(blob, () => {
               void onAudioFinished();
-            });
+            }, 'playing_feedback');
           } catch (err) {
             handleError(err);
           }
@@ -234,9 +328,16 @@ const SessionScreen = () => {
 
     (async () => {
       try {
-        const data = await getSessionRuntimeApi(sessionId, {
-          signal: abortControllerRef.current?.signal,
-        });
+        const sid = Number(sessionId);
+        const boot = bootRuntimeRef.current;
+        // Prefer the StartSession payload — avoids a redundant GET /runtime round-trip.
+        const data =
+          boot && boot.sessionId === sid
+            ? boot
+            : await getSessionRuntimeApi(sid, {
+                signal: abortControllerRef.current?.signal,
+              });
+        bootRuntimeRef.current = null;
         if (!isActive || !isMountedRef.current) return;
         await applyRuntime(data);
       } catch (err) {
@@ -257,8 +358,18 @@ const SessionScreen = () => {
       return;
     }
 
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
       if (!isMountedRef.current) {
         stream.getTracks().forEach((track) => track.stop());
         return;
@@ -267,8 +378,24 @@ const SessionScreen = () => {
       mediaStreamRef.current = stream;
       chunksRef.current = [];
       isFinishingRecordingRef.current = false;
+      setHeardSpeech(false);
 
-      const recorder = new MediaRecorder(stream);
+      const preferredTypes = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+      ];
+      const mimeType = preferredTypes.find((type) => {
+        try {
+          return typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported?.(type);
+        } catch {
+          return false;
+        }
+      });
+
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
 
       recorder.ondataavailable = (event: BlobEvent) => {
@@ -277,7 +404,8 @@ const SessionScreen = () => {
         }
       };
 
-      recorder.start();
+      // timeslice keeps chunks flowing so a crash mid-turn still has partial audio
+      recorder.start(250);
       setUiState('recording');
       setRecordingSeconds(0);
 
@@ -289,10 +417,40 @@ const SessionScreen = () => {
       recordTimeoutRef.current = setTimeout(() => {
         void finishRecordingRef.current?.();
       }, maxMs);
+
+      vadRef.current?.stop();
+      vadRef.current = startEnergyVad(stream, {
+        silenceDurationMs: getSilenceDurationMs(runtime?.activityType),
+        onSpeechStart: () => {
+          if (isMountedRef.current) setHeardSpeech(true);
+        },
+        onSilenceEnd: () => {
+          void finishRecordingRef.current?.();
+        },
+      });
     } catch (err) {
       handleError(err);
     }
   }, [handleError, runtime]);
+
+  useEffect(() => {
+    startRecordingRef.current = startRecording;
+  }, [startRecording]);
+
+  // ChatGPT-like turn: after avatar finishes, open the mic automatically.
+  useEffect(() => {
+    if (uiState !== 'ready_to_record' || !runtime?.currentStep) return;
+
+    const stepKey = `${runtime.sessionId}-${runtime.currentStep.stepNumber}-${runtime.currentStep.attemptNumber}`;
+    if (autoListenStartedForStepRef.current === stepKey) return;
+    autoListenStartedForStepRef.current = stepKey;
+
+    const timer = setTimeout(() => {
+      void startRecordingRef.current?.();
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [uiState, runtime]);
 
   const finishRecording = useCallback(async () => {
     if (isFinishingRecordingRef.current) return;
@@ -306,6 +464,8 @@ const SessionScreen = () => {
       clearInterval(recordIntervalRef.current);
       recordIntervalRef.current = null;
     }
+    vadRef.current?.stop();
+    vadRef.current = null;
 
     const recorder = mediaRecorderRef.current;
     const stream = mediaStreamRef.current;
@@ -332,18 +492,43 @@ const SessionScreen = () => {
 
     if (!isMountedRef.current) return;
 
+    if (!blob.size) {
+      isFinishingRecordingRef.current = false;
+      handleError(new Error('لم يتم التقاط صوت. حاول التحدث بصوت أوضح.'));
+      return;
+    }
+
     setUiState('uploading');
 
     try {
       const sid = sessionId as string;
-      const response = await submitSessionAttemptApi(sid, blob, `attempt-${Date.now()}.webm`, {
-        signal: abortControllerRef.current?.signal,
-      });
+      const extension = mimeType.includes('mp4') ? 'm4a' : 'webm';
+      const response = await submitSessionAttemptApi(
+        sid,
+        blob,
+        `attempt-${Date.now()}.${extension}`,
+        {
+          signal: abortControllerRef.current?.signal,
+        },
+      );
       isFinishingRecordingRef.current = false;
       if (!isMountedRef.current) return;
       await applyRuntime(response);
     } catch (err) {
       isFinishingRecordingRef.current = false;
+      // Recover from exhausted-attempt conflicts by refreshing runtime instead of dying.
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 409 && sessionId) {
+        try {
+          const fresh = await getSessionRuntimeApi(sessionId, {
+            signal: abortControllerRef.current?.signal,
+          });
+          await applyRuntime(fresh);
+          return;
+        } catch {
+          // fall through to handleError
+        }
+      }
       handleError(err);
     }
   }, [applyRuntime, handleError, sessionId]);
@@ -366,6 +551,7 @@ const SessionScreen = () => {
 
   const handleRetryLoad = useCallback(async () => {
     if (!sessionId) return;
+    autoListenStartedForStepRef.current = null;
     setUiState('loading_plan');
     try {
       const data = await getSessionRuntimeApi(sessionId, {
@@ -433,10 +619,34 @@ const SessionScreen = () => {
             </div>
           )}
 
-          {uiState === 'speaking' && (
+          {(uiState === 'speaking' || (uiState === 'awaiting_play' && runtime?.command !== 'play_feedback')) && (
             <div className={styles.statusBlock}>
               <Volume2 size={28} className={styles.iconAccent} />
               <p className={styles.statusText}>{step?.spokenText || 'المساعد يتكلم...'}</p>
+              {uiState === 'awaiting_play' && (
+                <button className={styles.primaryBtn} onClick={handleResumePlayback} type="button">
+                  <Volume2 size={20} />
+                  اضغط لسماع المساعد
+                </button>
+              )}
+            </div>
+          )}
+
+          {(uiState === 'playing_feedback' ||
+            (uiState === 'awaiting_play' && runtime?.command === 'play_feedback')) && (
+            <div className={styles.statusBlock}>
+              <p className={styles.statusText}>{feedback?.spokenText || 'المساعد جاهز للرد'}</p>
+              {feedback?.scores && uiState === 'playing_feedback' && (
+                <p className={styles.attemptInfo}>
+                  الدقة: {Math.round(feedback.scores.overall * 100)}%
+                </p>
+              )}
+              {uiState === 'awaiting_play' && (
+                <button className={styles.primaryBtn} onClick={handleResumePlayback} type="button">
+                  <Volume2 size={20} />
+                  اضغط لسماع الرد
+                </button>
+              )}
             </div>
           )}
 
@@ -445,26 +655,30 @@ const SessionScreen = () => {
               <p className={styles.promptText}>{step?.spokenText}</p>
               {step && (
                 <p className={styles.attemptInfo}>
-                  المحاولة {step.attemptNumber + 1} من {step.maximumAttempts}
+                  المحاولة{' '}
+                  {Math.min((step.attemptNumber ?? 0) + 1, Math.max(1, step.maximumAttempts ?? 1))} من{' '}
+                  {Math.max(1, step.maximumAttempts ?? 1)}
                 </p>
               )}
 
               {uiState === 'ready_to_record' && (
-                <button className={styles.primaryBtn} onClick={() => void startRecording()} type="button">
-                  <Mic size={20} />
-                  ابدأ التسجيل
-                </button>
+                <div className={styles.statusBlock}>
+                  <div className={styles.spinner} aria-hidden="true" />
+                  <p className={styles.statusText}>جاري فتح الميكروفون...</p>
+                </div>
               )}
 
               {uiState === 'recording' && (
                 <>
                   <div className={styles.recordingIndicator}>
                     <span className={styles.recordingDot} aria-hidden="true" />
-                    جاري التسجيل... {recordingSeconds}s / {maxSeconds}s
+                    {heardSpeech
+                      ? `أسمعك... قل الجملة ثم اصمت (${recordingSeconds}s / ${maxSeconds}s)`
+                      : `الميكروفون مفتوح — تكلّم الآن (${recordingSeconds}s / ${maxSeconds}s)`}
                   </div>
                   <button className={styles.secondaryBtn} onClick={() => void finishRecording()} type="button">
                     <Square size={18} />
-                    انتهيت
+                    إرسال الآن
                   </button>
                 </>
               )}
@@ -474,7 +688,7 @@ const SessionScreen = () => {
           {uiState === 'uploading' && (
             <div className={styles.statusBlock}>
               <div className={styles.spinner} aria-hidden="true" />
-              <p className={styles.statusText}>جاري رفع التسجيل...</p>
+              <p className={styles.statusText}>جاري فهم إجابتك...</p>
             </div>
           )}
 
@@ -485,21 +699,10 @@ const SessionScreen = () => {
             </div>
           )}
 
-          {uiState === 'playing_feedback' && (
-            <div className={styles.statusBlock}>
-              <p className={styles.statusText}>{feedback?.spokenText}</p>
-              {feedback?.scores && (
-                <p className={styles.attemptInfo}>
-                  الدقة: {Math.round(feedback.scores.overall * 100)}%
-                </p>
-              )}
-            </div>
-          )}
-
           {uiState === 'take_break' && (
             <div className={styles.statusBlock}>
               <Coffee size={28} className={styles.iconAccent} />
-              <p className={styles.statusText}>وقت لأخذ استراحة قصيرة! 🎈</p>
+              <p className={styles.statusText}>وقت لأخذ استراحة قصيرة!</p>
               <button className={styles.primaryBtn} onClick={() => void handleContinueAfterBreak()} type="button">
                 استمر
               </button>
@@ -509,7 +712,7 @@ const SessionScreen = () => {
           {uiState === 'completed' && (
             <div className={styles.statusBlock}>
               <PartyPopper size={32} className={styles.iconAccent} />
-              <p className={styles.statusText}>أحسنت! لقد أنهيت الجلسة بنجاح 🎉</p>
+              <p className={styles.statusText}>أحسنت! لقد أنهيت الجلسة بنجاح</p>
               <button className={styles.primaryBtn} onClick={() => navigate('/session')} type="button">
                 جلسة جديدة
               </button>

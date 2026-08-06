@@ -67,13 +67,17 @@ afterEach(() => {
 });
 
 describe('SessionScreen — runtime rendering & avatar state', () => {
-  it('shows the listening avatar and record button when the server already expects a response', async () => {
+  it('auto-opens the microphone when the server already expects a response', async () => {
     vi.mocked(getSessionRuntimeApi).mockResolvedValueOnce(baseRuntime());
+    const { stream } = createMockMediaStream();
+    mediaMocks.getUserMedia.mockResolvedValue(stream);
 
     renderSession();
 
     await screen.findByText('قل: بابا');
-    expect(screen.getByRole('button', { name: /ابدأ التسجيل/ })).toBeInTheDocument();
+    await waitFor(() => expect(mediaMocks.getUserMedia).toHaveBeenCalled());
+    await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
+    expect(screen.getByRole('button', { name: /إرسال الآن/ })).toBeInTheDocument();
     expect(screen.getByAltText('أفاتار المساعد')).toHaveAttribute('src', expect.stringContaining('listening'));
   });
 
@@ -89,12 +93,14 @@ describe('SessionScreen — runtime rendering & avatar state', () => {
 });
 
 describe('SessionScreen — authenticated speech playback', () => {
-  it('fetches speech as an authenticated blob and plays it via an object URL', async () => {
+  it('fetches speech as an authenticated blob and auto-listens after playback', async () => {
     vi.mocked(getSessionRuntimeApi).mockResolvedValueOnce(
       baseRuntime({ command: 'play_avatar_speech' }),
     );
     const speechBlob = new Blob(['fake-audio'], { type: 'audio/mpeg' });
     vi.mocked(fetchSessionSpeechBlobApi).mockResolvedValueOnce(speechBlob);
+    const { stream } = createMockMediaStream();
+    mediaMocks.getUserMedia.mockResolvedValue(stream);
 
     renderSession();
 
@@ -107,7 +113,8 @@ describe('SessionScreen — authenticated speech playback', () => {
       MockAudio.latest?.onended?.();
     });
 
-    await screen.findByRole('button', { name: /ابدأ التسجيل/ });
+    await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
+    expect(screen.getByRole('button', { name: /إرسال الآن/ })).toBeInTheDocument();
   });
 
   it('advances to the next step via continueSessionStep when the step does not expect a response', async () => {
@@ -140,6 +147,8 @@ describe('SessionScreen — authenticated speech playback', () => {
         },
       }),
     );
+    const { stream } = createMockMediaStream();
+    mediaMocks.getUserMedia.mockResolvedValue(stream);
 
     renderSession();
 
@@ -155,7 +164,7 @@ describe('SessionScreen — authenticated speech playback', () => {
     });
 
     await screen.findByText('خطوة 2 · تمرين موجّه');
-    expect(screen.getByRole('button', { name: /ابدأ التسجيل/ })).toBeInTheDocument();
+    await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
   });
 });
 
@@ -165,7 +174,13 @@ describe('SessionScreen — feedback adaptive actions', () => {
     vi.mocked(submitSessionAttemptApi).mockResolvedValueOnce(
       baseRuntime({
         command: 'play_feedback',
-        feedback: { attemptId: 1, adaptiveAction: 'retry_same', spokenText: 'حاول مرة أخرى' },
+        feedback: {
+          attemptId: 1,
+          adaptiveAction: 'retry_same',
+          spokenText: 'حاول مرة أخرى',
+          audioBase64: btoa('feedback'),
+          audioContentType: 'audio/mpeg',
+        },
         currentStep: {
           stepNumber: 1,
           stepType: 'guided_practice',
@@ -176,27 +191,19 @@ describe('SessionScreen — feedback adaptive actions', () => {
         },
       }),
     );
-    vi.mocked(fetchFeedbackSpeechBlobApi).mockResolvedValueOnce(
-      new Blob(['feedback'], { type: 'audio/mpeg' }),
-    );
 
     const { stream } = createMockMediaStream();
-    mediaMocks.getUserMedia.mockResolvedValueOnce(stream);
+    mediaMocks.getUserMedia.mockResolvedValue(stream);
 
     renderSession();
-    await screen.findByRole('button', { name: /ابدأ التسجيل/ });
+    await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
 
     await act(async () => {
-      screen.getByRole('button', { name: /ابدأ التسجيل/ }).click();
-    });
-    await waitFor(() => expect(MockMediaRecorder.latest).toBeDefined());
-
-    await act(async () => {
-      screen.getByRole('button', { name: /انتهيت/ }).click();
+      screen.getByRole('button', { name: /إرسال الآن/ }).click();
     });
 
     await waitFor(() => expect(submitSessionAttemptApi).toHaveBeenCalled());
-    await waitFor(() => expect(fetchFeedbackSpeechBlobApi).toHaveBeenCalledWith(123, 1, expect.anything()));
+    expect(fetchFeedbackSpeechBlobApi).not.toHaveBeenCalled();
     await waitFor(() => expect(MockAudio.latest).toBeDefined());
 
     await act(async () => {
@@ -213,7 +220,13 @@ describe('SessionScreen — feedback adaptive actions', () => {
     vi.mocked(submitSessionAttemptApi).mockResolvedValueOnce(
       baseRuntime({
         command: 'play_feedback',
-        feedback: { attemptId: 2, adaptiveAction: 'advance', spokenText: 'أحسنت!' },
+        feedback: {
+          attemptId: 2,
+          adaptiveAction: 'advance',
+          spokenText: 'أحسنت!',
+          audioBase64: btoa('feedback'),
+          audioContentType: 'audio/mpeg',
+        },
         currentStep: {
           stepNumber: 1,
           stepType: 'guided_practice',
@@ -224,12 +237,11 @@ describe('SessionScreen — feedback adaptive actions', () => {
         },
       }),
     );
-    vi.mocked(fetchFeedbackSpeechBlobApi).mockResolvedValueOnce(
-      new Blob(['feedback'], { type: 'audio/mpeg' }),
-    );
     vi.mocked(continueSessionStepApi).mockResolvedValueOnce(
       baseRuntime({
         command: 'play_avatar_speech',
+        speechAudioBase64: btoa('step2'),
+        speechAudioContentType: 'audio/mpeg',
         currentStep: {
           stepNumber: 2,
           stepType: 'guided_practice',
@@ -240,26 +252,18 @@ describe('SessionScreen — feedback adaptive actions', () => {
         },
       }),
     );
-    vi.mocked(fetchSessionSpeechBlobApi).mockResolvedValueOnce(
-      new Blob(['step2'], { type: 'audio/mpeg' }),
-    );
 
     const { stream } = createMockMediaStream();
-    mediaMocks.getUserMedia.mockResolvedValueOnce(stream);
+    mediaMocks.getUserMedia.mockResolvedValue(stream);
 
     renderSession();
-    await screen.findByRole('button', { name: /ابدأ التسجيل/ });
+    await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
 
     await act(async () => {
-      screen.getByRole('button', { name: /ابدأ التسجيل/ }).click();
-    });
-    await waitFor(() => expect(MockMediaRecorder.latest).toBeDefined());
-
-    await act(async () => {
-      screen.getByRole('button', { name: /انتهيت/ }).click();
+      screen.getByRole('button', { name: /إرسال الآن/ }).click();
     });
 
-    await waitFor(() => expect(fetchFeedbackSpeechBlobApi).toHaveBeenCalled());
+    expect(fetchFeedbackSpeechBlobApi).not.toHaveBeenCalled();
     await waitFor(() => expect(MockAudio.instances).toHaveLength(1));
 
     await act(async () => {
@@ -267,6 +271,7 @@ describe('SessionScreen — feedback adaptive actions', () => {
     });
 
     await waitFor(() => expect(continueSessionStepApi).toHaveBeenCalledWith(123, expect.anything()));
+    expect(fetchSessionSpeechBlobApi).not.toHaveBeenCalled();
     await waitFor(() => expect(MockAudio.instances).toHaveLength(2));
 
     await act(async () => {
@@ -278,16 +283,11 @@ describe('SessionScreen — feedback adaptive actions', () => {
 });
 
 describe('SessionScreen — MediaRecorder lifecycle & cleanup', () => {
-  it('shows an error and creates no recorder when microphone permission is denied', async () => {
+  it('shows an error when microphone permission is denied on auto-listen', async () => {
     vi.mocked(getSessionRuntimeApi).mockResolvedValueOnce(baseRuntime());
     mediaMocks.getUserMedia.mockRejectedValueOnce(new Error('Permission denied'));
 
     renderSession();
-    await screen.findByRole('button', { name: /ابدأ التسجيل/ });
-
-    await act(async () => {
-      screen.getByRole('button', { name: /ابدأ التسجيل/ }).click();
-    });
 
     await screen.findByText('Permission denied');
     expect(screen.getByRole('button', { name: /إعادة المحاولة/ })).toBeInTheDocument();
@@ -297,16 +297,10 @@ describe('SessionScreen — MediaRecorder lifecycle & cleanup', () => {
   it('stops microphone tracks when the component unmounts mid-recording', async () => {
     vi.mocked(getSessionRuntimeApi).mockResolvedValueOnce(baseRuntime());
     const { stream, stopTrack } = createMockMediaStream();
-    mediaMocks.getUserMedia.mockResolvedValueOnce(stream);
+    mediaMocks.getUserMedia.mockResolvedValue(stream);
 
     const { unmount } = renderSession();
-    await screen.findByRole('button', { name: /ابدأ التسجيل/ });
-
-    await act(async () => {
-      screen.getByRole('button', { name: /ابدأ التسجيل/ }).click();
-    });
-    await waitFor(() => expect(MockMediaRecorder.latest).toBeDefined());
-    expect(MockMediaRecorder.latest?.state).toBe('recording');
+    await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
 
     unmount();
 

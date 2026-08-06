@@ -8,6 +8,24 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://nomoai.runasp.net',
+        changeOrigin: true,
+        secure: true,
+        // Ensure Authorization and custom headers are forwarded.
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            const auth = req.headers.authorization;
+            if (auth) {
+              proxyReq.setHeader('Authorization', auth);
+            }
+          });
+        },
+      },
+    },
+  },
   build: {
     chunkSizeWarningLimit: 1600,
     rollupOptions: {

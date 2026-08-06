@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { getAvatarSrc, getErrorMessage, getMaxRecordingMs } from './sessionScreenHelpers';
+import {
+  getAvatarSrc,
+  getErrorMessage,
+  getMaxRecordingMs,
+  isAutoplayBlockedError,
+} from './sessionScreenHelpers';
 
 describe('getMaxRecordingMs', () => {
   it('returns 5s for character and word activities', () => {
@@ -66,10 +71,37 @@ describe('getAvatarSrc', () => {
   });
 });
 
+describe('isAutoplayBlockedError', () => {
+  it('detects NotAllowedError and Chrome autoplay messages', () => {
+    expect(isAutoplayBlockedError({ name: 'NotAllowedError', message: 'denied' })).toBe(true);
+    expect(
+      isAutoplayBlockedError(
+        new Error("play() failed because the user didn't interact with the document first"),
+      ),
+    ).toBe(true);
+    expect(isAutoplayBlockedError(new Error('network down'))).toBe(false);
+  });
+});
+
 describe('getErrorMessage', () => {
   it('extracts a backend error description when present', () => {
     const err = { response: { data: { error: { description: 'رصيدك غير كافٍ' } } } };
     expect(getErrorMessage(err)).toBe('رصيدك غير كافٍ');
+  });
+
+  it('maps 402 / InsufficientCredit to an Arabic credits message', () => {
+    const err = {
+      response: {
+        status: 402,
+        data: { type: 'AiService.InsufficientCredit', detail: 'credits' },
+      },
+    };
+    expect(getErrorMessage(err)).toContain('OpenRouter');
+  });
+
+  it('reads ASP.NET ProblemDetails detail field', () => {
+    const err = { response: { status: 503, data: { detail: 'الخدمة غير متاحة مؤقتًا' } } };
+    expect(getErrorMessage(err)).toBe('الخدمة غير متاحة مؤقتًا');
   });
 
   it('falls back to a generic Arabic message for unknown errors', () => {

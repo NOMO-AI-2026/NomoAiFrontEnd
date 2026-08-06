@@ -51,8 +51,12 @@ export class MockMediaRecorder {
     MockMediaRecorder.instances.push(this);
   }
 
-  start(): void {
+  start(_timeslice?: number): void {
     this.state = 'recording';
+  }
+
+  static isTypeSupported(_type: string): boolean {
+    return true;
   }
 
   stop(): void {
@@ -97,6 +101,29 @@ export function installMediaMocks() {
     configurable: true,
     value: { getUserMedia },
   });
+
+  // Minimal AudioContext so energy VAD does not crash in jsdom.
+  class MockAudioContext {
+    state = 'running';
+    createMediaStreamSource() {
+      return { connect: vi.fn(), disconnect: vi.fn() };
+    }
+    createAnalyser() {
+      return {
+        fftSize: 2048,
+        getByteTimeDomainData: (data: Uint8Array) => {
+          data.fill(128);
+        },
+      };
+    }
+    resume() {
+      return Promise.resolve();
+    }
+    close() {
+      return Promise.resolve();
+    }
+  }
+  vi.stubGlobal('AudioContext', MockAudioContext);
 
   return { createObjectURL, revokeObjectURL, getUserMedia };
 }

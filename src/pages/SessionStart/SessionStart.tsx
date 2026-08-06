@@ -88,11 +88,23 @@ const SessionStart = () => {
     setIsStarting(true);
     setStartError(null);
     try {
+      // Unlock browser audio during this click so the session screen can autoplay TTS.
+      try {
+        const unlock = new Audio(
+          'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=',
+        );
+        unlock.volume = 0.01;
+        await unlock.play().catch(() => undefined);
+        unlock.pause();
+      } catch {
+        // Autoplay unlock is best-effort.
+      }
+
       const runtime = await startSessionApi({
         childId: selectedChildId,
         activityId: selectedActivityId,
       });
-      navigate(`/session/${runtime.sessionId}`);
+      navigate(`/session/${runtime.sessionId}`, { state: { runtime } });
     } catch (err) {
       console.error('خطأ في بدء الجلسة:', err);
       setStartError('تعذر بدء الجلسة. حاول مرة أخرى.');
