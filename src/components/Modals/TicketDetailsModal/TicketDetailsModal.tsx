@@ -35,8 +35,8 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
         if (getTicketDetails.fulfilled.match(action)) {
           const ticket = action.payload; // دي الداتا اللي راجعة من الباك إند
           
-          // نمنع حالة الصفر زي ما اتفقنا
-          setStatus(ticket.status === 0 ? 1 : ticket.status);
+          // تعيين حالة التذكرة الأصلية بدون تعديل قسري
+          setStatus(ticket.status);
           setAdminNote(ticket.adminNote || '');
           setErrorMsg('');
         }
@@ -188,7 +188,8 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
                     className={styles.formSelect}
                     disabled={selectedTicket.status === 3}
                   >
-                    <option value={1}>قيد المعالجة </option>
+                    <option value={0} disabled>غير مقروءة</option>
+                    <option value={1}>قيد المعالجة</option>
                     <option value={2}>تم الحل</option>
                     <option value={3}>مغلقة</option>
                   </select>

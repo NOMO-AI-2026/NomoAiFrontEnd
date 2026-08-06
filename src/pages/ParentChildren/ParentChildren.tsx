@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
+import { Gamepad2 } from "lucide-react";
 import ChildCard from "../../components/ChildCard/ChildCard";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchParentChildren } from "../../store/slices/childrenSlice";
@@ -41,6 +42,10 @@ const ParentChildren = () => {
           <h1 className={styles.pageTitle}>أطفالي</h1>
           <p className={styles.pageSubtitle}>استعراض ومتابعة أطفالك المسجلين في المنصة ومتابعة تقدمهم.</p>
         </div>
+        <button className={styles.addBtn} onClick={() => navigate('/session')}>
+          <Gamepad2 size={20} />
+          بدء الجلسة
+        </button>
       </div>
 
       <div className={styles.patientsGrid}>

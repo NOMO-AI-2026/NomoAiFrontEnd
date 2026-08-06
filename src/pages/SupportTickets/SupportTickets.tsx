@@ -9,20 +9,14 @@ import {
   fetchMyTicketById, 
   createMyTicket, 
   updateMyTicket, 
-  deleteMyTicket 
+  deleteMyTicket,
+  type SupportTicket
 } from '../../api/supportTicketsApi';
 
 // استيراد المودالز
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
 import TicketFormModal from '../../components/Modals/TicketFormModal/TicketFormModal';
 import TicketViewModal from '../../components/Modals/TicketViewModal/TicketViewModal';
-
-interface Ticket {
-  id: number;
-  subject: string;
-  status: number; 
-  createdAt: string;
-}
 
 interface TicketDetails {
   id: number;
@@ -32,7 +26,7 @@ interface TicketDetails {
 }
 
 const SupportTickets = () => {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [page, setPage] = useState(1);
@@ -52,7 +46,6 @@ const SupportTickets = () => {
 
   useEffect(() => {
     let isMounted = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
 
     fetchMyTickets({ pageNumber: page, pageSize: 12 })
@@ -81,10 +74,10 @@ const SupportTickets = () => {
 
   const getStatusDisplay = (status: number) => {
     switch(status) {
-      case 0: return { label: 'مفتوحة', className: styles.badgeOpen };
+      case 0: return { label: 'لم تُقرأ', className: styles.badgeOpen };
       case 1: return { label: 'جاري العمل', className: styles.badgeInProgress };
       case 2: return { label: 'مغلقة', className: styles.badgeClosed };
-      default: return { label: 'غير معروف', className: styles.badgeOpen };
+      default: return { label: 'لم تُقرأ', className: styles.badgeOpen };
     }
   };
 
@@ -108,7 +101,6 @@ const SupportTickets = () => {
     }
   };
 
-  // دالة الحفظ اللي هنمررها لمودال الفورم
   const handleSaveTicket = async (formData: { subject: string; message: string }) => {
     setIsSubmitting(true);
     try {
@@ -172,31 +164,45 @@ const SupportTickets = () => {
         ) : (
           tickets.map((ticket) => {
             const statusInfo = getStatusDisplay(ticket.status);
-            const isOpen = ticket.status === 0; 
+            const isOpen = ticket.status === 0;
+            const hasAdminResponded = (ticket as any).hasAdminNote || ticket.status === 2;
 
             return (
               <div 
                 key={ticket.id} 
-                className={styles.card} 
+                className={styles.cardRow} 
                 onClick={() => handleViewTicket(ticket.id)}
-                style={{ cursor: 'pointer' }}
               >
-                <div className={styles.cardHeader}>
+                {/* الجزء الأيمن: العنوان والتاريخ */}
+                <div className={styles.ticketInfo}>
+                  <h3 className={styles.cardTitle}>{ticket.subject}</h3>
+                  <div className={styles.metaRow}>
+                    <Calendar size={14} />
+                    <span>{new Date(ticket.createdAt).toLocaleDateString('ar-EG')}</span>
+                  </div>
+                </div>
+
+                {/* الجزء الأوسط: حالة رد المسؤول بقواعد الـ UX Writing */}
+                <div className={styles.responseStatusSection}>
+                  {hasAdminResponded ? (
+                    <span className={styles.responseDoneBadge}>
+                      💬 تم الرد على المشكلة من قِبل المسؤول
+                    </span>
+                  ) : (
+                    <span className={styles.responsePendingBadge}>
+                      ⏳ لم يتم الرد بعد (قيد المراجعة)
+                    </span>
+                  )}
+                </div>
+
+                {/* الجزء الأيسر: شارات الحالة والأزرار */}
+                <div className={styles.ticketActionsSection}>
                   <span className={`${styles.badge} ${statusInfo.className}`}>
                     {statusInfo.label}
                   </span>
-                </div>
-                
-                <h3 className={styles.cardTitle}>{ticket.subject}</h3>
-                
-                <div className={styles.cardFooter}>
-                  <div className={styles.date}>
-                    <Calendar size={16} />
-                    <span>{new Date(ticket.createdAt).toLocaleDateString('ar-EG')}</span>
-                  </div>
-                  
+
                   {isOpen && (
-                    <div className={styles.actions}>
+                    <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
                       <button 
                         title="تعديل" 
                         className={`${styles.actionBtn} ${styles.actionEdit}`}
@@ -247,7 +253,7 @@ const SupportTickets = () => {
         </div>
       )}
 
-      {/* ================= المودالز المفصولة ================= */}
+      {/* ================= المودالز ================= */}
 
       <TicketFormModal
         isOpen={isFormModalOpen}

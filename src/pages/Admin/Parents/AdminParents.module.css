@@ -154,12 +154,8 @@
   vertical-align: middle;
 }
 
-.table tr:last-child td {
-  border-bottom: none;
-}
-
-.table tr:hover {
-  background-color: #F5F3FF;
+.table tr {
+  cursor: default;
 }
 
 .parentInfo {

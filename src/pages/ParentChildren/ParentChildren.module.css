@@ -28,6 +28,33 @@
   font-weight: 500;
 }
 
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);
+  color: #1E1B4B;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 1.125rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  transition: all 0.2s ease;
+  margin-right: 1.5rem;
+}
+
+.addBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.addBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
 .patientsGrid {
   display: flex;
   flex-direction: column;
