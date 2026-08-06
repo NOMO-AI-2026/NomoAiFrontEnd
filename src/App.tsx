@@ -23,6 +23,7 @@ import AdminOverview from "./pages/Admin/Overview/AdminOverview";
 import AdminDoctors from "./pages/Admin/Doctors/AdminDoctors";
 import AdminParents from "./pages/Admin/Parents/AdminParents";
 import SessionScreen from "./pages/SessionScreen/SessionScreen";
+import SessionStart from "./pages/SessionStart/SessionStart";
 
 // صفحة الدعم الفني الخاصة بالأدمن
 import SupportTickets from "./pages/Admin/Support/SupportTickets";
@@ -61,7 +62,9 @@ function App() {
 
               {/* مسارات ولي الأمر */}
               <Route path="/parent/children" element={<ParentChildren />} />
-              <Route path="/session" element={<SessionScreen />} />
+              {/* جلسة التخاطب: اختيار الطفل/النشاط ثم تشغيل الجلسة */}
+              <Route path="/session" element={<SessionStart />} />
+              <Route path="/session/:sessionId" element={<SessionScreen />} />
               {/* 👇 (جديد) مسار الدعم الفني لولي الأمر */}
               <Route path="/parent/support" element={<UserSupportTickets />} />
 
