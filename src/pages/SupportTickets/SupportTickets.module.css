@@ -34,7 +34,7 @@
   color: #1E1B4B;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 9999px;
   font-weight: 800;
   font-size: 1.05rem;
   cursor: pointer;
@@ -52,86 +52,99 @@
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
 }
 
-/* ================= شبكة الكروت ================= */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+/* ================= صفوف الكروت ================= */
+.cardsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
 }
 
-.card {
+.cardRow {
   background-color: #FFFFFF;
   border: 3px solid #581C87;
-  border-radius: 1.2rem;
-  padding: 1.5rem;
+  border-radius: 1.5rem;
+  padding: 1.25rem 1.75rem;
   box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
   display: flex;
-  flex-direction: column;
-  transition: all 0.2s;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.2);
-}
-
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
-  margin-bottom: 1.2rem;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
-.ticketId {
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: #1E1B4B;
+.cardRow:hover {
+  transform: translateY(-3px);
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.22);
 }
 
-.cardBody {
-  flex: 1;
+.ticketInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  margin-bottom: 1.5rem;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .cardTitle {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: #1E1B4B;
   margin: 0;
+  word-break: break-word;
 }
 
-.cardCategory {
-  font-size: 0.85rem;
-  color: #6B7280;
-  font-weight: 600;
-}
-
-.cardDesc {
-  font-size: 0.95rem;
-  color: #4B5563;
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.cardFooter {
+.metaRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-top: 2px dashed #E5E7EB;
-  padding-top: 1rem;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #581C87;
 }
 
-.date {
-  font-size: 0.85rem;
-  color: #6B7280;
-  font-weight: 600;
+/* Response Status Section */
+.responseStatusSection {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.responseDoneBadge {
+  background-color: #F0FDF4;
+  color: #15803D;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.responsePendingBadge {
+  background-color: #FEF3C7;
+  color: #B45309;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Ticket Actions & Status Section */
+.ticketActionsSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
 .actions {
@@ -144,7 +157,9 @@
   border: 1.5px solid rgba(88, 28, 135, 0.15);
   cursor: pointer;
   padding: 0.5rem;
-  border-radius: 8px;
+  border-radius: 50%;
+  width: 2.25rem;
+  height: 2.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,46 +167,53 @@
 }
 
 /* ألوان الأيقونات */
-.actionView { color: #581C87; }
-.actionEdit { color: #D97706; }
-.actionDelete { color: #EF4444; }
+.actionEdit { color: #581C87; }
+.actionDelete { color: #DC2626; }
 
-.actionBtn:hover {
-  transform: translateY(-2px);
-  background-color: rgba(88, 28, 135, 0.12);
+.actionEdit:hover {
+  background-color: #581C87;
   border-color: #581C87;
-  box-shadow: 0 4px 12px rgba(88, 28, 135, 0.15);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 28, 135, 0.25);
 }
 
-.actionBtn:active {
-  transform: translateY(0);
+.actionDelete:hover {
+  background-color: #DC2626;
+  border-color: #DC2626;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
 }
 
-/* ================= الشارات (Badges) للحالات ================= */
+/* ================= الشارات (Badges) بدون إطار ================= */
 .badge {
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
   font-weight: 800;
-  border: 2px solid #1E1B4B;
+  border: none;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .badgeOpen { 
-  background-color: #FEF08A; 
-  color: #854D0E; 
+  background-color: rgba(245, 158, 11, 0.12); 
+  color: #D97706; 
 }
+
 .badgeInProgress { 
-  background-color: #E0E7FF; 
-  color: #3730A3; 
+  background-color: rgba(59, 130, 246, 0.12); 
+  color: #2563EB; 
 }
+
 .badgeClosed { 
-  background-color: #A7F3D0; 
-  color: #065F46; 
+  background-color: rgba(16, 185, 129, 0.12); 
+  color: #059669; 
 }
 
 /* ================= حالات التحميل والفارغ ================= */
 .loading, .empty {
-  grid-column: 1 / -1;
   text-align: center;
   padding: 4rem;
   color: #581C87;
@@ -201,61 +223,6 @@
   font-size: 1.2rem;
   font-weight: 800;
   box-shadow: 6px 6px 0px #EBE5F7;
-}
-
-/* ================= الريسبونسيف (Responsive Design) ================= */
-
-/* الشاشات المتوسطة والتابلت (أصغر من 768px) */
-@media (max-width: 768px) {
-  .pageContainer {
-    padding: 1.5rem 1rem;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1.5rem;
-    text-align: right;
-  }
-
-  .title {
-    font-size: 1.6rem;
-  }
-
-  .addBtn {
-    width: 100%; /* الزرار ياخد العرض كله */
-    justify-content: center;
-  }
-
-  .cardsContainer {
-    /* كارت واحد أو اتنين بالكتير حسب حجم الشاشة */
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-}
-
-/* الموبايلات الصغيرة جداً (أصغر من 480px) */
-@media (max-width: 480px) {
-  .card {
-    padding: 1.2rem;
-  }
-
-  .cardTitle {
-    font-size: 1.15rem;
-  }
-
-  .actionBtn {
-    padding: 0.4rem;
-  }
-
-  .date {
-    font-size: 0.8rem;
-  }
-
-  .loading, .empty {
-    padding: 2.5rem 1rem;
-    font-size: 1rem;
-  }
 }
 
 /* ================= الترقيم Pagination ================= */
@@ -306,4 +273,18 @@
 .pageBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+  .cardRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+    padding: 1.25rem;
+  }
+
+  .ticketActionsSection {
+    justify-content: space-between;
+  }
 }
