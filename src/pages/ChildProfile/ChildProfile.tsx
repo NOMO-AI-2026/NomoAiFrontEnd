@@ -76,21 +76,21 @@ const ChildProfile = () => {
     }
   }, [id]);
 
-  const fetchNotes = useCallback(() => {
-    if (!id) return;
-    dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
-  }, [dispatch, id, notesPage]);
-
   useEffect(() => {
     if (id) {
       dispatch(fetchChildProfile(Number(id)));
       fetchActivities();
-      fetchNotes();
     }
     return () => {
       dispatch(clearProfileData());
     };
-  }, [dispatch, id, fetchActivities, fetchNotes]);
+  }, [dispatch, id, fetchActivities]);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
+    }
+  }, [dispatch, id, notesPage]);
 
   const handleOpenHistory = () => {
     if (id) {
@@ -214,17 +214,17 @@ const ChildProfile = () => {
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardTitle}><UserCheck size={22} />الطبيب المعالج</h2>
               </div>
-              {(profileData as any)?.doctorFullName ? (
+              {profileData.doctorFullName ? (
                 <div className="flex flex-col gap-3 flex-1 justify-center">
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>اسم الطبيب</span><span className={styles.infoValue}>{(profileData as any).doctorFullName}</span></div>
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{(profileData as any).doctorEmail || 'غير مسجل'}</span></div>
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{(profileData as any).doctorPhoneNumber || 'غير مسجل'}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>اسم الطبيب</span><span className={styles.infoValue}>{profileData.doctorFullName}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{profileData.doctorEmail || 'غير مسجل'}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{profileData.doctorPhoneNumber || 'غير مسجل'}</span></div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center text-center gap-2 py-4 flex-1 justify-center">
                   <div className="text-[#581C87]"><UserCheck size={40} /></div>
-                  <p className="font-extrabold text-[#1E1B4B] text-base">د. الطبيب المعالج</p>
-                  <span className="text-xs font-bold text-gray-500">سيتم المتابعة والتواصل المباشر مع الطبيب المختص</span>
+                  <p className="font-extrabold text-[#1E1B4B] text-base">لم يتم تعيين طبيب حتى الآن</p>
+                  <span className="text-xs font-bold text-gray-500">سيتم المتابعة والتواصل المباشر عند تعيين الطبيب المختص</span>
                 </div>
               )}
             </div>
@@ -419,8 +419,8 @@ const ChildProfile = () => {
                 )
               ))}
 
-              {/* عناصر التحكم في الصفحات Pagination */}
-              {notesData && (
+              {/* عناصر التحكم في الصفحات Pagination - يختفي إذا كان إجمالي الصفحات 1 أو أقل */}
+              {notesData && (notesData.totalPages || 1) > 1 && (
                 <div className={styles.pagination}>
                   <div className={styles.pageInfo}>
                     صفحة <strong className="text-[#1E1B4B]">{notesData.pageNumber || 1}</strong> من {notesData.totalPages || 1}
@@ -481,6 +481,12 @@ const ChildProfile = () => {
               if (noteToDelete !== null) {
                 await dispatch(deleteChildNote(noteToDelete));
                 setNoteToDelete(null);
+                const currentItemsCount = notesData?.items?.length || 0;
+                if (currentItemsCount <= 1 && notesPage > 1) {
+                  setNotesPage((p) => Math.max(1, p - 1));
+                } else {
+                  dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
+                }
               }
             }}
             title="تأكيد حذف الملاحظة"

@@ -75,8 +75,9 @@ const SupportTickets = () => {
   const getStatusDisplay = (status: number) => {
     switch(status) {
       case 0: return { label: 'لم تُقرأ', className: styles.badgeOpen };
-      case 1: return { label: 'جاري العمل', className: styles.badgeInProgress };
-      case 2: return { label: 'مغلقة', className: styles.badgeClosed };
+      case 1: return { label: 'قيد المعالجة', className: styles.badgeInProgress };
+      case 2: return { label: 'تم الحل', className: styles.badgeResolved };
+      case 3: return { label: 'مغلقة', className: styles.badgeClosed };
       default: return { label: 'لم تُقرأ', className: styles.badgeOpen };
     }
   };
@@ -165,7 +166,7 @@ const SupportTickets = () => {
           tickets.map((ticket) => {
             const statusInfo = getStatusDisplay(ticket.status);
             const isOpen = ticket.status === 0;
-            const hasAdminResponded = (ticket as any).hasAdminNote || ticket.status === 2;
+            const hasAdminResponded = Boolean(ticket.hasAdminNote || (ticket as any).adminNote);
 
             return (
               <div 
@@ -190,7 +191,7 @@ const SupportTickets = () => {
                     </span>
                   ) : (
                     <span className={styles.responsePendingBadge}>
-                      ⏳ لم يتم الرد بعد (قيد المراجعة)
+                      ⏳ لم يتم الرد
                     </span>
                   )}
                 </div>
@@ -226,8 +227,8 @@ const SupportTickets = () => {
         )}
       </div>
 
-      {/* عناصر التحكم في الصفحات Pagination */}
-      {!loading && tickets.length > 0 && (
+      {/* عناصر التحكم في الصفحات Pagination - يختفي إذا كان إجمالي الصفحات 1 أو أقل */}
+      {!loading && tickets.length > 0 && totalPages > 1 && (
         <div className={styles.pagination}>
           <div className={styles.pageInfo}>
             الصفحة {page} من {totalPages}
@@ -235,18 +236,18 @@ const SupportTickets = () => {
           <div className={styles.pageControls}>
             <button 
               className={styles.pageBtn} 
-              disabled={page >= totalPages}
-              onClick={() => setPage(p => p + 1)}
-            >
-              <ChevronRight size={18} />
-              التالي
-            </button>
-            <button 
-              className={styles.pageBtn} 
               disabled={page <= 1}
               onClick={() => setPage(p => Math.max(1, p - 1))}
             >
+              <ChevronRight size={18} />
               السابق
+            </button>
+            <button 
+              className={styles.pageBtn} 
+              disabled={page >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
+              التالي
               <ChevronLeft size={18} />
             </button>
           </div>

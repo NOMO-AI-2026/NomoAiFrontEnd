@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Search, Settings, Menu, User, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom"; 
+import { Link, useNavigate, useLocation } from "react-router-dom"; 
 import styles from "./Navbar.module.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getProfile } from "../../store/slices/profileSlice";
+import { setSearchQuery } from "../../store/slices/childrenSlice";
 
 interface NavbarProps {
   onMenuToggle?: () => void;
@@ -11,16 +12,40 @@ interface NavbarProps {
 
 const Navbar = ({ onMenuToggle }: NavbarProps) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { data: profileData } = useAppSelector((state) => state.profile);
+  const searchQuery = useAppSelector((state) => state.children.searchQuery);
 
   const rawRole = useAppSelector((state) => state.auth?.role);
   const isDoctor = rawRole === 'doctor';
+  const isAdmin = rawRole === 'admin';
+
+  const [searchTerm, setSearchTerm] = useState(searchQuery || '');
 
   useEffect(() => {
     if (!profileData && rawRole) {
       dispatch(getProfile());
     }
   }, [dispatch, profileData, rawRole]);
+
+  // مزامنة البحث مع Redux
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      dispatch(setSearchQuery(searchTerm));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm, dispatch]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    const targetPath = isDoctor ? '/doctor/children' : '/parent/children';
+    if (value.trim() && !location.pathname.startsWith(targetPath)) {
+      navigate(targetPath);
+    }
+  };
 
   const firstName = profileData?.fullName?.trim().split(/\s+/)[0] || '';
 
@@ -34,17 +59,25 @@ const Navbar = ({ onMenuToggle }: NavbarProps) => {
           <div className={styles.welcomeContainer}>
             <Sparkles className={styles.welcomeIcon} size={28} />
             <span className={styles.welcomeText}>
-              أهلاً بك في <span className={styles.brandHighlight}>NomoAI</span>، {isDoctor ? 'د. ' : 'أ. '}{firstName}
+              أهلاً بك في <span className={styles.brandHighlight}>NomoAI</span>، {isAdmin ? 'الأدمن ' : isDoctor ? 'د. ' : 'أ. '}{firstName}
             </span>
           </div>
         )}
       </div>
 
       <div className={styles.headerEnd}>
-        <div className={styles.searchBar}>
-          <Search className={styles.searchIcon} size={18} />
-          <input type="text" placeholder="ابحث عن طفل..." className={styles.searchInput} />
-        </div>
+        {!isAdmin && (
+          <div className={styles.searchBar}>
+            <Search className={styles.searchIcon} size={18} />
+            <input 
+              type="text" 
+              placeholder="ابحث عن طفل..." 
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </div>
+        )}
         
         <Link to="/settings" className={styles.iconBtn} aria-label="الإعدادات">
           <Settings size={20} />

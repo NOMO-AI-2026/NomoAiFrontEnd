@@ -86,15 +86,15 @@ const SupportTickets = () => {
   const getTicketStatus = (status: number) => {
     switch (status) {
       case 0:
-        return { label: 'غير مقروءة', color: '#EF4444' }; // أحمر
+        return { label: 'لم تُقرأ', color: '#D97706' };
       case 1:
-        return { label: 'قيد المعالجة', color: '#F59E0B' }; // برتقالي
+        return { label: 'قيد المعالجة', color: '#2563EB' };
       case 2:
-        return { label: 'تم الحل', color: '#3B82F6' }; // أزرق
+        return { label: 'تم الحل', color: '#059669' };
       case 3:
-        return { label: 'مغلقة', color: '#10B981' }; // أخضر
+        return { label: 'مغلقة', color: '#4B5563' };
       default:
-        return { label: 'غير محدد', color: '#6B7280' }; // رمادي
+        return { label: 'غير محدد', color: '#6B7280' };
     }
   };
 
@@ -242,7 +242,7 @@ const SupportTickets = () => {
           </tbody>
         </table>
 
-        {!loading && data && data.items.length > 0 && (
+        {!loading && data && data.items.length > 0 && data.totalPages > 1 && (
           <div className={styles.pagination}>
             <div className={styles.pageInfo}>
              الصفحة {data.pageNumber} من {data.totalPages} 
@@ -250,18 +250,18 @@ const SupportTickets = () => {
             <div className={styles.pageControls}>
               <button 
                 className={styles.pageBtn} 
-                disabled={!data.hasNextPage}
-                onClick={() => setCurrentPage(p => p + 1)}
-              >
-                <ChevronRight size={18} />
-                التالي
-              </button>
-              <button 
-                className={styles.pageBtn} 
                 disabled={!data.hasPreviousPage}
                 onClick={() => setCurrentPage(p => p - 1)}
               >
+                <ChevronRight size={18} />
                 السابق
+              </button>
+              <button 
+                className={styles.pageBtn} 
+                disabled={!data.hasNextPage}
+                onClick={() => setCurrentPage(p => p + 1)}
+              >
+                التالي
                 <ChevronLeft size={18} />
               </button>
             </div>
