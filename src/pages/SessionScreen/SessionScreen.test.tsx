@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import SessionScreen from './SessionScreen';
+import SessionScreen, { TEST_FINISH_RECORDING_EVENT } from './SessionScreen';
 import type { SessionRuntimeResponse } from '../../api/sessionsApi';
 import {
   createMockMediaStream,
@@ -25,6 +25,12 @@ import {
   getSessionRuntimeApi,
   submitSessionAttemptApi,
 } from '../../api/sessionsApi';
+
+async function autoFinishRecording() {
+  await act(async () => {
+    window.dispatchEvent(new Event(TEST_FINISH_RECORDING_EVENT));
+  });
+}
 
 function renderSession(sessionId = '123') {
   return render(
@@ -77,7 +83,8 @@ describe('SessionScreen — runtime rendering & avatar state', () => {
     await screen.findByText('قل: بابا');
     await waitFor(() => expect(mediaMocks.getUserMedia).toHaveBeenCalled());
     await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
-    expect(screen.getByRole('button', { name: /إرسال الآن/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /إرسال الآن/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/هسمعك تلقائيًا/)).toBeInTheDocument();
     expect(screen.getByAltText('أفاتار المساعد')).toHaveAttribute('src', expect.stringContaining('listening'));
   });
 
@@ -114,7 +121,7 @@ describe('SessionScreen — authenticated speech playback', () => {
     });
 
     await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
-    expect(screen.getByRole('button', { name: /إرسال الآن/ })).toBeInTheDocument();
+    expect(screen.getByText(/هسمعك تلقائيًا لما تسكت/)).toBeInTheDocument();
   });
 
   it('advances to the next step via continueSessionStep when the step does not expect a response', async () => {
@@ -199,7 +206,7 @@ describe('SessionScreen — feedback adaptive actions', () => {
     await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
 
     await act(async () => {
-      screen.getByRole('button', { name: /إرسال الآن/ }).click();
+      await autoFinishRecording();
     });
 
     await waitFor(() => expect(submitSessionAttemptApi).toHaveBeenCalled());
@@ -260,7 +267,7 @@ describe('SessionScreen — feedback adaptive actions', () => {
     await waitFor(() => expect(MockMediaRecorder.latest?.state).toBe('recording'));
 
     await act(async () => {
-      screen.getByRole('button', { name: /إرسال الآن/ }).click();
+      await autoFinishRecording();
     });
 
     expect(fetchFeedbackSpeechBlobApi).not.toHaveBeenCalled();

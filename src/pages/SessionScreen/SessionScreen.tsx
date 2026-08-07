@@ -5,7 +5,6 @@ import {
   Coffee,
   PartyPopper,
   RefreshCw,
-  Square,
   TriangleAlert,
   Volume2,
 } from 'lucide-react';
@@ -24,9 +23,14 @@ import {
   getMaxRecordingMs,
   getStepTypeLabel,
   isAutoplayBlockedError,
+  playMicOpenChime,
+  playTherapistAckTone,
   type SessionUiState,
 } from './sessionScreenHelpers';
 import { getSilenceDurationMs, startEnergyVad, type VadController } from './sessionVad';
+
+/** Test-only hook so Vitest can auto-finish a turn without a manual send button. */
+export const TEST_FINISH_RECORDING_EVENT = 'nomo-test-finish-recording';
 
 function blobFromBase64(base64: string, contentType?: string | null): Blob {
   const binary = atob(base64);
@@ -408,6 +412,7 @@ const SessionScreen = () => {
       recorder.start(250);
       setUiState('recording');
       setRecordingSeconds(0);
+      playMicOpenChime();
 
       recordIntervalRef.current = setInterval(() => {
         setRecordingSeconds((seconds) => seconds + 1);
@@ -438,6 +443,7 @@ const SessionScreen = () => {
   }, [startRecording]);
 
   // ChatGPT-like turn: after avatar finishes, open the mic automatically.
+  // Brief beat so the child sees the listening cue + hears the attention chime.
   useEffect(() => {
     if (uiState !== 'ready_to_record' || !runtime?.currentStep) return;
 
@@ -447,7 +453,7 @@ const SessionScreen = () => {
 
     const timer = setTimeout(() => {
       void startRecordingRef.current?.();
-    }, 250);
+    }, 450);
 
     return () => clearTimeout(timer);
   }, [uiState, runtime]);
@@ -475,6 +481,11 @@ const SessionScreen = () => {
       return;
     }
 
+    // Instant therapist presence — don't leave a silent gap while the API works.
+    playTherapistAckTone();
+    setUiState('evaluating');
+    setHeardSpeech(false);
+
     const mimeType = recorder.mimeType || 'audio/webm';
     const blob: Blob = await new Promise((resolve) => {
       recorder.onstop = () => {
@@ -497,8 +508,6 @@ const SessionScreen = () => {
       handleError(new Error('لم يتم التقاط صوت. حاول التحدث بصوت أوضح.'));
       return;
     }
-
-    setUiState('uploading');
 
     try {
       const sid = sessionId as string;
@@ -537,6 +546,16 @@ const SessionScreen = () => {
     finishRecordingRef.current = finishRecording;
   }, [finishRecording]);
 
+  // Vitest helper: simulate end-of-utterance auto-send without a manual button.
+  useEffect(() => {
+    if (!import.meta.env.MODE || import.meta.env.MODE !== 'test') return;
+    const onTestFinish = () => {
+      void finishRecordingRef.current?.();
+    };
+    window.addEventListener(TEST_FINISH_RECORDING_EVENT, onTestFinish);
+    return () => window.removeEventListener(TEST_FINISH_RECORDING_EVENT, onTestFinish);
+  }, []);
+
   const handleContinueAfterBreak = useCallback(async () => {
     if (!sessionId) return;
     try {
@@ -566,7 +585,6 @@ const SessionScreen = () => {
   const avatarSrc = getAvatarSrc(uiState, runtime?.feedback);
   const step = runtime?.currentStep;
   const feedback = runtime?.feedback;
-  const maxSeconds = Math.round(getMaxRecordingMs(runtime?.activityType) / 1000);
 
   if (!sessionId) {
     return (
@@ -600,7 +618,10 @@ const SessionScreen = () => {
       <main className={styles.stage}>
         <div className={`${styles.avatarWrapper} ${styles[`avatar_${uiState}`] ?? ''}`}>
           <img src={avatarSrc} alt="أفاتار المساعد" className={styles.avatarImage} />
-          {(uiState === 'speaking' || uiState === 'playing_feedback') && (
+          {(uiState === 'speaking' ||
+            uiState === 'playing_feedback' ||
+            uiState === 'ready_to_record' ||
+            uiState === 'recording') && (
             <span className={styles.speakingPulse} aria-hidden="true" />
           )}
         </div>
@@ -673,29 +694,20 @@ const SessionScreen = () => {
                   <div className={styles.recordingIndicator}>
                     <span className={styles.recordingDot} aria-hidden="true" />
                     {heardSpeech
-                      ? `أسمعك... قل الجملة ثم اصمت (${recordingSeconds}s / ${maxSeconds}s)`
-                      : `الميكروفون مفتوح — تكلّم الآن (${recordingSeconds}s / ${maxSeconds}s)`}
+                      ? `أسمعك... لما تخلّص هرد عليك (${recordingSeconds}s)`
+                      : `دورَك الآن — تكلّم بهدوء (${recordingSeconds}s)`}
                   </div>
-                  <button className={styles.secondaryBtn} onClick={() => void finishRecording()} type="button">
-                    <Square size={18} />
-                    إرسال الآن
-                  </button>
+                  <p className={styles.softHint}>هسمعك تلقائيًا لما تسكت شوية — زي جلسة التخاطب الحقيقية.</p>
                 </>
               )}
             </div>
           )}
 
-          {uiState === 'uploading' && (
+          {(uiState === 'uploading' || uiState === 'evaluating') && (
             <div className={styles.statusBlock}>
               <div className={styles.spinner} aria-hidden="true" />
-              <p className={styles.statusText}>جاري فهم إجابتك...</p>
-            </div>
-          )}
-
-          {uiState === 'evaluating' && (
-            <div className={styles.statusBlock}>
-              <div className={styles.spinner} aria-hidden="true" />
-              <p className={styles.statusText}>جاري تحليل إجابتك...</p>
+              <p className={styles.statusText}>سمعْتك... لحظة بسيطة</p>
+              <p className={styles.softHint}>بفكّر في رد هادئ زي دكتور التخاطب.</p>
             </div>
           )}
 
@@ -713,9 +725,7 @@ const SessionScreen = () => {
             <div className={styles.statusBlock}>
               <PartyPopper size={32} className={styles.iconAccent} />
               <p className={styles.statusText}>أحسنت! لقد أنهيت الجلسة بنجاح</p>
-              <button className={styles.primaryBtn} onClick={() => navigate('/session')} type="button">
-                جلسة جديدة
-              </button>
+              <p className={styles.softHint}>يمكنك العودة من الزر أعلى الصفحة عندما تكون جاهزاً.</p>
             </div>
           )}
 

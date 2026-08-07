@@ -1,6 +1,6 @@
 /**
  * Lightweight energy-based VAD for therapy turns.
- * Detects speech onset then end-of-utterance silence — no extra npm deps.
+ * Tuned for children who need longer reaction time and quiet pauses.
  */
 
 export type VadController = {
@@ -16,6 +16,10 @@ export type VadOptions = {
   silenceDurationMs?: number;
   /** Ignore silence until this many ms of recording have elapsed. */
   minRecordMs?: number;
+  /** Ignore mic energy for this many ms (speaker echo / settle). */
+  startupGraceMs?: number;
+  /** Consecutive loud polls required before treating as real speech. */
+  speechOnsetPolls?: number;
   /** Poll interval for analyser samples. */
   pollMs?: number;
   onSpeechStart?: () => void;
@@ -23,10 +27,13 @@ export type VadOptions = {
 };
 
 const DEFAULTS = {
-  speechThreshold: 0.02,
-  silenceThreshold: 0.012,
-  silenceDurationMs: 1100,
-  minRecordMs: 600,
+  speechThreshold: 0.028,
+  silenceThreshold: 0.014,
+  // After real speech, a therapist answers quickly — not after a long dead pause.
+  silenceDurationMs: 2000,
+  minRecordMs: 1200,
+  startupGraceMs: 700,
+  speechOnsetPolls: 4,
   pollMs: 50,
 } as const;
 
@@ -41,13 +48,15 @@ function rmsFromTimeDomain(data: Uint8Array): number {
 
 /**
  * Attach an AnalyserNode to a MediaStream and invoke `onSilenceEnd` after
- * the child speaks then pauses.
+ * the child speaks then pauses long enough for a therapy turn.
  */
 export function startEnergyVad(stream: MediaStream, options: VadOptions): VadController {
   const speechThreshold = options.speechThreshold ?? DEFAULTS.speechThreshold;
   const silenceThreshold = options.silenceThreshold ?? DEFAULTS.silenceThreshold;
   const silenceDurationMs = options.silenceDurationMs ?? DEFAULTS.silenceDurationMs;
   const minRecordMs = options.minRecordMs ?? DEFAULTS.minRecordMs;
+  const startupGraceMs = options.startupGraceMs ?? DEFAULTS.startupGraceMs;
+  const speechOnsetPolls = options.speechOnsetPolls ?? DEFAULTS.speechOnsetPolls;
   const pollMs = options.pollMs ?? DEFAULTS.pollMs;
 
   const AudioCtx =
@@ -62,6 +71,7 @@ export function startEnergyVad(stream: MediaStream, options: VadOptions): VadCon
   const data = new Uint8Array(analyser.fftSize);
   const startedAt = performance.now();
   let heardSpeech = false;
+  let consecutiveSpeechPolls = 0;
   let silenceStartedAt: number | null = null;
   let stopped = false;
   let intervalId: ReturnType<typeof setInterval> | null = null;
@@ -72,14 +82,22 @@ export function startEnergyVad(stream: MediaStream, options: VadOptions): VadCon
     const level = rmsFromTimeDomain(data);
     const elapsed = performance.now() - startedAt;
 
+    // Give the child (and room acoustics) time before arming auto-stop.
+    if (elapsed < startupGraceMs) {
+      return;
+    }
+
     if (level >= speechThreshold) {
-      if (!heardSpeech) {
+      consecutiveSpeechPolls += 1;
+      if (!heardSpeech && consecutiveSpeechPolls >= speechOnsetPolls) {
         heardSpeech = true;
         options.onSpeechStart?.();
       }
       silenceStartedAt = null;
       return;
     }
+
+    consecutiveSpeechPolls = 0;
 
     if (!heardSpeech || elapsed < minRecordMs) {
       return;
@@ -118,14 +136,17 @@ export function startEnergyVad(stream: MediaStream, options: VadOptions): VadCon
   return { stop };
 }
 
-/** Longer silence window for sentence / conversation activities. */
+/**
+ * Trailing silence after the child finishes speaking.
+ * Short enough to feel like a live therapist, long enough for child pauses.
+ */
 export function getSilenceDurationMs(activityType?: string | null): number {
   switch (activityType) {
     case 'sentence':
-      return 1400;
+      return 2500;
     case 'conversation':
-      return 1600;
+      return 3200;
     default:
-      return 1100;
+      return 2000;
   }
 }
