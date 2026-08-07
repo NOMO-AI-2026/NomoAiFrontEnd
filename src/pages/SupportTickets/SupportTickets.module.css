@@ -207,9 +207,14 @@
   color: #2563EB; 
 }
 
-.badgeClosed { 
+.badgeResolved { 
   background-color: rgba(16, 185, 129, 0.12); 
   color: #059669; 
+}
+
+.badgeClosed { 
+  background-color: rgba(107, 114, 128, 0.12); 
+  color: #4B5563; 
 }
 
 /* ================= حالات التحميل والفارغ ================= */

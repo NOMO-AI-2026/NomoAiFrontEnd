@@ -44,7 +44,7 @@ const TicketViewModal: React.FC<TicketViewModalProps> = ({ isOpen, onClose, tick
             </div>
           ) : (
             <div className={styles.noReply}>
-              لم يتم الرد من قِبل الإدارة حتى الآن.
+              لم يتم الرد من قبل الإدارة
             </div>
           )}
         </div>

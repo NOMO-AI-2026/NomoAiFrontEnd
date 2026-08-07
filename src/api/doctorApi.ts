@@ -36,8 +36,14 @@ export interface AddChildPayload {
   speechLevelId: number;
 }
 
-export const getDoctorChildrenApi = async () => {
-  const response = await axiosInstance.get<ApiResponse>('/Doctor/Children');
+export interface GetChildrenQueryParams {
+  Name?: string;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export const getDoctorChildrenApi = async (params?: GetChildrenQueryParams) => {
+  const response = await axiosInstance.get('/Doctor/Children', { params });
   return response.data;
 };
 

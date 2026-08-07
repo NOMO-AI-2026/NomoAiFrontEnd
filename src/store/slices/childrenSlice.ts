@@ -1,17 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getDoctorChildrenApi, getChildProfileApi, getSpeechLevelsApi, type Child } from '../../api/doctorApi'; 
+import { getDoctorChildrenApi, getChildProfileApi, getSpeechLevelsApi, type Child, type GetChildrenQueryParams } from '../../api/doctorApi'; 
 import { getParentChildrenApi } from '../../api/parentApi';
 
 interface ChildrenState {
   children: Child[]; 
   isLoading: boolean;
   error: string | null;
+  pageNumber: number;
+  totalPages: number;
+  totalCount: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+  searchQuery: string;
 }
 
 const initialState: ChildrenState = {
   children: [],
   isLoading: false,
   error: null,
+  pageNumber: 1,
+  totalPages: 1,
+  totalCount: 0,
+  hasPreviousPage: false,
+  hasNextPage: false,
+  searchQuery: '',
 };
 
 // دالة مساعدة لجلب مستويات الكلام الحقيقية للأطفال من خلال /children/{id} و /speech-levels
@@ -60,35 +72,82 @@ async function enrichChildrenWithLevels(rawChildren: Child[]): Promise<Child[]> 
   }
 }
 
-// جلب أطفال الطبيب
+function extractPaginatedData(data: any, reqPage = 1) {
+  let rawItems: Child[] = [];
+  let pageNumber = reqPage;
+  let totalPages = 1;
+  let totalCount = 0;
+  let hasPreviousPage = false;
+  let hasNextPage = false;
+
+  if (data) {
+    if (Array.isArray(data)) {
+      rawItems = data;
+      totalCount = data.length;
+    } else if (data.items && Array.isArray(data.items)) {
+      rawItems = data.items;
+      pageNumber = data.pageNumber || reqPage;
+      totalPages = data.totalPages || 1;
+      totalCount = data.totalCount || rawItems.length;
+      hasPreviousPage = !!data.hasPreviousPage;
+      hasNextPage = !!data.hasNextPage;
+    } else if (data.value) {
+      if (Array.isArray(data.value)) {
+        rawItems = data.value;
+        totalCount = data.value.length;
+      } else if (data.value.items && Array.isArray(data.value.items)) {
+        rawItems = data.value.items;
+        pageNumber = data.value.pageNumber || reqPage;
+        totalPages = data.value.totalPages || 1;
+        totalCount = data.value.totalCount || rawItems.length;
+        hasPreviousPage = !!data.value.hasPreviousPage;
+        hasNextPage = !!data.value.hasNextPage;
+      }
+    }
+  }
+
+  return { rawItems, pageNumber, totalPages, totalCount, hasPreviousPage, hasNextPage };
+}
+
+// جلب أطفال الطبيب مع Pagination والبحث
 export const fetchChildren = createAsyncThunk(
   'children/fetchChildren',
-  async (_, { rejectWithValue }) => {
+  async (params: GetChildrenQueryParams | undefined, { rejectWithValue }) => {
     try {
-      const data = await getDoctorChildrenApi();
-      if (data.isSuccess && Array.isArray(data.value)) {
-        const enriched = await enrichChildrenWithLevels(data.value);
-        return enriched;
-      }
-      return rejectWithValue(data.error?.description || 'حدث خطأ غير معروف');
+      const data = await getDoctorChildrenApi(params);
+      const parsed = extractPaginatedData(data, params?.pageNumber || 1);
+      const enriched = await enrichChildrenWithLevels(parsed.rawItems);
+      return {
+        items: enriched,
+        pageNumber: parsed.pageNumber,
+        totalPages: parsed.totalPages,
+        totalCount: parsed.totalCount,
+        hasPreviousPage: parsed.hasPreviousPage,
+        hasNextPage: parsed.hasNextPage,
+      };
     } catch (error) {
-      console.error('Error fetching children:', error);
+      console.error('Error fetching doctor children:', error);
       return rejectWithValue('فشل الاتصال بالخادم');
     }
   }
 );
 
-// جلب أطفال ولي الأمر
+// جلب أطفال ولي الأمر مع Pagination والبحث
 export const fetchParentChildren = createAsyncThunk(
   'children/fetchParentChildren',
-  async (_, { rejectWithValue }) => {
+  async (params: GetChildrenQueryParams | undefined, { rejectWithValue }) => {
     try {
-      const data = await getParentChildrenApi();
-      if (Array.isArray(data)) {
-        const enriched = await enrichChildrenWithLevels(data);
-        return enriched;
-      }
-      return data;
+      const data = await getParentChildrenApi(params);
+      const parsed = extractPaginatedData(data, params?.pageNumber || 1);
+      const enriched = await enrichChildrenWithLevels(parsed.rawItems);
+      return {
+        items: enriched,
+        pageNumber: parsed.pageNumber,
+        totalPages: parsed.totalPages,
+        totalCount: parsed.totalCount,
+        hasPreviousPage: parsed.hasPreviousPage,
+        hasNextPage: parsed.hasNextPage,
+      };
     } catch (error) {
       console.error('Error fetching parent children:', error);
       return rejectWithValue('فشل الاتصال بالخادم');
@@ -99,7 +158,11 @@ export const fetchParentChildren = createAsyncThunk(
 const childrenSlice = createSlice({
   name: 'children',
   initialState,
-  reducers: {},
+  reducers: {
+    setSearchQuery: (state, action) => {
+      state.searchQuery = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // أطفال الطبيب
@@ -109,7 +172,12 @@ const childrenSlice = createSlice({
       })
       .addCase(fetchChildren.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.children = action.payload; 
+        state.children = action.payload.items;
+        state.pageNumber = action.payload.pageNumber;
+        state.totalPages = action.payload.totalPages;
+        state.totalCount = action.payload.totalCount;
+        state.hasPreviousPage = action.payload.hasPreviousPage;
+        state.hasNextPage = action.payload.hasNextPage;
       })
       .addCase(fetchChildren.rejected, (state, action) => {
         state.isLoading = false;
@@ -122,7 +190,12 @@ const childrenSlice = createSlice({
       })
       .addCase(fetchParentChildren.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.children = action.payload; 
+        state.children = action.payload.items;
+        state.pageNumber = action.payload.pageNumber;
+        state.totalPages = action.payload.totalPages;
+        state.totalCount = action.payload.totalCount;
+        state.hasPreviousPage = action.payload.hasPreviousPage;
+        state.hasNextPage = action.payload.hasNextPage;
       })
       .addCase(fetchParentChildren.rejected, (state, action) => {
         state.isLoading = false;
@@ -131,4 +204,5 @@ const childrenSlice = createSlice({
   },
 });
 
+export const { setSearchQuery } = childrenSlice.actions;
 export default childrenSlice.reducer;

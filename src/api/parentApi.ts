@@ -1,8 +1,8 @@
 import { axiosInstance } from './axiosInstance';
-import { type Child } from './doctorApi';
+import { type GetChildrenQueryParams } from './doctorApi';
 
-// 1. جلب قائمة أطفال ولي الأمر الحالي
-export const getParentChildrenApi = async (): Promise<Child[]> => {
-  const response = await axiosInstance.get<Child[]>('/parent/children');
+// 1. جلب قائمة أطفال ولي الأمر الحالي مع Pagination والبحث
+export const getParentChildrenApi = async (params?: GetChildrenQueryParams) => {
+  const response = await axiosInstance.get('/parent/children', { params });
   return response.data;
 };

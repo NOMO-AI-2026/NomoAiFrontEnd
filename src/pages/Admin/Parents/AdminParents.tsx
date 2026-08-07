@@ -201,7 +201,7 @@ const AdminParents = () => {
         </table>
         
         {/* ================= الترقيم (Pagination) ================= */}
-        {!loading && totalPages > 0 && (
+        {!loading && totalPages > 1 && (
           <div className={styles.pagination}>
             <div className={styles.pageInfo}>
               صفحة <span style={{color: '#211A44', fontWeight: 900}}>{page}</span> من {totalPages}

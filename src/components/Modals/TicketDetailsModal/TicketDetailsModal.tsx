@@ -85,13 +85,13 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
   const getStatusLabel = (statusVal: number) => {
     switch (statusVal) {
       case 0:
-        return { label: 'غير مقروءة', color: '#EF4444' };
+        return { label: 'لم تُقرأ', color: '#D97706' };
       case 1:
-        return { label: 'قيد المعالجة', color: '#F59E0B' };
+        return { label: 'قيد المعالجة', color: '#2563EB' };
       case 2:
-        return { label: 'تم الحل', color: '#3B82F6' };
+        return { label: 'تم الحل', color: '#059669' };
       case 3:
-        return { label: 'مغلقة', color: '#10B981' };
+        return { label: 'مغلقة', color: '#4B5563' };
       default:
         return { label: 'غير محدد', color: '#6B7280' };
     }
@@ -188,7 +188,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
                     className={styles.formSelect}
                     disabled={selectedTicket.status === 3}
                   >
-                    <option value={0} disabled>غير مقروءة</option>
+                    <option value={0} disabled>لم تُقرأ</option>
                     <option value={1}>قيد المعالجة</option>
                     <option value={2}>تم الحل</option>
                     <option value={3}>مغلقة</option>
