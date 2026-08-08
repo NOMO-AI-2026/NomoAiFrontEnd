@@ -1,0 +1,256 @@
+.pageContainer {
+  padding: 1.5rem;
+  background-color: #F8F7FF;
+  min-height: 100vh;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.welcomeTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1E293B;
+  margin: 0 0 0.5rem 0;
+}
+
+.welcomeSubtitle {
+  color: #64748B;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.dateBadge {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 9999px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #581C87;
+  box-shadow: 3px 3px 0 rgba(88, 28, 135, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.statCardChildren { border-color: #0D9488; box-shadow: 6px 6px 0 rgba(13, 148, 136, 0.15); }
+.statCardChildren .iconWrapper { background-color: #CCFBF1; color: #0D9488; }
+
+.statCardActivities { border-color: #581C87; }
+.statCardActivities .iconWrapper { background-color: #F3E8FF; color: #581C87; }
+
+.statCardNote { border-color: #D97706; box-shadow: 6px 6px 0 rgba(217, 119, 6, 0.15); }
+.statCardNote .iconWrapper { background-color: #FEF3C7; color: #D97706; }
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin: 0;
+}
+
+.iconWrapper {
+  padding: 0.8rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardValue {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin: 0.5rem 0;
+}
+
+.noteContent {
+  background: #FFFBEB;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-right: 3px solid #F59E0B;
+  color: #78350F;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.noteDate {
+  display: block;
+  font-size: 0.8rem;
+  color: #92400E;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.chartCard {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 1.8rem;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.chartHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.chartTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Loading & Error */
+.loadingContainer, .errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  text-align: center;
+  color: #64748B;
+}
+
+.spinner {
+  border: 4px solid #F3F4F6;
+  border-top: 4px solid #581C87;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.retryBtn {
+  background: #581C87;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryBtn:hover {
+  background: #4C1D95;
+}
+
+/* Children Progress List */
+.childrenProgressList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.childProgressItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #F8FAFC;
+  border-radius: 0.75rem;
+  border: 1px solid #F1F5F9;
+}
+
+.childProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.childName {
+  font-weight: 700;
+  color: #1E293B;
+  font-size: 1.05rem;
+}
+
+.childLevel {
+  font-size: 0.85rem;
+  background: #E2E8F0;
+  color: #475569;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  font-weight: 600;
+}
+
+.progressBarTrack {
+  height: 8px;
+  background-color: #E2E8F0;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #0D9488, #2DD4BF);
+  border-radius: 9999px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.emptyState {
+  padding: 3rem;
+  text-align: center;
+  color: #94A3B8;
+  font-weight: 500;
+}

@@ -209,3 +209,9 @@ export const updateDoctorNoteApi = async (noteId: number, payload: UpdateNotePay
   const response = await axiosInstance.put(`/notes/${noteId}`, payload);
   return response.data;
 };
+
+// ================= لوحة التحكم =================
+export const getDoctorDashboardApi = async () => {
+  const response = await axiosInstance.get('/doctor/dashboard');
+  return response.data;
+};

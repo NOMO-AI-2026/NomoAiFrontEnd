@@ -38,14 +38,14 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
   
   // روابط الطبيب (تم إضافة الدعم الفني)
   const doctorLinks = [
-    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
+    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "/doctor" },
     { title: "المرضى", icon: Users, path: "/doctor/children" },
     { title: "الدعم الفني", icon: HeadphonesIcon, path: "/doctor/support" },
   ];
 
   // روابط ولي الأمر (تم إضافة الدعم الفني)
   const parentLinks = [
-    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "#" },
+    { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "/parent" },
     { title: "الأطفال", icon: Users, path: "/parent/children" },
     { title: "الدعم الفني", icon: HeadphonesIcon, path: "/parent/support" },
   ];

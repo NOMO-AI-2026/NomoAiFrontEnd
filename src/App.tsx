@@ -32,6 +32,9 @@ import SupportTickets from "./pages/Admin/Support/SupportTickets";
 // 👇 (جديد) صفحة الدعم الفني الخاصة بالطبيب وولي الأمر (تأكدي من مسار الفولدر بتاعك)
 import UserSupportTickets from "./pages/SupportTickets/SupportTickets"; 
 
+import DoctorOverview from "./pages/DoctorOverview/DoctorOverview";
+import ParentOverview from "./pages/ParentOverview/ParentOverview";
+
 function App() {
   return (
     <ModalProvider>
@@ -57,11 +60,13 @@ function App() {
               <Route path="/child/:id" element={<ChildProfile />} />
               
               {/* مسارات الطبيب */}
+              <Route path="/doctor" element={<DoctorOverview />} />
               <Route path="/doctor/children" element={<DoctorChildren />} />
               {/* 👇 (جديد) مسار الدعم الفني للطبيب */}
               <Route path="/doctor/support" element={<UserSupportTickets />} />
 
               {/* مسارات ولي الأمر */}
+              <Route path="/parent" element={<ParentOverview />} />
               <Route path="/parent/children" element={<ParentChildren />} />
               {/* جلسة التخاطب: اختيار الطفل/النشاط ثم تشغيل الجلسة */}
               <Route path="/session" element={<SessionStart />} />

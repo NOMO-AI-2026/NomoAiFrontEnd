@@ -117,11 +117,11 @@ export default function LoginPage() {
             return;
           }
           if (finalRole === 'doctor') {
-            navigate('/doctor/children');
+            navigate('/doctor');
             return;
           }
           if (finalRole === 'parent') {
-            navigate('/parent/children');
+            navigate('/parent');
             return;
           }
         } catch (decodeError) {
@@ -130,7 +130,7 @@ export default function LoginPage() {
         // ==================================================================== //
 
         dispatch(setCredentials({ token, role: null }));
-        navigate(apiRole.includes('parent') ? '/parent/children' : '/doctor/children');
+        navigate(apiRole.includes('parent') ? '/parent' : '/doctor');
         return;
       }
 
