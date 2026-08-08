@@ -725,7 +725,14 @@ const SessionScreen = () => {
             <div className={styles.statusBlock}>
               <PartyPopper size={32} className={styles.iconAccent} />
               <p className={styles.statusText}>أحسنت! لقد أنهيت الجلسة بنجاح</p>
-              <p className={styles.softHint}>يمكنك العودة من الزر أعلى الصفحة عندما تكون جاهزاً.</p>
+              <p className={styles.softHint}>جاهزين نجهّز ملخص ما حصل في الجلسة.</p>
+              <button
+                className={styles.primaryBtn}
+                type="button"
+                onClick={() => navigate(`/session/${sessionId}/summary`)}
+              >
+                عرض ملخص الجلسة
+              </button>
             </div>
           )}
 
