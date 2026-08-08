@@ -1,0 +1,225 @@
+.pageContainer {
+  padding: 1.5rem;
+  background-color: #F8F7FF;
+  min-height: 100vh;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.welcomeTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1E293B;
+  margin: 0 0 0.5rem 0;
+}
+
+.welcomeSubtitle {
+  color: #64748B;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.dateBadge {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 9999px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #581C87;
+  box-shadow: 3px 3px 0 rgba(88, 28, 135, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 6px 6px 0 rgba(88, 28, 135, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.statCardPatients { border-color: #581C87; }
+.statCardPatients .iconWrapper { background-color: #F3E8FF; color: #581C87; }
+
+.statCardSessions { border-color: #0D9488; box-shadow: 6px 6px 0 rgba(13, 148, 136, 0.15); }
+.statCardSessions .iconWrapper { background-color: #CCFBF1; color: #0D9488; }
+
+.statCardProgress { border-color: #D97706; box-shadow: 6px 6px 0 rgba(217, 119, 6, 0.15); }
+.statCardProgress .iconWrapper { background-color: #FEF3C7; color: #D97706; }
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin: 0;
+}
+
+.iconWrapper {
+  padding: 0.8rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardValue {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #1E1B4B;
+  margin: 0.5rem 0;
+}
+
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .chartsSection {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.chartCard {
+  background-color: #FFFFFF;
+  border: 2px solid #581C87;
+  border-radius: 1.8rem;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.chartHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.chartTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loadingContainer, .errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  text-align: center;
+  color: #64748B;
+}
+
+.spinner {
+  border: 4px solid #F3F4F6;
+  border-top: 4px solid #581C87;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.retryBtn {
+  background: #581C87;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryBtn:hover {
+  background: #4C1D95;
+}
+
+/* Custom Chart styles */
+.barChartContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  flex: 1;
+}
+
+.barRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.barInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.barTrack {
+  height: 10px;
+  background-color: #F1F5F9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #581C87, #8B5CF6);
+  border-radius: 9999px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.emptyState {
+  padding: 3rem;
+  text-align: center;
+  color: #94A3B8;
+  font-weight: 500;
+}

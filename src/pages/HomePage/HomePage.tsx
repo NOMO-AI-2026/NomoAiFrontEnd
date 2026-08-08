@@ -14,8 +14,8 @@ const HomePage = () => {
   const dashboardRoute = role === "admin"
     ? "/admin"
     : role === "parent"
-    ? "/parent/children"
-    : "/doctor/children";
+    ? "/parent"
+    : "/doctor";
 
   const targetRoute = isAuthenticated ? dashboardRoute : "/login";
 
