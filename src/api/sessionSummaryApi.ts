@@ -27,6 +27,7 @@ export interface SessionSummaryDto {
   startedAt?: string | null;
   endedAt?: string | null;
   outcome: string;
+  outcomeLabel?: string;
   shortSummary: string;
   strengths: string[];
   practiceAreas: string[];
@@ -64,6 +65,7 @@ export interface DoctorSessionSummaryResponse {
   startedAt?: string | null;
   endedAt?: string | null;
   outcome: string;
+  outcomeLabel: string;
   shortSummary: string;
   strengths: string[];
   practiceAreas: string[];

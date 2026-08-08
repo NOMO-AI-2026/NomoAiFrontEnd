@@ -135,17 +135,19 @@ const SessionSummaryPage = () => {
           </section>
 
           <section className={styles.card}>
-            <h3 className={styles.subheading}>المؤشرات</h3>
+            <h3 className={styles.subheading}>المؤشرات التحليلية</h3>
             <div className={styles.metricsGrid}>
               <div>
                 <span className={styles.metricLabel}>النتيجة العامة</span>
-                <strong>{doctorSummary.outcome}</strong>
+                <strong>{doctorSummary.outcomeLabel || doctorSummary.outcome}</strong>
               </div>
               <div>
-                <span className={styles.metricLabel}>المحاولات</span>
-                <strong>
-                  {doctorSummary.metrics.successfulAttempts}/{doctorSummary.metrics.totalAttempts}
-                </strong>
+                <span className={styles.metricLabel}>عدد المحاولات</span>
+                <strong>{doctorSummary.metrics.totalAttempts}</strong>
+              </div>
+              <div>
+                <span className={styles.metricLabel}>مطابقة الهدف</span>
+                <strong>{doctorSummary.metrics.successfulAttempts}</strong>
               </div>
               <div>
                 <span className={styles.metricLabel}>متوسط الدرجة</span>
@@ -179,13 +181,13 @@ const SessionSummaryPage = () => {
           </section>
 
           <section className={styles.card}>
-            <h3 className={styles.subheading}>نقاط القوة</h3>
+            <h3 className={styles.subheading}>الاستنتاج التحليلي</h3>
             <ul className={styles.list}>
               {doctorSummary.strengths.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <h3 className={styles.subheading}>محاور التمرين</h3>
+            <h3 className={styles.subheading}>محاور التمرين المقترحة</h3>
             <ul className={styles.list}>
               {doctorSummary.practiceAreas.map((item) => (
                 <li key={item}>{item}</li>
@@ -234,7 +236,10 @@ const SessionSummaryPage = () => {
               <p className={styles.softNote}>{parentSummary.followUpMessage}</p>
             )}
             <p className={styles.softNote}>
-              محاولات ناجحة: {parentSummary.successfulAttempts} من {parentSummary.totalAttempts}
+              عدد المحاولات: {parentSummary.totalAttempts}
+              {parentSummary.successfulAttempts > 0
+                ? ` · محاولات واضحة ناجحة: ${parentSummary.successfulAttempts}`
+                : ''}
             </p>
           </section>
         </div>
