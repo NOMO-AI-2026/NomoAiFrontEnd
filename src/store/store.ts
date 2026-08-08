@@ -5,6 +5,7 @@ import profileReducer from './slices/profileSlice';
 import authReducer from './slices/authSlice';
 import supportTicketsReducer from './slices/supportTicketsSlice';
 import adminAnalyticsReducer from './slices/adminAnalyticsSlice';
+import plansReducer from './slices/plansSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     profile: profileReducer,
     supportTickets: supportTicketsReducer,
     adminAnalytics: adminAnalyticsReducer,
+    plans: plansReducer,
   },
 });
 

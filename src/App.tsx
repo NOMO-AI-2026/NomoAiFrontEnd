@@ -26,8 +26,9 @@ import SessionScreen from "./pages/SessionScreen/SessionScreen";
 import SessionStart from "./pages/SessionStart/SessionStart";
 import SessionSummaryPage from "./pages/SessionSummary/SessionSummary";
 
-// صفحة الدعم الفني الخاصة بالأدمن
+// صفحة الدعم الفني والاشتراكات الخاصة بالأدمن
 import SupportTickets from "./pages/Admin/Support/SupportTickets";
+import AdminSubscriptions from "./pages/Admin/Subscriptions/AdminSubscriptions";
 
 // 👇 (جديد) صفحة الدعم الفني الخاصة بالطبيب وولي الأمر (تأكدي من مسار الفولدر بتاعك)
 import UserSupportTickets from "./pages/SupportTickets/SupportTickets"; 
@@ -80,6 +81,7 @@ function App() {
                 <Route path="/admin" element={<AdminOverview />} />
                 <Route path="/admin/doctors" element={<AdminDoctors />} />
                 <Route path="/admin/parents" element={<AdminParents />} />
+                <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
                 <Route path="/admin/tickets" element={<SupportTickets />} />
               </Route>
             </Route>

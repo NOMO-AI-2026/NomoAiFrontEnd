@@ -1,0 +1,256 @@
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\ChangeEmailModal\ChangeEmailModal.tsx
+  127:14  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\ChangePasswordModal\ChangePasswordModal.tsx
+  81:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  92:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\EditProfileModal\EditProfileModal.tsx
+  44:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\EditProfileModal\EditProfileModal.tsx:44:7
+  42 |   useEffect(() => {
+  43 |     if (currentData && isOpen) {
+> 44 |       setForm({
+     |       ^^^^^^^ Avoid calling setState() directly within an effect
+  45 |         fullName: currentData.fullName || '',
+  46 |         phoneNumber: currentData.phoneNumber || '',
+  47 |         gender: currentData.gender ?? 0,  react-hooks/set-state-in-effect
+  62:11  error  'name' is never reassigned. Use 'const' instead                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       prefer-const
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\NoteModal\NoteModal.tsx
+  12:15  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  24:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\NoteModal\NoteModal.tsx:24:7
+  22 |   useEffect(() => {
+  23 |     if (noteToEdit) {
+> 24 |       setTitle(noteToEdit.title || '');
+     |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |       setDescription(noteToEdit.description || '');
+  26 |     } else {
+  27 |       setTitle('');  react-hooks/set-state-in-effect
+  59:14  error  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\PlanModal\PlanModal.tsx
+  30:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\Modals\PlanModal\PlanModal.tsx:30:9
+  28 |     if (isOpen) {
+  29 |       if (planToEdit) {
+> 30 |         setName(planToEdit.name || '');
+     |         ^^^^^^^ Avoid calling setState() directly within an effect
+  31 |         setDescription(planToEdit.description || '');
+  32 |         setIncludedMinutes(planToEdit.includedMinutes || '');
+  33 |         setPrice(planToEdit.price || '');  react-hooks/set-state-in-effect
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\ProtectedRoute\AdminRoute.tsx
+  37:16  error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\ProtectedRoute\AdminRoute.tsx:37:16
+  35 |       
+  36 |       if (isAdmin) {
+> 37 |         return <Outlet />;
+     |                ^^^^^^^^^^ Avoid constructing JSX within try/catch
+  38 |       }
+  39 |     }
+  40 |                                                                                                                                                                  react-hooks/error-boundaries
+  42:12  error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\components\ProtectedRoute\AdminRoute.tsx:42:12
+  40 |     
+  41 |     // لو اليوزر مسجل دخول بس مش أدمن، نرجعه للصفحة الرئيسية أو الداشبورد بتاعته
+> 42 |     return <Navigate to="/" replace />;
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid constructing JSX within try/catch
+  43 |     
+  44 |   } catch (error) {
+  45 |     console.error("Error decoding token in AdminRoute:", error);  react-hooks/error-boundaries
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\Admin\Doctors\AdminDoctors.tsx
+  56:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\ChildProfile\ChildProfile.tsx
+  37:48  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  59:37  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  82:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\ChildProfile\ChildProfile.tsx:82:7
+  80 |     if (id) {
+  81 |       dispatch(fetchChildProfile(Number(id)));
+> 82 |       fetchActivities();
+     |       ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  83 |     }
+  84 |     return () => {
+  85 |       dispatch(clearProfileData());  react-hooks/set-state-in-effect
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\DoctorChildren\DoctorChildren.tsx
+  24:5    error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\DoctorChildren\DoctorChildren.tsx:24:5
+  22 |   // العودة للصفحة الأولى عند تعديل البحث
+  23 |   useEffect(() => {
+> 24 |     setPage(1);
+     |     ^^^^^^^ Avoid calling setState() directly within an effect
+  25 |   }, [searchQuery]);
+  26 |
+  27 |   useEffect(() => {  react-hooks/set-state-in-effect
+  80:50   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  80:86   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  80:118  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  81:48   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  81:82   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\DoctorOverview\DoctorOverview.tsx
+  17:36  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  31:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  41:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\DoctorOverview\DoctorOverview.tsx:41:5
+  39 |
+  40 |   useEffect(() => {
+> 41 |     fetchDashboardData();
+     |     ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  42 |   }, []);
+  43 |
+  44 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\ParentChildren\ParentChildren.tsx
+  19:5    error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\ParentChildren\ParentChildren.tsx:19:5
+  17 |   // العودة للصفحة الأولى عند تعديل البحث
+  18 |   useEffect(() => {
+> 19 |     setPage(1);
+     |     ^^^^^^^ Avoid calling setState() directly within an effect
+  20 |   }, [searchQuery]);
+  21 |
+  22 |   useEffect(() => {  react-hooks/set-state-in-effect
+  62:48   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  62:84   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  62:116  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  63:46   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  63:80   error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\ParentOverview\ParentOverview.tsx
+   19:36  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+   31:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+   41:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\ParentOverview\ParentOverview.tsx:41:5
+  39 |
+  40 |   useEffect(() => {
+> 41 |     fetchDashboardData();
+     |     ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  42 |   }, []);
+  43 |
+  44 |   useEffect(() => {  react-hooks/set-state-in-effect
+   88:22  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+   90:32  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  201:40  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\SessionSummary\SessionSummary.tsx
+  90:10  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\SessionSummary\SessionSummary.tsx:90:10
+  88 |
+  89 |   useEffect(() => {
+> 90 |     void load();
+     |          ^^^^ Avoid calling setState() directly within an effect
+  91 |   }, [load]);
+  92 |
+  93 |   return (  react-hooks/set-state-in-effect
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\SupportTickets\SupportTickets.tsx
+   49:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\pages\SupportTickets\SupportTickets.tsx:49:5
+  47 |   useEffect(() => {
+  48 |     let isMounted = true;
+> 49 |     setLoading(true);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  50 |
+  51 |     fetchMyTickets({ pageNumber: page, pageSize: 12 })
+  52 |       .then((response) => {  react-hooks/set-state-in-effect
+  169:81  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\store\slices\childrenSlice.ts
+  32:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  75:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\store\slices\plansSlice.ts
+  42:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\documentss\web_and_ui_iti\graduation-project\NomoAiFrontEnd\src\test-utils\mediaMocks.ts
+  54:9   error  '_timeslice' is defined but never used  @typescript-eslint/no-unused-vars
+  58:26  error  '_type' is defined but never used       @typescript-eslint/no-unused-vars
+
+✖ 47 problems (47 errors, 0 warnings)
+
