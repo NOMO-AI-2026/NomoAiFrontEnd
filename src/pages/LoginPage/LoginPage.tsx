@@ -158,7 +158,7 @@ export default function LoginPage() {
       if (!apiError.response) {
         // Typical when the browser blocks a cross-origin response (CORS) or the network is down.
         setServerError(
-          'تعذر الوصول إلى الخادم من المتصفح (غالبًا بسبب CORS). تأكد أن إعدادات التطوير تستخدم proxy أو أن السيرفر يسمح بـ localhost:5173.',
+          'تعذر الوصول إلى الخادم من المتصفح (غالبًا بسبب CORS). تأكد أن عنوان الواجهة مسموح به على الـ API، أو استخدم وضع التطوير مع proxy.',
         );
       } else if (status === 401) {
         if (errorString.includes('confirm') || errorString.includes('تأكيد')) {

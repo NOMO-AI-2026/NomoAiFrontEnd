@@ -24,6 +24,7 @@ import AdminDoctors from "./pages/Admin/Doctors/AdminDoctors";
 import AdminParents from "./pages/Admin/Parents/AdminParents";
 import SessionScreen from "./pages/SessionScreen/SessionScreen";
 import SessionStart from "./pages/SessionStart/SessionStart";
+import SessionSummaryPage from "./pages/SessionSummary/SessionSummary";
 
 // صفحة الدعم الفني الخاصة بالأدمن
 import SupportTickets from "./pages/Admin/Support/SupportTickets";
@@ -65,6 +66,7 @@ function App() {
               {/* جلسة التخاطب: اختيار الطفل/النشاط ثم تشغيل الجلسة */}
               <Route path="/session" element={<SessionStart />} />
               <Route path="/session/:sessionId" element={<SessionScreen />} />
+              <Route path="/session/:sessionId/summary" element={<SessionSummaryPage />} />
               {/* 👇 (جديد) مسار الدعم الفني لولي الأمر */}
               <Route path="/parent/support" element={<UserSupportTickets />} />
 

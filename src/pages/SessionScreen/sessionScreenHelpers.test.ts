@@ -7,22 +7,22 @@ import {
 } from './sessionScreenHelpers';
 
 describe('getMaxRecordingMs', () => {
-  it('returns 5s for character and word activities', () => {
-    expect(getMaxRecordingMs('character')).toBe(5000);
-    expect(getMaxRecordingMs('word')).toBe(5000);
+  it('gives children a generous absolute turn window', () => {
+    expect(getMaxRecordingMs('character')).toBe(20000);
+    expect(getMaxRecordingMs('word')).toBe(25000);
   });
 
-  it('returns 15s for sentence activities', () => {
-    expect(getMaxRecordingMs('sentence')).toBe(15000);
+  it('returns 40s for sentence activities', () => {
+    expect(getMaxRecordingMs('sentence')).toBe(40000);
   });
 
-  it('returns 30s for conversation activities', () => {
-    expect(getMaxRecordingMs('conversation')).toBe(30000);
+  it('returns 60s for conversation activities', () => {
+    expect(getMaxRecordingMs('conversation')).toBe(60000);
   });
 
   it('falls back to the word duration for unknown/missing activity types', () => {
-    expect(getMaxRecordingMs(undefined)).toBe(5000);
-    expect(getMaxRecordingMs('unknown-type')).toBe(5000);
+    expect(getMaxRecordingMs(undefined)).toBe(25000);
+    expect(getMaxRecordingMs('unknown-type')).toBe(25000);
   });
 });
 

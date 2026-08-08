@@ -21,12 +21,13 @@ export type SessionUiState =
   | 'completed'
   | 'error';
 
-// Max recording duration (ms) driven by activity type, per product spec.
+// Absolute turn caps — must stay well above trailing-silence VAD so children
+// have time to notice the mic, start speaking, and pause naturally.
 const MAX_RECORDING_MS: Record<string, number> = {
-  character: 5000,
-  word: 5000,
-  sentence: 15000,
-  conversation: 30000,
+  character: 20000,
+  word: 25000,
+  sentence: 40000,
+  conversation: 60000,
 };
 
 export function getMaxRecordingMs(activityType?: string | null): number {
@@ -138,4 +139,80 @@ const STEP_TYPE_LABELS: Record<string, string> = {
 export function getStepTypeLabel(stepType?: string): string {
   if (!stepType) return '';
   return STEP_TYPE_LABELS[stepType] ?? stepType;
+}
+
+/**
+ * Short pleasant attention chime when the mic opens — draws the child's focus
+ * without interrupting avatar TTS (separate AudioContext, best-effort).
+ */
+export function playMicOpenChime(volume = 0.22): void {
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    const playTone = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, now + start);
+      gain.gain.exponentialRampToValueAtTime(volume, now + start + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + start);
+      osc.stop(now + start + duration + 0.02);
+    };
+
+    // Soft ascending "ding-ding" — attention without startling.
+    playTone(659.25, 0, 0.18); // E5
+    playTone(830.61, 0.16, 0.22); // G#5
+
+    window.setTimeout(() => {
+      void ctx.close().catch(() => undefined);
+    }, 600);
+  } catch {
+    // Chime is best-effort; never block the recording flow.
+  }
+}
+
+/**
+ * Soft therapist "I'm with you" bridge while the real reply is loading.
+ * Masks network latency so the turn feels continuous.
+ */
+export function playTherapistAckTone(volume = 0.16): void {
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    const playTone = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, now + start);
+      gain.gain.exponentialRampToValueAtTime(volume, now + start + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + start);
+      osc.stop(now + start + duration + 0.02);
+    };
+
+    // Gentle "mm-hmm" style two-note nod.
+    playTone(392.0, 0, 0.14); // G4
+    playTone(493.88, 0.12, 0.18); // B4
+
+    window.setTimeout(() => {
+      void ctx.close().catch(() => undefined);
+    }, 500);
+  } catch {
+    // Best-effort only.
+  }
 }
