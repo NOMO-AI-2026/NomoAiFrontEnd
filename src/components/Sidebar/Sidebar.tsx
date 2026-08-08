@@ -8,7 +8,8 @@ import {
   X,
   UserCheck,
   BarChart3,
-  HeadphonesIcon
+  HeadphonesIcon,
+  CreditCard
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -50,11 +51,12 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
     { title: "الدعم الفني", icon: HeadphonesIcon, path: "/parent/support" },
   ];
 
-  // روابط الأدمن (تم تعديل الاسم ليكون معبر أكثر عن إدارة التذاكر)
+  // روابط الأدمن
   const adminLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "/admin" },
     { title: "إدارة الأطباء", icon: UserCheck, path: "/admin/doctors" },
     { title: "إدارة الأهالي", icon: Users, path: "/admin/parents" },
+    { title: "الاشتراكات والخطط", icon: CreditCard, path: "/admin/subscriptions" },
     { title: "تقارير النظام", icon: BarChart3, path: "#" },
     { title: "تذاكر الدعم", icon: HeadphonesIcon, path: "/admin/tickets" },
   ];
