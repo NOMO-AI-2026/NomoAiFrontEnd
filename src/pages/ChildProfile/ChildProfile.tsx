@@ -11,6 +11,10 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/Delet
 import ActivityModal from '../../components/Modals/ActivityModal/ActivityModal';
 import NoteModal from '../../components/Modals/NoteModal/NoteModal'; // تم استيراد مودال الملاحظات
 import { getChildActivitiesApi, deleteActivityApi, type ActivityItem } from '../../api/doctorApi';
+import {
+  getChildSessionHistoryApi,
+  type ChildSessionHistoryItem,
+} from '../../api/sessionSummaryApi';
 
 const ChildProfile = () => {
   const { openAssignParentModal, openAddChildModal } = useModal();
@@ -38,6 +42,8 @@ const ChildProfile = () => {
 
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
+  const [sessionHistory, setSessionHistory] = useState<ChildSessionHistoryItem[]>([]);
+  const [isLoadingSessionHistory, setIsLoadingSessionHistory] = useState(true);
 
   // دوال فتح مودال الأنشطة
   const handleOpenAddActivity = () => {
@@ -76,15 +82,30 @@ const ChildProfile = () => {
     }
   }, [id]);
 
+  const fetchSessionHistory = useCallback(async () => {
+    if (!id) return;
+    setIsLoadingSessionHistory(true);
+    try {
+      const rows = await getChildSessionHistoryApi(Number(id));
+      setSessionHistory(rows);
+    } catch (error) {
+      console.error('خطأ في جلب سجل الجلسات:', error);
+      setSessionHistory([]);
+    } finally {
+      setIsLoadingSessionHistory(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (id) {
       dispatch(fetchChildProfile(Number(id)));
       fetchActivities();
+      fetchSessionHistory();
     }
     return () => {
       dispatch(clearProfileData());
     };
-  }, [dispatch, id, fetchActivities]);
+  }, [dispatch, id, fetchActivities, fetchSessionHistory]);
 
   useEffect(() => {
     if (id) {
@@ -341,6 +362,70 @@ const ChildProfile = () => {
           ) : (
             <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
               لا توجد أنشطة مضافة لهذا الطفل حالياً.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* سجل الجلسات — ملخصات محفوظة يمكن فتحها في أي وقت */}
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>
+            <History size={22} />
+            سجل الجلسات
+          </h2>
+        </div>
+        <div className="flex flex-col gap-3 mt-4">
+          {isLoadingSessionHistory ? (
+            <div className="text-center py-4 text-[#6C34AF] font-bold">جاري تحميل سجل الجلسات...</div>
+          ) : sessionHistory.length > 0 ? (
+            sessionHistory.map((session) => (
+              <button
+                key={session.sessionId}
+                type="button"
+                onClick={() => navigate(`/session/${session.sessionId}/summary`)}
+                className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-3 text-right hover:bg-[#EFEAFF] transition-colors border-2 border-transparent hover:border-[#C4B5FD]"
+              >
+                <div className="flex flex-col gap-2 w-full sm:w-auto">
+                  <span className="font-extrabold text-[#1E1B4B] text-lg">
+                    {session.sessionTitle || session.prompt || `جلسة #${session.sessionId}`}
+                  </span>
+                  <div className="flex flex-wrap gap-2 text-sm font-bold">
+                    {session.prompt && (
+                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
+                        الهدف: {session.prompt}
+                      </span>
+                    )}
+                    {session.endedAt && (
+                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
+                        {new Date(session.endedAt).toLocaleDateString('ar-EG')}
+                      </span>
+                    )}
+                    {session.totalAttempts != null && (
+                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
+                        محاولات: {session.totalAttempts}
+                      </span>
+                    )}
+                    <span
+                      className={`px-3 py-1 rounded-md ${
+                        session.hasSummary
+                          ? 'bg-[#DCFCE7] text-[#166534]'
+                          : 'bg-[#FEF3C7] text-[#92400E]'
+                      }`}
+                    >
+                      {session.hasSummary ? 'ملخص محفوظ' : 'بانتظار الملخص'}
+                    </span>
+                  </div>
+                  {session.outcomeLabel && (
+                    <p className="text-sm font-semibold text-[#4C1D95] m-0">{session.outcomeLabel}</p>
+                  )}
+                </div>
+                <span className="text-[#581C87] font-extrabold whitespace-nowrap">عرض الملخص ←</span>
+              </button>
+            ))
+          ) : (
+            <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
+              لا توجد جلسات مكتملة في السجل بعد.
             </div>
           )}
         </div>

@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, PartyPopper, RefreshCw, Stethoscope, TriangleAlert } from 'lucide-react';
+import {
+  ArrowRight,
+  ClipboardList,
+  PartyPopper,
+  RefreshCw,
+  Sparkles,
+  Stethoscope,
+  TriangleAlert,
+} from 'lucide-react';
 import styles from './SessionSummary.module.css';
 import {
   generateSessionSummaryApi,
@@ -34,6 +42,12 @@ function formatTrend(trend?: string | null): string {
   }
 }
 
+function formatDuration(seconds?: number | null): string {
+  if (seconds == null || Number.isNaN(seconds)) return '—';
+  const minutes = Math.max(1, Math.round(seconds / 60));
+  return `${minutes} دقيقة`;
+}
+
 const SessionSummaryPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -48,6 +62,7 @@ const SessionSummaryPage = () => {
   const [doctorSummary, setDoctorSummary] = useState<DoctorSessionSummaryResponse | null>(null);
   const [parentSummary, setParentSummary] = useState<ParentSessionSummaryResponse | null>(null);
   const [shared, setShared] = useState<SessionSummaryDto | null>(null);
+  const [historyChildId, setHistoryChildId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     if (!sessionId) {
@@ -60,9 +75,37 @@ const SessionSummaryPage = () => {
     setErrorMessage(null);
 
     try {
-      // Ensure a persisted summary exists (idempotent).
+      if (role === 'doctor') {
+        try {
+          const detailed = await getDoctorSessionSummaryApi(sessionId);
+          setDoctorSummary(detailed);
+          setParentSummary(null);
+          setShared(null);
+          setHistoryChildId(detailed.childId);
+          setLoadState('ready');
+          return;
+        } catch (err) {
+          const status = (err as { response?: { status?: number } })?.response?.status;
+          if (status !== 404) throw err;
+        }
+      } else {
+        try {
+          const simple = await getParentSessionSummaryApi(sessionId);
+          setParentSummary(simple);
+          setDoctorSummary(null);
+          setShared(null);
+          setHistoryChildId(simple.childId);
+          setLoadState('ready');
+          return;
+        } catch (err) {
+          const status = (err as { response?: { status?: number } })?.response?.status;
+          if (status !== 404) throw err;
+        }
+      }
+
       const generated = await generateSessionSummaryApi(sessionId);
       setShared(generated);
+      setHistoryChildId(generated.childId);
 
       if (role === 'doctor') {
         const detailed = await getDoctorSessionSummaryApi(sessionId);
@@ -93,23 +136,38 @@ const SessionSummaryPage = () => {
   return (
     <div className={styles.page} dir="rtl">
       <header className={styles.header}>
-        <button className={styles.backBtn} type="button" onClick={() => navigate(-1)}>
+        <button
+          className={styles.backBtn}
+          type="button"
+          aria-label="رجوع"
+          onClick={() => {
+            if (historyChildId) {
+              navigate(`/child/${historyChildId}`);
+            } else {
+              navigate(-1);
+            }
+          }}
+        >
           <ArrowRight size={20} />
-          رجوع
         </button>
-        <h1 className={styles.title}>ملخص الجلسة</h1>
+        <div className={styles.headerText}>
+          <h1 className={styles.title}>ملخص الجلسة</h1>
+          <p className={styles.subtitle}>
+            {historyChildId ? 'من سجل الجلسات — يمكن الرجوع إليه في أي وقت' : 'نتيجة تحليلية لما حدث في الجلسة'}
+          </p>
+        </div>
       </header>
 
       {loadState === 'loading' && (
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.centerState}`}>
           <div className={styles.spinner} aria-hidden="true" />
           <p className={styles.body}>جاري تجهيز ملخص ما حدث في الجلسة...</p>
         </div>
       )}
 
       {loadState === 'error' && (
-        <div className={styles.card}>
-          <TriangleAlert className={styles.danger} size={28} />
+        <div className={`${styles.card} ${styles.centerState}`}>
+          <TriangleAlert className={styles.danger} size={32} />
           <p className={styles.body}>{errorMessage}</p>
           <button className={styles.primaryBtn} type="button" onClick={() => void load()}>
             <RefreshCw size={18} />
@@ -121,85 +179,139 @@ const SessionSummaryPage = () => {
       {loadState === 'ready' && role === 'doctor' && doctorSummary && (
         <div className={styles.stack}>
           <section className={styles.card}>
-            <div className={styles.eyebrow}>
-              <Stethoscope size={18} />
-              عرض الأخصائي — تفصيلي
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <Stethoscope size={22} />
+                عرض الأخصائي
+              </h2>
+              <span className={styles.badge}>تفصيلي وتحليلي</span>
             </div>
-            <h2 className={styles.heading}>{doctorSummary.sessionTitle}</h2>
-            <p className={styles.meta}>
-              {doctorSummary.childName}
-              {doctorSummary.prompt ? ` · الهدف: ${doctorSummary.prompt}` : ''}
-              {doctorSummary.speechLevel ? ` · المستوى: ${doctorSummary.speechLevel}` : ''}
-            </p>
-            <p className={styles.body}>{doctorSummary.shortSummary}</p>
+
+            <h3 className={styles.heading}>{doctorSummary.sessionTitle}</h3>
+
+            <div className={styles.chipRow}>
+              <span className={styles.chip}>الطفل: {doctorSummary.childName}</span>
+              {doctorSummary.prompt && (
+                <span className={styles.chip}>الهدف: {doctorSummary.prompt}</span>
+              )}
+              {doctorSummary.speechLevel && (
+                <span className={styles.chip}>المستوى: {doctorSummary.speechLevel}</span>
+              )}
+            </div>
+
+            <div className={styles.outcomeBanner}>
+              <p className={styles.outcomeLabel}>النتيجة العامة</p>
+              <p className={styles.outcomeValue}>
+                {doctorSummary.outcomeLabel || doctorSummary.outcome}
+              </p>
+            </div>
+
+            <p className={styles.summaryText}>{doctorSummary.shortSummary}</p>
           </section>
 
           <section className={styles.card}>
-            <h3 className={styles.subheading}>المؤشرات التحليلية</h3>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <ClipboardList size={22} />
+                المؤشرات التحليلية
+              </h2>
+            </div>
+
             <div className={styles.metricsGrid}>
-              <div>
+              <div className={`${styles.metricTile} ${styles.metricTileWide}`}>
                 <span className={styles.metricLabel}>النتيجة العامة</span>
-                <strong>{doctorSummary.outcomeLabel || doctorSummary.outcome}</strong>
+                <strong className={`${styles.metricValue} ${styles.metricValueSm}`}>
+                  {doctorSummary.outcomeLabel || doctorSummary.outcome}
+                </strong>
               </div>
-              <div>
+              <div className={styles.metricTile}>
                 <span className={styles.metricLabel}>عدد المحاولات</span>
-                <strong>{doctorSummary.metrics.totalAttempts}</strong>
+                <strong className={styles.metricValue}>{doctorSummary.metrics.totalAttempts}</strong>
               </div>
-              <div>
+              <div className={styles.metricTile}>
                 <span className={styles.metricLabel}>مطابقة الهدف</span>
-                <strong>{doctorSummary.metrics.successfulAttempts}</strong>
+                <strong className={styles.metricValue}>
+                  {doctorSummary.metrics.successfulAttempts}
+                </strong>
               </div>
-              <div>
+              <div className={styles.metricTile}>
                 <span className={styles.metricLabel}>متوسط الدرجة</span>
-                <strong>{formatScore(doctorSummary.metrics.averageScore)}</strong>
+                <strong className={styles.metricValue}>
+                  {formatScore(doctorSummary.metrics.averageScore)}
+                </strong>
               </div>
-              <div>
+              <div className={styles.metricTile}>
                 <span className={styles.metricLabel}>أفضل درجة</span>
-                <strong>{formatScore(doctorSummary.metrics.bestScore)}</strong>
+                <strong className={styles.metricValue}>
+                  {formatScore(doctorSummary.metrics.bestScore)}
+                </strong>
               </div>
-              <div>
+              <div className={styles.metricTile}>
                 <span className={styles.metricLabel}>التحسن</span>
-                <strong>{formatScore(doctorSummary.metrics.improvementPercentage)}</strong>
+                <strong className={styles.metricValue}>
+                  {formatScore(doctorSummary.metrics.improvementPercentage)}
+                </strong>
               </div>
-              <div>
+              <div className={styles.metricTile}>
                 <span className={styles.metricLabel}>الاتجاه</span>
-                <strong>{formatTrend(doctorSummary.metrics.scoreTrend)}</strong>
+                <strong className={styles.metricValue}>
+                  {formatTrend(doctorSummary.metrics.scoreTrend)}
+                </strong>
               </div>
-              <div>
+              <div className={styles.metricTile}>
                 <span className={styles.metricLabel}>بدون كلام</span>
-                <strong>{doctorSummary.metrics.noSpeechAttempts}</strong>
+                <strong className={styles.metricValue}>
+                  {doctorSummary.metrics.noSpeechAttempts}
+                </strong>
               </div>
-              <div>
-                <span className={styles.metricLabel}>المدة</span>
-                <strong>
-                  {doctorSummary.metrics.durationSeconds != null
-                    ? `${Math.round(doctorSummary.metrics.durationSeconds / 60)} د`
-                    : '—'}
+              <div className={styles.metricTile}>
+                <span className={styles.metricLabel}>مدة الجلسة</span>
+                <strong className={styles.metricValue}>
+                  {formatDuration(doctorSummary.metrics.durationSeconds)}
                 </strong>
               </div>
             </div>
           </section>
 
           <section className={styles.card}>
-            <h3 className={styles.subheading}>الاستنتاج التحليلي</h3>
-            <ul className={styles.list}>
-              {doctorSummary.strengths.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <h3 className={styles.subheading}>محاور التمرين المقترحة</h3>
-            <ul className={styles.list}>
-              {doctorSummary.practiceAreas.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <p className={styles.body}>
-              <strong>اقتراح الجلسة القادمة:</strong> {doctorSummary.nextSessionSuggestion}
-            </p>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <Sparkles size={22} />
+                الاستنتاج التحليلي
+              </h2>
+            </div>
+
+            <div className={styles.sectionBlock}>
+              <h3 className={styles.sectionTitle}>نقاط القوة</h3>
+              <ul className={styles.list}>
+                {doctorSummary.strengths.map((item) => (
+                  <li key={item} className={styles.listItem}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className={styles.sectionBlock}>
+              <h3 className={styles.sectionTitle}>محاور التمرين المقترحة</h3>
+              <ul className={styles.list}>
+                {doctorSummary.practiceAreas.map((item) => (
+                  <li key={item} className={styles.listItem}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className={styles.nextBox}>
+              <p className={styles.nextLabel}>اقتراح الجلسة القادمة</p>
+              <p className={styles.nextText}>{doctorSummary.nextSessionSuggestion}</p>
+            </div>
+
             {(doctorSummary.doctorReviewRecommended || doctorSummary.requiresDoctorReview) && (
               <div className={styles.reviewBox}>
-                <p className={styles.body}>
-                  <strong>ملاحظة للمراجعة الطبية:</strong>{' '}
+                <p className={styles.reviewLabel}>ملاحظة للمراجعة الطبية</p>
+                <p className={styles.reviewText}>
                   {doctorSummary.doctorReviewNote || 'يُفضّل مراجعة الأخصائي لهذه الجلسة.'}
                 </p>
               </div>
@@ -211,43 +323,67 @@ const SessionSummaryPage = () => {
       {loadState === 'ready' && role !== 'doctor' && parentSummary && (
         <div className={styles.stack}>
           <section className={styles.card}>
-            <PartyPopper className={styles.accent} size={28} />
-            <h2 className={styles.heading}>{parentSummary.friendlyOutcome}</h2>
-            <p className={styles.meta}>
-              {parentSummary.childName}
-              {parentSummary.activityLabel ? ` · ${parentSummary.activityLabel}` : ''}
-            </p>
-            <p className={styles.body}>{parentSummary.shortSummary}</p>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <PartyPopper className={styles.accent} size={22} />
+                ملخص مبسّط لولي الأمر
+              </h2>
+              <span className={`${styles.badge} ${styles.badgeSuccess}`}>مشجّع وواضح</span>
+            </div>
+
+            <h3 className={styles.heading}>{parentSummary.friendlyOutcome}</h3>
+
+            <div className={styles.chipRow}>
+              <span className={styles.chip}>الطفل: {parentSummary.childName}</span>
+              {parentSummary.activityLabel && (
+                <span className={styles.chip}>{parentSummary.activityLabel}</span>
+              )}
+              <span className={styles.chip}>محاولات: {parentSummary.totalAttempts}</span>
+              {parentSummary.successfulAttempts > 0 && (
+                <span className={`${styles.badge} ${styles.badgeSuccess}`}>
+                  ناجحة: {parentSummary.successfulAttempts}
+                </span>
+              )}
+            </div>
+
+            <p className={styles.summaryText}>{parentSummary.shortSummary}</p>
           </section>
 
           <section className={styles.card}>
-            <h3 className={styles.subheading}>ما نجح اليوم</h3>
-            <ul className={styles.list}>
-              {parentSummary.strengths.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <h3 className={styles.subheading}>تمرين بسيط في البيت</h3>
-            <p className={styles.body}>{parentSummary.practiceTip}</p>
-            <p className={styles.body}>
-              <strong>الجلسة الجاية:</strong> {parentSummary.nextSessionSuggestion}
-            </p>
+            <div className={styles.sectionBlock}>
+              <h3 className={styles.sectionTitle}>ما نجح اليوم</h3>
+              <ul className={styles.list}>
+                {parentSummary.strengths.map((item) => (
+                  <li key={item} className={styles.listItem}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className={styles.nextBox}>
+              <p className={styles.nextLabel}>تمرين بسيط في البيت</p>
+              <p className={styles.nextText}>{parentSummary.practiceTip}</p>
+            </div>
+
+            <div className={styles.outcomeBanner}>
+              <p className={styles.outcomeLabel}>الجلسة الجاية</p>
+              <p className={styles.outcomeValue}>{parentSummary.nextSessionSuggestion}</p>
+            </div>
+
             {parentSummary.suggestDoctorFollowUp && parentSummary.followUpMessage && (
-              <p className={styles.softNote}>{parentSummary.followUpMessage}</p>
+              <div className={styles.reviewBox}>
+                <p className={styles.reviewLabel}>متابعة بسيطة</p>
+                <p className={styles.reviewText}>{parentSummary.followUpMessage}</p>
+              </div>
             )}
-            <p className={styles.softNote}>
-              عدد المحاولات: {parentSummary.totalAttempts}
-              {parentSummary.successfulAttempts > 0
-                ? ` · محاولات واضحة ناجحة: ${parentSummary.successfulAttempts}`
-                : ''}
-            </p>
           </section>
         </div>
       )}
 
       {loadState === 'ready' && !doctorSummary && !parentSummary && shared && (
         <div className={styles.card}>
-          <p className={styles.body}>{shared.shortSummary}</p>
+          <p className={styles.summaryText}>{shared.shortSummary}</p>
         </div>
       )}
     </div>
