@@ -16,3 +16,15 @@ export const createQuickLinkApi = async (payload: CreateQuickLinkPayload): Promi
   const response = await axiosInstance.post<QuickLinkApiResponse>('/payments/quick-link', payload);
   return response.data;
 };
+
+// 3. جلب مدفوعات الأدمن
+export const getAdminPaymentsApi = async (params?: any) => {
+  const response = await axiosInstance.get('/payments', { params });
+  return response.data;
+};
+
+// 4. جلب عمليات الطبيب
+export const getDoctorTransactionsApi = async (params?: any) => {
+  const response = await axiosInstance.get('/payments/my-transactions', { params });
+  return response.data;
+};
