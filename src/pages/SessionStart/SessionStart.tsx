@@ -53,9 +53,10 @@ const SessionStart = () => {
     setActivitiesError(null);
     setSelectedActivityId(null);
     try {
-      const data = await getChildActivitiesApi(childId);
+      const data = await getChildActivitiesApi(childId, { onlyAvailableForSession: true });
       const list = Array.isArray(data) ? data : data?.value ?? [];
-      setActivities(list);
+      // Client-side safety net: never show activities marked unavailable.
+      setActivities(list.filter((a) => a.canMakeSession !== false));
     } catch (err) {
       console.error('خطأ في جلب الأنشطة:', err);
       setActivitiesError('تعذر تحميل الأنشطة الخاصة بهذا الطفل.');
@@ -107,7 +108,15 @@ const SessionStart = () => {
       navigate(`/session/${runtime.sessionId}`, { state: { runtime } });
     } catch (err) {
       console.error('خطأ في بدء الجلسة:', err);
-      setStartError('تعذر بدء الجلسة. حاول مرة أخرى.');
+      const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code;
+      if (code === 'SessionRuntime.ActivitySessionAlreadyCreated') {
+        setStartError('هذا النشاط استُخدم بالفعل في جلسة مكتملة. اختر نشاطًا آخر أو أنشئ نشاطًا جديدًا.');
+        if (selectedChildId) {
+          void loadActivities(selectedChildId);
+        }
+      } else {
+        setStartError('تعذر بدء الجلسة. حاول مرة أخرى.');
+      }
     } finally {
       setIsStarting(false);
     }
@@ -154,7 +163,9 @@ const SessionStart = () => {
           ) : activitiesError ? (
             <div className={styles.errorMessage}>{activitiesError}</div>
           ) : sortedActivities.length === 0 ? (
-            <div className={styles.centerMessage}>لا توجد أنشطة متاحة لهذا الطفل حتى الآن.</div>
+            <div className={styles.centerMessage}>
+              لا توجد أنشطة متاحة لبدء جلسة جديدة. أنشئ نشاطًا جديدًا أو استخدم نشاطًا لم تُكمل جلسته بعد.
+            </div>
           ) : (
             <div className={styles.activityList}>
               {sortedActivities.map((activity) => {

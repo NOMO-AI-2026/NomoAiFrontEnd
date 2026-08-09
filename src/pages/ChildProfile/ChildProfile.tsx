@@ -287,6 +287,15 @@ const ChildProfile = () => {
                       <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
                         المدة: {activity.estimatedDurationMinutes} دقائق
                       </span>
+                      <span
+                        className={`px-3 py-1 rounded-md whitespace-nowrap ${
+                          activity.canMakeSession === true
+                            ? 'bg-[#DCFCE7] text-[#166534]'
+                            : 'bg-[#FEE2E2] text-[#991B1B]'
+                        }`}
+                      >
+                        {activity.canMakeSession === true ? 'متاح لجلسة' : 'غير متاح لجلسة'}
+                      </span>
                     </div>
                   </div>
 

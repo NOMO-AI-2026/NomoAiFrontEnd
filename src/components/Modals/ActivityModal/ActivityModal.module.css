@@ -170,3 +170,32 @@
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
+.toggleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: #F8F7FF;
+  border: 2px solid #EBE5F7;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #1E1B4B;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.checkbox {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  accent-color: #581C87;
+  flex-shrink: 0;
+}
+
+.toggleHint {
+  display: block;
+  margin-top: 0.25rem;
+  color: #6B7280;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
