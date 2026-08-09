@@ -152,8 +152,6 @@ export const getChildActivitiesApi = async (
   const response = await axiosInstance.get<ActivitiesResponse>(`/children/${childId}/activities`, {
     params: options?.onlyAvailableForSession ? { onlyAvailableForSession: true } : undefined,
   });
-export const getChildActivitiesApi = async (childId: number) => {
-  const response = await axiosInstance.get<ActivitiesResponse>(`/children/${childId}/activities`); 
   return response.data;
 };
 
