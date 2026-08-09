@@ -39,3 +39,10 @@ export interface QuickLinkApiResponse {
     description: string;
   };
 }
+
+export interface PaymentsQueryParams {
+  pageNumber?: number;
+  pageSize?: number;
+  searchQuery?: string;
+  [key: string]: unknown;
+}

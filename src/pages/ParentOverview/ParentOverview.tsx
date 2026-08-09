@@ -9,49 +9,69 @@ import {
   Activity,
   Target
 } from 'lucide-react';
-import { getParentDashboardApi } from '../../api/parentApi';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchParentDashboard, type ParentDashboardChild } from '../../store/slices/profileSlice';
 import styles from './ParentOverview.module.css';
-import toast from 'react-hot-toast';
+
+interface FormattedLatestNote {
+  id?: number;
+  noteTitle?: string;
+  noteContent?: string;
+  createdAt?: string;
+  doctorFullName?: string;
+  childName?: string;
+}
+
+const getLatestDoctorNote = (children: ParentDashboardChild[]): FormattedLatestNote | null => {
+  let result: FormattedLatestNote | null = null;
+  children.forEach((child) => {
+    if (child.latestDoctorNote && child.latestDoctorNote.createdAt) {
+      const candidate: FormattedLatestNote = {
+        ...child.latestDoctorNote,
+        childName: child.fullName,
+      };
+      if (!result || !result.createdAt) {
+        result = candidate;
+      } else {
+        const currentDate = new Date(child.latestDoctorNote.createdAt).getTime();
+        const storedDate = new Date(result.createdAt).getTime();
+        if (currentDate > storedDate) {
+          result = candidate;
+        }
+      }
+    }
+  });
+  return result;
+};
 
 const ParentOverview = () => {
-  const { data: profileData } = useAppSelector((state) => state.profile);
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { 
+    data: profileData, 
+    parentDashboardData, 
+    isParentDashboardLoading, 
+    parentDashboardError 
+  } = useAppSelector((state) => state.profile);
+
   const [animate, setAnimate] = useState(false);
 
-  const fetchDashboardData = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await getParentDashboardApi();
-      const payload = response.value || response;
-      setData(payload);
-    } catch (err: any) {
-      console.error('Error fetching parent dashboard:', err);
-      setError('فشل في جلب بيانات اللوحة الرئيسية. يرجى المحاولة مرة أخرى.');
-      toast.error('حدث خطأ أثناء تحميل الإحصائيات');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    dispatch(fetchParentDashboard());
+  }, [dispatch]);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
-    if (data) {
+    if (parentDashboardData) {
       timer = setTimeout(() => setAnimate(true), 100);
     } else {
       timer = setTimeout(() => setAnimate(false), 0);
     }
     return () => clearTimeout(timer);
-  }, [data]);
+  }, [parentDashboardData]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
-  if (isLoading) {
+  if (isParentDashboardLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
@@ -60,12 +80,12 @@ const ParentOverview = () => {
     );
   }
 
-  if (error) {
+  if (parentDashboardError) {
     return (
       <div className={styles.errorContainer}>
         <AlertCircle size={48} />
-        <p style={{ fontWeight: 800, fontSize: '1.2rem' }}>{error}</p>
-        <button className={styles.retryBtn} onClick={fetchDashboardData}>
+        <p style={{ fontWeight: 800, fontSize: '1.2rem' }}>{parentDashboardError}</p>
+        <button className={styles.retryBtn} onClick={() => dispatch(fetchParentDashboard())}>
           إعادة المحاولة
         </button>
       </div>
@@ -79,31 +99,23 @@ const ParentOverview = () => {
     day: 'numeric'
   });
 
-  // Extracting data safely based on real swagger response
-  const childrenList = Array.isArray(data?.children) ? data.children : [];
+  // Extracting data safely based on Redux state
+  const childrenList: ParentDashboardChild[] = Array.isArray(parentDashboardData?.children) 
+    ? parentDashboardData.children 
+    : [];
   
   // Aggregate stats across all children
   let totalSessionsLast7Days = 0;
   let totalPendingExercises = 0;
-  let latestNoteObj: any = null;
 
-  childrenList.forEach((child: any) => {
+  childrenList.forEach((child) => {
     if (child.activity) {
       totalSessionsLast7Days += child.activity.sessionsCompletedLast7Days || 0;
       totalPendingExercises += child.activity.pendingExercisesCount || 0;
     }
-    
-    // Find the first valid note (or the most recent if we want to sort, but first is fine for now)
-    if (child.latestDoctorNote && !latestNoteObj) {
-      latestNoteObj = { ...child.latestDoctorNote, childName: child.fullName };
-    } else if (child.latestDoctorNote && latestNoteObj) {
-        const currentNoteDate = new Date(child.latestDoctorNote.createdAt).getTime();
-        const storedNoteDate = new Date(latestNoteObj.createdAt).getTime();
-        if (currentNoteDate > storedNoteDate) {
-            latestNoteObj = { ...child.latestDoctorNote, childName: child.fullName };
-        }
-    }
   });
+
+  const activeLatestNote = getLatestDoctorNote(childrenList);
 
   return (
     <div className={styles.pageContainer} dir="rtl">
@@ -166,14 +178,14 @@ const ParentOverview = () => {
               <FileText size={24} />
             </div>
           </div>
-          {latestNoteObj ? (
+          {activeLatestNote ? (
             <div className={styles.noteContent}>
               <span className={styles.noteDate}>
-                بخصوص: {latestNoteObj.childName} • {new Date(latestNoteObj.createdAt).toLocaleDateString('ar-EG')}
+                بخصوص: {activeLatestNote.childName} • {activeLatestNote.createdAt ? new Date(activeLatestNote.createdAt).toLocaleDateString('ar-EG') : ''}
               </span>
-              <strong>{latestNoteObj.noteTitle}</strong>: {latestNoteObj.noteContent}
+              <strong>{activeLatestNote.noteTitle}</strong>: {activeLatestNote.noteContent}
               <div style={{fontSize: '0.8rem', marginTop: '0.3rem', color: '#B45309'}}>
-                - من د. {latestNoteObj.doctorFullName}
+                - من د. {activeLatestNote.doctorFullName}
               </div>
             </div>
           ) : (
@@ -198,7 +210,7 @@ const ParentOverview = () => {
           
           <div className={styles.childrenProgressList}>
             {childrenList.length > 0 ? (
-              childrenList.map((child: any, index: number) => {
+              childrenList.map((child, index) => {
                 const progress = child.progress || {};
                 const completed = progress.completedSpeechLevels || 0;
                 const total = progress.totalSpeechLevels || 10;

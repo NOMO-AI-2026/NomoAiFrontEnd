@@ -7,51 +7,38 @@ import {
   AlertCircle,
   Activity
 } from 'lucide-react';
-import { getDoctorDashboardApi } from '../../api/doctorApi';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchDoctorDashboard } from '../../store/slices/profileSlice';
 import styles from './DoctorOverview.module.css';
-import toast from 'react-hot-toast';
 
 const DoctorOverview = () => {
-  const { data: profileData } = useAppSelector((state) => state.profile);
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { 
+    data: profileData, 
+    dashboardData, 
+    isDashboardLoading, 
+    dashboardError 
+  } = useAppSelector((state) => state.profile);
+
   const [animate, setAnimate] = useState(false);
 
-  const fetchDashboardData = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await getDoctorDashboardApi();
-      const payload = response.value || response;
-      setData(payload);
-
-    } catch (err: any) {
-      console.error('Error fetching doctor dashboard:', err);
-      setError('فشل في جلب بيانات اللوحة الرئيسية. يرجى المحاولة مرة أخرى.');
-      toast.error('حدث خطأ أثناء تحميل الإحصائيات');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    dispatch(fetchDoctorDashboard());
+  }, [dispatch]);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
-    if (data) {
+    if (dashboardData) {
       timer = setTimeout(() => setAnimate(true), 100);
     } else {
       timer = setTimeout(() => setAnimate(false), 0);
     }
     return () => clearTimeout(timer);
-  }, [data]);
+  }, [dashboardData]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
-  if (isLoading) {
+  if (isDashboardLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
@@ -60,12 +47,12 @@ const DoctorOverview = () => {
     );
   }
 
-  if (error) {
+  if (dashboardError) {
     return (
       <div className={styles.errorContainer}>
         <AlertCircle size={48} />
-        <p style={{ fontWeight: 800, fontSize: '1.2rem' }}>{error}</p>
-        <button className={styles.retryBtn} onClick={fetchDashboardData}>
+        <p style={{ fontWeight: 800, fontSize: '1.2rem' }}>{dashboardError}</p>
+        <button className={styles.retryBtn} onClick={() => dispatch(fetchDoctorDashboard())}>
           إعادة المحاولة
         </button>
       </div>
@@ -79,13 +66,13 @@ const DoctorOverview = () => {
     day: 'numeric'
   });
 
-  // Extracting data exactly as per the new API response
-  const sessions = data?.sessions || {};
+  // Extracting data from Redux Store
+  const sessions = dashboardData?.sessions || {};
   const completedLast7Days = sessions.completedLast7Days || 0;
   const completedToday = sessions.completedToday || 0;
   const awaitingReview = sessions.awaitingDoctorReview || 0;
   
-  const cases = data?.cases || {};
+  const cases = dashboardData?.cases || {};
   const totalChildren = cases.totalChildren || 0;
   
   const progressedCount = cases.progressedLast7Days?.length || 0;

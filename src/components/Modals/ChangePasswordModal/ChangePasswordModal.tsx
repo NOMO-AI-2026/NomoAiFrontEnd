@@ -78,18 +78,31 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
         setSuccessMsg(null);
       }, 1500);
 
-    } catch (err: any) {
-      console.error("Error changing password:", err.response?.data);
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: {
+          data?: {
+            error?: { description?: string };
+            description?: string;
+            errors?: Array<{ description?: string; message?: string } | string> | Record<string, string[]>;
+            message?: string;
+          };
+        };
+      };
+
+      console.error("Error changing password:", errorObj.response?.data);
       let apiErr = "حدث خطأ غير متوقع أثناء تغيير كلمة المرور.";
-      if (err.response?.data) {
-        const data = err.response.data;
+      if (errorObj.response?.data) {
+        const data = errorObj.response.data;
         if (data.error?.description) {
           apiErr = data.error.description;
         } else if (data.description) {
           apiErr = data.description;
         } else if (data.errors) {
           if (Array.isArray(data.errors)) {
-            apiErr = data.errors.map((e: any) => e.description || e.message || e).join(' ');
+            apiErr = data.errors
+              .map((e) => (typeof e === 'object' && e !== null ? e.description || e.message || String(e) : String(e)))
+              .join(' ');
           } else if (typeof data.errors === 'object') {
             apiErr = Object.values(data.errors).flat().join(' ');
           } else {

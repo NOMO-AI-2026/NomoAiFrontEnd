@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Activity } from 'lucide-react';
 import styles from './ActivityModal.module.css';
 import { 
   createActivityApi, 
@@ -92,7 +92,8 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         <div className={styles.header}>
           <div className={styles.headerTitles}>
             <h2 className={styles.title}>
-              {isEditMode ? 'تعديل بيانات النشاط' : 'إضافة نشاط جديد'}
+              <Activity size={22} style={{ color: '#581C87' }} />
+              <span>{isEditMode ? 'تعديل بيانات النشاط' : 'إضافة نشاط جديد'}</span>
             </h2>
             <p className={styles.subtitle}>
               {isEditMode ? 'قم بتحديث محتوى أو هدف النشاط الحالي' : 'حدد تفاصيل النشاط والمدة المقدرة له'}

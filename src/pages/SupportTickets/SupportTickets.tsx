@@ -44,6 +44,7 @@ const SupportTickets = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
@@ -67,6 +68,7 @@ const SupportTickets = () => {
       isMounted = false;
     };
   }, [page, refreshTrigger]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const loadTickets = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -166,7 +168,7 @@ const SupportTickets = () => {
           tickets.map((ticket) => {
             const statusInfo = getStatusDisplay(ticket.status);
             const isOpen = ticket.status === 0;
-            const hasAdminResponded = Boolean(ticket.hasAdminNote || (ticket as any).adminNote);
+            const hasAdminResponded = Boolean(ticket.hasAdminNote || ticket.adminNote);
 
             return (
               <div 

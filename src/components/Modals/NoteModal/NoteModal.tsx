@@ -3,13 +3,14 @@ import { X, Edit2, PlusCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAppDispatch } from '../../../store/hooks';
 import { addChildNote, updateChildNote } from '../../../store/slices/childProfileSlice'; 
-import styles from './NoteModal.module.css'; // استيراد ملف الستايل
+import { type DoctorNote } from '../../../api/doctorApi';
+import styles from './NoteModal.module.css';
 
 interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   childId: number;
-  noteToEdit: any | null; 
+  noteToEdit: DoctorNote | null; 
   onSuccess: () => void;
 }
 
@@ -19,6 +20,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, childId, noteToE
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (noteToEdit) {
       setTitle(noteToEdit.title || '');
@@ -28,6 +30,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, childId, noteToE
       setDescription('');
     }
   }, [noteToEdit, isOpen]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!isOpen) return null;
 
@@ -56,7 +59,8 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, childId, noteToE
       }
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error(error);
       toast.error('حدث خطأ أثناء حفظ الملاحظة');
     } finally {
       setIsSubmitting(false);
@@ -66,59 +70,65 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, childId, noteToE
   return (
     <div className={styles.overlay} dir="rtl">
       <div className={styles.modal}>
-        
         <div className={styles.header}>
-          <h2 className={styles.title}>
-            {noteToEdit ? <Edit2 size={24} color="#581C87" /> : <PlusCircle size={24} color="#581C87" />}
-            {noteToEdit ? 'تعديل الملاحظة' : 'إضافة ملاحظة جديدة'}
-          </h2>
-          <button 
-            onClick={onClose} 
-            disabled={isSubmitting}
-            className={styles.closeButton}
-          >
+          <div className={styles.headerTitles}>
+            <h2 className={styles.title}>
+              {noteToEdit ? (
+                <>
+                  <Edit2 size={20} className="inline-block ml-2 text-[#581C87]" />
+                  تعديل الملاحظة
+                </>
+              ) : (
+                <>
+                  <PlusCircle size={20} className="inline-block ml-2 text-[#581C87]" />
+                  إضافة ملاحظة جديدة
+                </>
+              )}
+            </h2>
+          </div>
+          <button className={styles.closeButton} onClick={onClose} disabled={isSubmitting}>
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGroup}>
+          <div className={styles.inputGroup}>
             <label className={styles.label}>عنوان الملاحظة</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              required
-              placeholder="مثال: تحسن في نطق حرف الراء"
+              placeholder="أدخل عنوان الملاحظة..."
               className={styles.input}
+              disabled={isSubmitting}
             />
           </div>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.label}>التفاصيل</label>
-            <textarea 
-              rows={4}
+
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>محتوى الملاحظة</label>
+            <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
-              placeholder="اكتب تفاصيل ملاحظتك هنا..."
+              placeholder="أدخل تفاصيل الملاحظة..."
               className={styles.textarea}
+              rows={4}
+              disabled={isSubmitting}
             />
           </div>
 
           <div className={styles.actions}>
-            <button 
-              type="submit" 
-              disabled={isSubmitting}
+            <button
+              type="submit"
               className={styles.submitBtn}
-            >
-              {isSubmitting ? 'جاري الحفظ...' : 'حفظ الملاحظة'}
-            </button>
-            <button 
-              type="button" 
-              onClick={onClose} 
               disabled={isSubmitting}
+            >
+              {isSubmitting ? 'جاري الحفظ...' : (noteToEdit ? 'حفظ التعديلات' : 'إضافة الملاحظة')}
+            </button>
+            <button
+              type="button"
               className={styles.cancelBtn}
+              onClick={onClose}
+              disabled={isSubmitting}
             >
               إلغاء
             </button>

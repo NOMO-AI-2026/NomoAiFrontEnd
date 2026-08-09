@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UserCheck, UserX, Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminDoctors.module.css';
-import { getAdminDoctorsApi, handleDoctorApprovalApi, deleteDoctorByAdminApi } from '../../../api/adminApi';
+import { getAdminDoctorsApi, handleDoctorApprovalApi, deleteDoctorByAdminApi, type GetDoctorsParams } from '../../../api/adminApi';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
 import UserAvatar from '../../../components/UserAvatar/UserAvatar';
 
@@ -47,13 +47,13 @@ const AdminDoctors = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // 2. جلب البيانات من الباك إند
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const fetchDoctors = async () => {
       setLoading(true);
       try {
         // تجهيز الباراميترز اللي هتتبعت للباك إند
-        const params: any = {
+        const params: GetDoctorsParams = {
           pageNumber: page,
           pageSize: 10, // بنطلب 10 بس
         };
@@ -87,7 +87,8 @@ const AdminDoctors = () => {
     };
 
     fetchDoctors();
-  }, [page, debouncedSearch, filter]); // الدالة دي هتتنفذ مع كل تغيير في الصفحة، البحث، أو الفلتر
+  }, [page, debouncedSearch, filter]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleApproveInstant = async (userId: string) => {
     try {

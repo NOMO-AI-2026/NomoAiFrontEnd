@@ -6,7 +6,9 @@ import {
   deleteDoctorNoteApi, 
   addDoctorNoteApi, 
   updateDoctorNoteApi, 
-  type PaginatedNotesResponse 
+  getChildActivitiesApi,
+  type PaginatedNotesResponse,
+  type ActivityItem
 } from '../../api/doctorApi';
 import { type ChildProfileData, type PaginatedSpeechHistory } from '../../types/child.types';
 
@@ -20,7 +22,27 @@ interface ChildProfileState {
   notesData: PaginatedNotesResponse | null;
   isNotesLoading: boolean;
   notesError: string | null;
+  activities: ActivityItem[];
+  isActivitiesLoading: boolean;
+  activitiesError: string | null;
 }
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      error?: {
+        description?: string;
+      };
+    };
+  };
+  message?: string;
+}
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  const err = error as ApiError;
+  return err.response?.data?.error?.description || err.response?.data?.message || err.message || fallback;
+};
 
 const initialState: ChildProfileState = {
   profileData: null,
@@ -32,6 +54,9 @@ const initialState: ChildProfileState = {
   notesData: null,
   isNotesLoading: false,
   notesError: null,
+  activities: [],
+  isActivitiesLoading: false,
+  activitiesError: null,
 };
 
 export const fetchChildProfile = createAsyncThunk(
@@ -41,14 +66,14 @@ export const fetchChildProfile = createAsyncThunk(
       const data = await getChildProfileApi(id);
       return data; 
     } catch (error: unknown) {
-      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في جلب بيانات الطفل');
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في جلب بيانات الطفل'));
     }
   }
 );
 
 export const fetchSpeechHistory = createAsyncThunk(
   'childProfile/fetchSpeechHistory',
-  async ({ childId, pageNumber = 1, pageSize = 10 }: { childId: number, pageNumber?: number, pageSize?: number }, { rejectWithValue }) => {
+  async ({ childId, pageNumber = 1, pageSize = 10 }: { childId: number; pageNumber?: number; pageSize?: number }, { rejectWithValue }) => {
     try {
       const data = await getSpeechLevelHistoryApi(childId, pageNumber, pageSize);
       if (data.isSuccess) {
@@ -56,7 +81,7 @@ export const fetchSpeechHistory = createAsyncThunk(
       }
       return rejectWithValue(data.error?.description || 'حدث خطأ في جلب السجل');
     } catch (error: unknown) {
-      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في الاتصال بالخادم');
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في الاتصال بالخادم'));
     }
   }
 );
@@ -80,7 +105,7 @@ export const fetchChildNotes = createAsyncThunk(
         hasNextPage: false,
       };
     } catch (error: unknown) {
-      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في جلب الملاحظات');
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في جلب الملاحظات'));
     }
   }
 );
@@ -92,12 +117,11 @@ export const deleteChildNote = createAsyncThunk(
       await deleteDoctorNoteApi(noteId);
       return noteId;
     } catch (error: unknown) {
-      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في حذف الملاحظة');
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في حذف الملاحظة'));
     }
   }
 );
 
-// الدالة الجديدة لإضافة ملاحظة
 export const addChildNote = createAsyncThunk(
   'childProfile/addChildNote',
   async (payload: { childId: number; noteTitle: string; noteContent: string }, { rejectWithValue }) => {
@@ -108,12 +132,11 @@ export const addChildNote = createAsyncThunk(
       });
       return response;
     } catch (error: unknown) {
-      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في إضافة الملاحظة');
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في إضافة الملاحظة'));
     }
   }
 );
 
-// الدالة الجديدة لتعديل ملاحظة
 export const updateChildNote = createAsyncThunk(
   'childProfile/updateChildNote',
   async (payload: { noteId: number; title: string; description: string }, { rejectWithValue }) => {
@@ -124,7 +147,20 @@ export const updateChildNote = createAsyncThunk(
       });
       return response;
     } catch (error: unknown) {
-      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'حدث خطأ في تعديل الملاحظة');
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في تعديل الملاحظة'));
+    }
+  }
+);
+
+export const fetchChildActivities = createAsyncThunk(
+  'childProfile/fetchChildActivities',
+  async (childId: number, { rejectWithValue }) => {
+    try {
+      const data = await getChildActivitiesApi(childId);
+      const activitiesList = Array.isArray(data) ? data : (data?.value || []);
+      return activitiesList;
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في جلب الأنشطة'));
     }
   }
 );
@@ -137,6 +173,8 @@ const childProfileSlice = createSlice({
       state.profileData = null;
       state.speechHistory = null;
       state.notesData = null;
+      state.activities = [];
+      state.activitiesError = null;
     }
   },
   extraReducers: (builder) => {
@@ -181,6 +219,18 @@ const childProfileSlice = createSlice({
         if (state.notesData && state.notesData.items) {
           state.notesData.items = state.notesData.items.filter((n) => n.id !== action.payload);
         }
+      })
+      .addCase(fetchChildActivities.pending, (state) => {
+        state.isActivitiesLoading = true;
+        state.activitiesError = null;
+      })
+      .addCase(fetchChildActivities.fulfilled, (state, action) => {
+        state.isActivitiesLoading = false;
+        state.activities = action.payload;
+      })
+      .addCase(fetchChildActivities.rejected, (state, action) => {
+        state.isActivitiesLoading = false;
+        state.activitiesError = action.payload as string;
       });
   },
 });

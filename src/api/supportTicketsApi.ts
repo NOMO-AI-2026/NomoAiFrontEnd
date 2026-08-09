@@ -10,7 +10,8 @@ export interface SupportTicket {
   userFullName: string;
   userEmail: string;
   userRole: string;
-  hasAdminNote: boolean;
+  hasAdminNote?: boolean;
+  adminNote?: string | null;
 }
 
 export interface PaginatedTicketsResponse {

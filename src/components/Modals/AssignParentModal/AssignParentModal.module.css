@@ -8,7 +8,7 @@
   align-items: center;
   z-index: 1000;
   padding: 1rem;
-  box-sizing: border-box; /* 👈 يمنع الـ padding إنه يزق الشاشة */
+  box-sizing: border-box;
 }
 
 .modal {
@@ -19,8 +19,8 @@
   max-width: 550px;
   box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
   overflow: hidden;
-  box-sizing: border-box; /* 👈 يمنع العرض من الخروج بره الموبايل */
-  font-family: system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+  font-family: inherit;
   display: flex;
   flex-direction: column;
   max-height: 85vh;
@@ -32,6 +32,7 @@
   align-items: flex-start;
   padding: 1.5rem;
   background-color: #F8F7FF;
+  border-bottom: 2px solid #EBE5F7;
 }
 
 .headerTitles {
@@ -44,6 +45,9 @@
   font-size: 1.5rem;
   font-weight: 800;
   margin: 0 0 0.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .subtitle {
@@ -79,7 +83,7 @@
   padding: 1.5rem;
   background-color: #FFFFFF;
   overflow-y: auto;
-  overflow-x: hidden; /* 👈 يمنع السكرول الأفقي جوه المحتوى تماماً */
+  overflow-x: hidden;
 }
 
 .inputGroup {
@@ -90,9 +94,9 @@
 }
 
 .inputLabel {
-  color: #6B7280;
-  font-size: 0.9rem;
-  font-weight: 700;
+  color: #1E1B4B;
+  font-size: 0.95rem;
+  font-weight: 800;
   text-align: right;
 }
 
@@ -111,12 +115,13 @@
   border: 2px solid #1E1B4B;
   border-radius: 12px;
   padding: 0 1rem;
-  transition: border-color 0.2s;
-  min-width: 0; /* 👈 يمنع الانبوت يوسع عن الشاشة */
+  transition: all 0.2s ease;
+  min-width: 0;
 }
 
 .inputContainer:focus-within {
   border-color: #581C87;
+  box-shadow: 3px 3px 0px #581C87;
 }
 
 .inputIcon {
@@ -134,8 +139,8 @@
   color: #1E1B4B;
   background: transparent;
   text-align: right;
-  font-weight: 600;
-  min-width: 0; /* 👈 مهم جداً عشان الموبايل */
+  font-weight: 700;
+  min-width: 0;
 }
 
 .input::placeholder {
@@ -147,22 +152,27 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #FACC15;
+  background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);
   color: #1E1B4B;
   font-weight: 800;
   font-size: 1rem;
   padding: 0 1.25rem;
   border-radius: 12px;
-  border: 2px solid #1E1B4B;
-  box-shadow: 4px 4px 0px #1E1B4B;
+  border: none;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
-  flex-shrink: 0; /* 👈 يمنع زرار البحث إنه يتضغط ويصغر */
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-.searchBtn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px #1E1B4B;
+.searchBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.searchBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .resultsContainer {
@@ -175,10 +185,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #F4F0FF;
+  background-color: #F8F7FF;
   border: 2px solid #581C87;
   border-radius: 1rem;
+  padding: 1rem;
   gap: 1rem;
+  box-shadow: 4px 4px 0 rgba(88, 28, 135, 0.08);
 }
 
 .parentInfo {
@@ -189,10 +201,29 @@
   min-width: 0;
 }
 
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid #581C87;
+}
+
+.avatarPurple {
+  background-color: #EBE5F7;
+}
+
+.avatarLight {
+  background-color: #FFFFFF;
+}
+
 .parentDetails {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
   min-width: 0;
   flex: 1;
 }
@@ -201,9 +232,19 @@
   font-weight: 800;
   font-size: 1rem;
   color: #1E1B4B;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #581C87;
 }
 
 .parentEmail {
@@ -225,8 +266,8 @@
   color: #1E1B4B;
   font-weight: 800;
   font-size: 0.85rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 9999px;
   border: none;
   box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
   cursor: pointer;
@@ -234,29 +275,21 @@
   flex-shrink: 0;
 }
 
-.assignBtn:hover {
+.assignBtn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
 }
 
-.assignBtn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
-}
-
 .successBtn {
-  background-color: #dcfce7 !important; 
+  background: #DCFCE7 !important; 
   color: #166534 !important;            
   border: 1.5px solid #166534 !important;
   cursor: default;
   box-shadow: none !important;
   transform: none !important;
 }
-/* =========================================
-   Responsive Design - مقاسات الموبايل
-   ========================================= */
+
 @media (max-width: 600px) {
-  /* 1. حقل البحث وزرار البحث تحت بعض */
   .searchRow {
     flex-direction: column;
   }
@@ -264,21 +297,19 @@
   .searchBtn {
     width: 100%;
     justify-content: center;
-    padding: 0.85rem; /* بنكبره شوية عشان يبقى سهل الضغط عليه بالصُباع */
+    padding: 0.85rem;
   }
 
-  /* 2. كارت النتيجة: البيانات فوق وزرار الربط تحت */
   .resultCard {
     flex-direction: column;
-    align-items: flex-start; /* بنخلي البيانات تبدأ من اليمين عادي */
+    align-items: flex-start;
     gap: 1rem;
   }
 
-  .userInfo {
+  .parentInfo {
     width: 100%;
   }
 
-  /* 3. زرار الربط ياخد عرض الكارت بالكامل من تحت */
   .assignBtn {
     width: 100%;
     justify-content: center;

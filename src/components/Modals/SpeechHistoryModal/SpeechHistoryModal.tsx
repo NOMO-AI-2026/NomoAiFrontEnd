@@ -1,4 +1,4 @@
-import { X, ArrowLeft } from 'lucide-react';
+import { X, ArrowLeft, History } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
 import styles from './SpeechHistoryModal.module.css';
 
@@ -29,7 +29,10 @@ const SpeechHistoryModal = ({ isOpen, onClose }: SpeechHistoryModalProps) => {
     <div className={styles.overlay} onClick={handleOverlayClick} dir="rtl">
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>سجل مستويات الكلام</h2>
+          <h2 className={styles.modalTitle}>
+            <History size={22} style={{ color: '#581C87' }} />
+            <span>سجل مستويات الكلام</span>
+          </h2>
           <button className={styles.closeBtn} onClick={onClose}>
             <X size={20} />
           </button>

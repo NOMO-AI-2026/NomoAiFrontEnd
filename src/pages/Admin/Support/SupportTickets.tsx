@@ -26,6 +26,7 @@ const SupportTickets = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -54,6 +55,7 @@ const SupportTickets = () => {
   useEffect(() => {
     fetchTickets(currentPage, activeTab, debouncedSearch);
   }, [fetchTickets, currentPage, activeTab, debouncedSearch]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CreditCard, ChevronRight, ChevronLeft, ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { getDoctorTransactionsApi } from '../../api/paymentApi';
+import { type PaymentsQueryParams } from '../../types/payment.types';
 import styles from './DoctorTransactions.module.css';
 
 interface PlanPurchase {
@@ -17,7 +18,7 @@ interface Transaction {
   balanceAfter: number;
   createdAt: string;
   planPurchase: PlanPurchase | null;
-  session: any | null;
+  session: unknown | null;
 }
 
 const DoctorTransactions = () => {
@@ -27,11 +28,12 @@ const DoctorTransactions = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const params: any = {
+        const params: PaymentsQueryParams = {
           pageNumber: page,
           pageSize: 10,
         };
@@ -45,7 +47,7 @@ const DoctorTransactions = () => {
           setTransactions([]);
           setTotalPages(1);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error fetching transactions:", error);
         setTransactions([]); 
       } finally {
@@ -55,6 +57,7 @@ const DoctorTransactions = () => {
 
     fetchTransactions();
   }, [page]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const renderType = (tx: Transaction) => {
     // 0 = Purchase (إضافة للرصيد), 1 = Session Deduction (خصم من الرصيد)

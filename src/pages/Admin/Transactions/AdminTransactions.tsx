@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CreditCard, ChevronRight, ChevronLeft, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { getAdminPaymentsApi } from '../../../api/paymentApi';
+import { type PaymentsQueryParams } from '../../../types/payment.types';
 import styles from './AdminTransactions.module.css';
 
 interface DoctorInfo {
@@ -26,16 +27,13 @@ const AdminTransactions = () => {
   
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  
-  // To allow filtering by status or searching (if supported by backend)
-  // const [searchTerm, setSearchTerm] = useState('');
-  // const [debouncedSearch, setDebouncedSearch] = useState('');
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const params: any = {
+        const params: PaymentsQueryParams = {
           pageNumber: page,
           pageSize: 10,
         };
@@ -49,7 +47,7 @@ const AdminTransactions = () => {
           setTransactions([]);
           setTotalPages(1);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error fetching transactions:", error);
         setTransactions([]); 
       } finally {
@@ -59,6 +57,7 @@ const AdminTransactions = () => {
 
     fetchTransactions();
   }, [page]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const renderStatus = (status: number) => {
     switch (status) {

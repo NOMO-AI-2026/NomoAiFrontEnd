@@ -2,7 +2,8 @@ import { axiosInstance } from './axiosInstance';
 import { 
   type PaymentMethodsApiResponse, 
   type CreateQuickLinkPayload, 
-  type QuickLinkApiResponse 
+  type QuickLinkApiResponse,
+  type PaymentsQueryParams
 } from '../types/payment.types';
 
 // 1. جلب طرق الدفع المتاحة من الباك إند
@@ -18,13 +19,13 @@ export const createQuickLinkApi = async (payload: CreateQuickLinkPayload): Promi
 };
 
 // 3. جلب مدفوعات الأدمن
-export const getAdminPaymentsApi = async (params?: any) => {
+export const getAdminPaymentsApi = async (params?: PaymentsQueryParams) => {
   const response = await axiosInstance.get('/payments', { params });
   return response.data;
 };
 
 // 4. جلب عمليات الطبيب
-export const getDoctorTransactionsApi = async (params?: any) => {
+export const getDoctorTransactionsApi = async (params?: PaymentsQueryParams) => {
   const response = await axiosInstance.get('/payments/my-transactions', { params });
   return response.data;
 };
