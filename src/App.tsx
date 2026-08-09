@@ -34,6 +34,7 @@ import AdminSubscriptions from "./pages/Admin/Subscriptions/AdminSubscriptions";
 import UserSupportTickets from "./pages/SupportTickets/SupportTickets"; 
 
 import DoctorOverview from "./pages/DoctorOverview/DoctorOverview";
+import DoctorSubscriptions from "./pages/DoctorSubscriptions/DoctorSubscriptions";
 import ParentOverview from "./pages/ParentOverview/ParentOverview";
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
               {/* مسارات الطبيب */}
               <Route path="/doctor" element={<DoctorOverview />} />
               <Route path="/doctor/children" element={<DoctorChildren />} />
+              <Route path="/doctor/subscriptions" element={<DoctorSubscriptions />} />
               {/* 👇 (جديد) مسار الدعم الفني للطبيب */}
               <Route path="/doctor/support" element={<UserSupportTickets />} />
 

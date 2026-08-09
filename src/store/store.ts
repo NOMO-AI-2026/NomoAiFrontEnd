@@ -6,6 +6,7 @@ import authReducer from './slices/authSlice';
 import supportTicketsReducer from './slices/supportTicketsSlice';
 import adminAnalyticsReducer from './slices/adminAnalyticsSlice';
 import plansReducer from './slices/plansSlice';
+import paymentReducer from './slices/paymentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     supportTickets: supportTicketsReducer,
     adminAnalytics: adminAnalyticsReducer,
     plans: plansReducer,
+    payment: paymentReducer,
   },
 });
 

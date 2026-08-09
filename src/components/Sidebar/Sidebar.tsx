@@ -37,10 +37,11 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
     navigate("/login");
   };
   
-  // روابط الطبيب (تم إضافة الدعم الفني)
+  // روابط الطبيب (تم إضافة الاشتراكات والدعم الفني)
   const doctorLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "/doctor" },
     { title: "المرضى", icon: Users, path: "/doctor/children" },
+    { title: "الاشتراكات والخطط", icon: CreditCard, path: "/doctor/subscriptions" },
     { title: "الدعم الفني", icon: HeadphonesIcon, path: "/doctor/support" },
   ];
 
