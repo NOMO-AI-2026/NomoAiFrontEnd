@@ -34,7 +34,10 @@ import AdminSubscriptions from "./pages/Admin/Subscriptions/AdminSubscriptions";
 import UserSupportTickets from "./pages/SupportTickets/SupportTickets"; 
 
 import DoctorOverview from "./pages/DoctorOverview/DoctorOverview";
+import DoctorSubscriptions from "./pages/DoctorSubscriptions/DoctorSubscriptions";
+import DoctorTransactions from "./pages/DoctorTransactions/DoctorTransactions";
 import ParentOverview from "./pages/ParentOverview/ParentOverview";
+import AdminTransactions from "./pages/Admin/Transactions/AdminTransactions";
 
 function App() {
   return (
@@ -63,8 +66,10 @@ function App() {
               {/* مسارات الطبيب */}
               <Route path="/doctor" element={<DoctorOverview />} />
               <Route path="/doctor/children" element={<DoctorChildren />} />
+              <Route path="/doctor/subscriptions" element={<DoctorSubscriptions />} />
               {/* 👇 (جديد) مسار الدعم الفني للطبيب */}
               <Route path="/doctor/support" element={<UserSupportTickets />} />
+              <Route path="/doctor/transactions" element={<DoctorTransactions />} />
 
               {/* مسارات ولي الأمر */}
               <Route path="/parent" element={<ParentOverview />} />
@@ -83,6 +88,7 @@ function App() {
                 <Route path="/admin/parents" element={<AdminParents />} />
                 <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
                 <Route path="/admin/tickets" element={<SupportTickets />} />
+                <Route path="/admin/transactions" element={<AdminTransactions />} />
               </Route>
             </Route>
           </Route>

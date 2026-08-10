@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { addChildApi, updateChildApi, getSpeechLevelsApi } from '../../../api/doctorApi';
-import { X } from 'lucide-react';
+import { X, UserPlus } from 'lucide-react';
 import styles from './AddChildModal.module.css';
 import { useAppDispatch } from '../../../store/hooks'; 
 import { fetchChildProfile } from '../../../store/slices/childProfileSlice'; 
@@ -131,7 +131,10 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ onClose, editData }) => {
     <div className={styles.overlay} dir="rtl">
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2 className={styles.title}>{isEditMode ? 'تعديل بيانات الطفل' : 'إضافة طفل جديد'}</h2>
+          <h2 className={styles.title}>
+            <UserPlus size={22} style={{ color: '#581C87' }} />
+            <span>{isEditMode ? 'تعديل بيانات الطفل' : 'إضافة طفل جديد'}</span>
+          </h2>
           <button onClick={onClose} className={styles.closeButton}><X size={20} /></button>
         </div>
         <div className={styles.content}>

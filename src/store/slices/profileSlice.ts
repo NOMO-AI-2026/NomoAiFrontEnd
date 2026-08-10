@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchProfileApi, updateProfileApi } from '../../api/profileApi';
+import { getDoctorDashboardApi } from '../../api/doctorApi';
+import { getParentDashboardApi } from '../../api/parentApi';
 
 export interface DoctorSpecificData {
   yearsOfExperience: number | null;
@@ -16,12 +18,57 @@ export interface ProfileData {
   doctorSpecificData: DoctorSpecificData | null;
 }
 
+export interface DoctorDashboardData {
+  sessions?: {
+    completedLast7Days?: number;
+    completedToday?: number;
+    awaitingDoctorReview?: number;
+  };
+  cases?: {
+    totalChildren?: number;
+    progressedLast7Days?: unknown[];
+    stableLast7Days?: unknown[];
+    regressedLast7Days?: unknown[];
+  };
+}
+
+export interface ParentDashboardChild {
+  id?: number;
+  fullName?: string;
+  activity?: {
+    sessionsCompletedLast7Days?: number;
+    pendingExercisesCount?: number;
+  };
+  latestDoctorNote?: {
+    id?: number;
+    noteTitle?: string;
+    noteContent?: string;
+    createdAt?: string;
+    doctorFullName?: string;
+  };
+  progress?: {
+    completedSpeechLevels?: number;
+    totalSpeechLevels?: number;
+    currentGoal?: string;
+  };
+}
+
+export interface ParentDashboardData {
+  children?: ParentDashboardChild[];
+}
+
 interface ProfileState {
   data: ProfileData | null;
   loading: boolean;
   updateLoading: boolean; 
   error: string | null;
   updateError: string | null;
+  dashboardData: DoctorDashboardData | null;
+  isDashboardLoading: boolean;
+  dashboardError: string | null;
+  parentDashboardData: ParentDashboardData | null;
+  isParentDashboardLoading: boolean;
+  parentDashboardError: string | null;
 }
 
 const initialState: ProfileState = {
@@ -30,6 +77,12 @@ const initialState: ProfileState = {
   updateLoading: false,
   error: null,
   updateError: null,
+  dashboardData: null,
+  isDashboardLoading: false,
+  dashboardError: null,
+  parentDashboardData: null,
+  isParentDashboardLoading: false,
+  parentDashboardError: null,
 };
 
 export const getProfile = createAsyncThunk(
@@ -39,8 +92,9 @@ export const getProfile = createAsyncThunk(
       const data = await fetchProfileApi();
       return data;
     } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: { description?: string } } } };
       return thunkAPI.rejectWithValue(
-        (error as { response?: { data?: { error?: { description?: string } } } }).response?.data?.error?.description || 'حدث خطأ أثناء جلب البيانات'
+        err.response?.data?.error?.description || 'حدث خطأ أثناء جلب البيانات'
       );
     }
   }
@@ -54,8 +108,43 @@ export const updateProfile = createAsyncThunk(
       await updateProfileApi(profileData);
       return profileData; 
     } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: { description?: string } } } };
       return thunkAPI.rejectWithValue(
-        (error as { response?: { data?: { error?: { description?: string } } } }).response?.data?.error?.description || 'حدث خطأ أثناء تحديث البيانات'
+        err.response?.data?.error?.description || 'حدث خطأ أثناء تحديث البيانات'
+      );
+    }
+  }
+);
+
+// Thunk جلب إحصائيات لوحة تحكم الطبيب
+export const fetchDoctorDashboard = createAsyncThunk(
+  'profile/fetchDoctorDashboard',
+  async (_, thunkAPI) => {
+    try {
+      const response = await getDoctorDashboardApi();
+      const payload = response.value || response;
+      return payload as DoctorDashboardData;
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: { description?: string }; message?: string } } };
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.error?.description || err.response?.data?.message || 'فشل في جلب بيانات اللوحة الرئيسية.'
+      );
+    }
+  }
+);
+
+// Thunk جلب إحصائيات لوحة تحكم ولي الأمر
+export const fetchParentDashboard = createAsyncThunk(
+  'profile/fetchParentDashboard',
+  async (_, thunkAPI) => {
+    try {
+      const response = await getParentDashboardApi();
+      const payload = response.value || response;
+      return payload as ParentDashboardData;
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: { description?: string }; message?: string } } };
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.error?.description || err.response?.data?.message || 'فشل في جلب بيانات اللوحة الرئيسية.'
       );
     }
   }
@@ -69,6 +158,10 @@ const profileSlice = createSlice({
       state.data = null;
       state.error = null;
       state.updateError = null;
+      state.dashboardData = null;
+      state.dashboardError = null;
+      state.parentDashboardData = null;
+      state.parentDashboardError = null;
     }
   },
   extraReducers: (builder) => {
@@ -100,6 +193,32 @@ const profileSlice = createSlice({
       .addCase(updateProfile.rejected, (state, action) => {
         state.updateLoading = false;
         state.updateError = action.payload as string;
+      })
+      // جلب لوحة التحكم للطبيب
+      .addCase(fetchDoctorDashboard.pending, (state) => {
+        state.isDashboardLoading = true;
+        state.dashboardError = null;
+      })
+      .addCase(fetchDoctorDashboard.fulfilled, (state, action) => {
+        state.isDashboardLoading = false;
+        state.dashboardData = action.payload;
+      })
+      .addCase(fetchDoctorDashboard.rejected, (state, action) => {
+        state.isDashboardLoading = false;
+        state.dashboardError = action.payload as string;
+      })
+      // جلب لوحة التحكم لولي الأمر
+      .addCase(fetchParentDashboard.pending, (state) => {
+        state.isParentDashboardLoading = true;
+        state.parentDashboardError = null;
+      })
+      .addCase(fetchParentDashboard.fulfilled, (state, action) => {
+        state.isParentDashboardLoading = false;
+        state.parentDashboardData = action.payload;
+      })
+      .addCase(fetchParentDashboard.rejected, (state, action) => {
+        state.isParentDashboardLoading = false;
+        state.parentDashboardError = action.payload as string;
       });
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, TrendingUp } from 'lucide-react';
 import styles from './UpdateSpeechLevelModal.module.css';
 import { updateSpeechLevelApi, getSpeechLevelsApi, type SpeechLevel } from '../../../api/doctorApi';
 import { useAppDispatch } from '../../../store/hooks';
@@ -79,7 +79,10 @@ const UpdateSpeechLevelModal: React.FC<UpdateSpeechLevelModalProps> = ({ isOpen,
         
         <div className={styles.header}>
           <div className={styles.headerTitles}>
-            <h2 className={styles.title}>تحديث مستوى الكلام</h2>
+            <h2 className={styles.title}>
+              <TrendingUp size={22} style={{ color: '#581C87' }} />
+              <span>تحديث مستوى الكلام</span>
+            </h2>
             <p className={styles.subtitle}>الرجاء إدخال رقم المستوى الجديد وسبب التغيير</p>
           </div>
           <button onClick={onClose} className={styles.closeButton}>

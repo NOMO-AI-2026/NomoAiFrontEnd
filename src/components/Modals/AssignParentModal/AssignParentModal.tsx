@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { X, Search, Phone, Link, CheckCircle } from 'lucide-react';
+import { X, Search, Phone, Link, CheckCircle, UserCheck } from 'lucide-react';
 import styles from './AssignParentModal.module.css';
 import { searchParentByPhoneApi, assignParentToChildApi } from '../../../api/doctorApi';
-import { useAppDispatch } from '../../../store/hooks'; // 1. استيراد الـ hook الخاص بـ Redux
-import { fetchChildProfile } from '../../../store/slices/childProfileSlice'; // 2. استيراد دالة التحديث
+import { useAppDispatch } from '../../../store/hooks';
+import { fetchChildProfile } from '../../../store/slices/childProfileSlice';
 import UserAvatar from '../../UserAvatar/UserAvatar';
 
 interface AssignParentModalProps {
@@ -90,7 +90,10 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
       <div className={styles.modal}>
         <div className={styles.header}>
           <div className={styles.headerTitles}>
-            <h2 className={styles.title}>ربط ولي أمر</h2>
+            <h2 className={styles.title}>
+              <UserCheck size={22} style={{ color: '#581C87' }} />
+              <span>ربط ولي أمر</span>
+            </h2>
             <p className={styles.subtitle}>ابحث باستخدام رقم الهاتف، الاسم، أو الإيميل</p>
           </div>
           <button onClick={onClose} className={styles.closeButton}>
@@ -125,17 +128,17 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
             <div className={styles.resultsContainer}>
               {searchResults.map((parent, index) => (
                 <div key={parent.parentId || index} className={styles.resultCard}>
-                  <div className={styles.userInfo}>
+                  <div className={styles.parentInfo}>
                     <div className={`${styles.avatar} ${index % 2 === 0 ? styles.avatarPurple : styles.avatarLight}`}>
                       <UserAvatar type="parent" size={30} />
                     </div>
-                    <div className={styles.userDetails}>
-                      <h3 className={styles.userName}>{parent.fullname || 'بدون اسم'}</h3>
+                    <div className={styles.parentDetails}>
+                      <h3 className={styles.parentName}>{parent.fullname || 'بدون اسم'}</h3>
                       <div className={styles.contactRow}>
                         <Phone size={14} />
                         <span dir="ltr">{parent.phoneNumber || 'لا يوجد رقم هاتف'}</span>
                       </div>
-                      {parent.email && <div className={styles.emailText}>{parent.email}</div>}
+                      {parent.email && <div className={styles.parentEmail}>{parent.email}</div>}
                     </div>
                   </div>
                   
@@ -161,8 +164,6 @@ const AssignParentModal: React.FC<AssignParentModalProps> = ({ childId, onClose 
             </div>
           )}
         </div>
-
-        
       </div>
     </div>
   );

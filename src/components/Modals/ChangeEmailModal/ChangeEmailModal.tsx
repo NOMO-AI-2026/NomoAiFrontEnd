@@ -125,7 +125,8 @@ export default function ChangeEmailModal({ isOpen, onClose }: ChangeEmailModalPr
       await changeEmailApi(formData);
       setTimer(60);
     } catch (err: unknown) {
-      setError('حدث خطأ أثناء إعادة الإرسال.');
+      const apiError = err as { response?: { data?: { message?: string } } };
+      setError(apiError.response?.data?.message || 'حدث خطأ أثناء إعادة الإرسال.');
     } finally {
       setIsLoading(false);
     }

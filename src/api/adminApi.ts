@@ -6,6 +6,7 @@ export interface GetDoctorsParams {
   pageNumber?: number;
   pageSize?: number;
   isApproved?: boolean | null; // null لو عايزين نجيب الكل
+  name?: string;
 }
 
 // 1. جلب قائمة الأطباء (مع الفلترة والـ Pagination)

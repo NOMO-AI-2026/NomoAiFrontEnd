@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, CreditCard } from 'lucide-react';
+import { X, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './PlanModal.module.css';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
@@ -182,7 +182,6 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, planToEdit }) =>
             </div>
 
             <button type="submit" className={styles.primaryBtn} disabled={isActionLoading}>
-              <Sparkles size={18} />
               {isActionLoading
                 ? 'جاري الحفظ...'
                 : isEditMode

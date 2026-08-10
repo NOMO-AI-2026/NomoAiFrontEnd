@@ -1,8 +1,15 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchChildProfile, clearProfileData, fetchSpeechHistory, fetchChildNotes, deleteChildNote } from '../../store/slices/childProfileSlice';
+import { 
+  fetchChildProfile, 
+  clearProfileData, 
+  fetchSpeechHistory, 
+  fetchChildNotes, 
+  deleteChildNote,
+  fetchChildActivities
+} from '../../store/slices/childProfileSlice';
 import styles from './ChildProfile.module.css';
 import { useModal } from '../../context/ModalContext';
 import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/SpeechHistoryModal';
@@ -22,12 +29,21 @@ const ChildProfile = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   
-  // جلب بيانات الطفل والملاحظات من الريدكس
-  const { profileData, isLoading, error, notesData, isNotesLoading } = useAppSelector((state) => state.childProfile);
+  // جلب بيانات الطفل، الملاحظات، والأنشطة بالكامل من الريدكس
+  const { 
+    profileData, 
+    isLoading, 
+    error, 
+    notesData, 
+    isNotesLoading, 
+    activities, 
+    isActivitiesLoading 
+  } = useAppSelector((state) => state.childProfile);
   
   const rawRole = useAppSelector((state) => state.auth?.role);
   const isDoctor = rawRole === 'doctor';
 
+  const [allLevels, setAllLevels] = useState<{ id: number; levelName: string }[]>([]);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<number | null>(null);
@@ -38,7 +54,7 @@ const ChildProfile = () => {
 
   // States الخاصة بمودال الملاحظات
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
-  const [noteToEdit, setNoteToEdit] = useState<any | null>(null);
+  const [noteToEdit, setNoteToEdit] = useState<DoctorNote | null>(null);
 
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -62,7 +78,7 @@ const ChildProfile = () => {
     setIsNoteModalOpen(true);
   };
 
-  const handleOpenEditNote = (note: any) => {
+  const handleOpenEditNote = (note: DoctorNote) => {
     setNoteToEdit(note);
     setIsNoteModalOpen(true);
   };
@@ -169,50 +185,63 @@ const ChildProfile = () => {
           {/* العمود الثاني: كارت ولي الأمر وكارت مستوى الكلام تحت بعض بنفس الارتفاع الكلي */}
           <div className={styles.stackedInfoCol}>
             {/* كارت 2: ولي الأمر */}
-            <div className={styles.card}>
+            <div className={`${styles.card} ${styles.parentCardCustom}`}>
               <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>ولي الأمر</h2>
-                <button onClick={() => openAssignParentModal(Number(id))} className={styles.primaryBtn}>
-                  <LinkIcon size={16} /> {profileData.parentFullName ? 'تغيير' : 'ربط'}
+                <h2 className={styles.cardTitle}>بيانات ولي الأمر</h2>
+                <button className={styles.primaryBtn} onClick={() => openAssignParentModal(Number(id))}>
+                  <LinkIcon size={16} /> {profileData.parentFullName ? 'تغيير' : 'ربط بولي أمر'}
                 </button>
               </div>
+
               {profileData.parentFullName ? (
-                <div className="flex flex-col gap-2">
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>الاسم</span><span className={styles.infoValue}>{profileData.parentFullName}</span></div>
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{profileData.parentEmail}</span></div>
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{profileData.parentPhoneNumber || 'غير مسجل'}</span></div>
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>اسم ولي الأمر</span>
+                    <span className={styles.infoValue}>{profileData.parentFullName}</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>البريد الإلكتروني</span>
+                    <span className={styles.infoValue}>{profileData.parentEmail}</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>رقم الهاتف</span>
+                    <span className={styles.infoValue}>{profileData.parentPhoneNumber}</span>
+                  </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center text-center gap-2 py-2 flex-1 justify-center">
-                  <div className="text-gray-400"><LinkIcon size={32} /></div>
-                  <p className="font-bold text-[#1E1B4B] text-sm">لم يتم ربط الطفل بولي أمر حتى الآن.</p>
+                <div className={styles.emptyParentState}>
+                  <span>لم يتم ربط الطفل بولي أمر حتى الآن</span>
                 </div>
               )}
             </div>
 
             {/* كارت 3: مستوى الكلام الحالي */}
-            <div className={styles.card}>
+            <div className={`${styles.card} ${styles.speechLevelCardCustom}`}>
               <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}><Activity size={22} />مستوى الكلام</h2>
+                <h2 className={styles.cardTitle}>مستوى الكلام الحالي</h2>
                 <button className={styles.primaryBtn} onClick={() => setIsUpdateLevelModalOpen(true)}>
                   <Edit2 size={16} /> تحديث
                 </button>
               </div>
-              <div className="flex flex-col gap-3 flex-1 justify-between">
-                <span className={styles.stageBadge}>
-                  {profileData.speechLevel ? profileData.speechLevel.levelName : 'لم يتم تحديد مستوى'}
-                </span>
-                <button className={styles.secondaryBtn} onClick={handleOpenHistory} style={{ width: '100%' }}>
-                  <History size={16} /> سجل المستويات
+
+              <div className={styles.speechLevelContent}>
+                <div className={styles.levelInfo}>
+                  <span className={styles.levelLabel}>المستوى الحالي:</span>
+                  <span className={styles.levelValue}>
+                    {profileData.speechLevel?.levelName || 'غير محدد'}
+                  </span>
+                </div>
+                <button className={styles.secondaryBtn} onClick={handleOpenHistory}>
+                  <History size={16} /> السجل
                 </button>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        /* في حال كان اليوزر ولي أمر: كارت بيانات الطفل + كارت بيانات الطبيب المعالج وكارت مستوى الكلام مع الـ Progress Bar وبدون أزرار */
+        /* واجهة ولي الأمر */
         <div className={styles.topProfileSection}>
-          {/* العمود الأول: بيانات الطفل */}
+          {/* العمود الأول (أعرض): بيانات الطفل */}
           <div className={styles.childInfoCol}>
             <div className={styles.card}>
               <div className={styles.cardHeader}>
@@ -228,57 +257,93 @@ const ChildProfile = () => {
             </div>
           </div>
 
-          {/* العمود الثاني: كارت بيانات الطبيب المعالج وكارت مستوى الكلام بالـ Progress Bar */}
+          {/* العمود الثاني: الطبيب المعالج ومستوى الكلام تحت بعض بنفس الارتفاع والترتيب */}
           <div className={styles.stackedInfoCol}>
-            {/* كارت بيانات الطبيب المعالج (يستفيد من المساحة المتبقية) */}
-            <div className={styles.card} style={{ flex: 1.4 }}>
+            <div className={`${styles.card} ${styles.parentCardCustom}`}>
               <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}><UserCheck size={22} />الطبيب المعالج</h2>
+                <h2 className={styles.cardTitle}>
+                  <UserCheck size={20} className="inline-block ml-2 text-[#581C87]" />
+                  الطبيب المعالج
+                </h2>
               </div>
               {profileData.doctorFullName ? (
-                <div className="flex flex-col gap-3 flex-1 justify-center">
+                <div className={styles.infoGrid}>
                   <div className={styles.infoItem}><span className={styles.infoLabel}>اسم الطبيب</span><span className={styles.infoValue}>{profileData.doctorFullName}</span></div>
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{profileData.doctorEmail || 'غير مسجل'}</span></div>
-                  <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{profileData.doctorPhoneNumber || 'غير مسجل'}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>البريد الإلكتروني</span><span className={styles.infoValue}>{profileData.doctorEmail || 'غير متوفر'}</span></div>
+                  <div className={styles.infoItem}><span className={styles.infoLabel}>رقم الهاتف</span><span className={styles.infoValue}>{profileData.doctorPhoneNumber || 'غير متوفر'}</span></div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center text-center gap-2 py-4 flex-1 justify-center">
-                  <div className="text-[#581C87]"><UserCheck size={40} /></div>
-                  <p className="font-extrabold text-[#1E1B4B] text-base">لم يتم تعيين طبيب حتى الآن</p>
-                  <span className="text-xs font-bold text-gray-500">سيتم المتابعة والتواصل المباشر عند تعيين الطبيب المختص</span>
+                <div className={styles.emptyParentState}>
+                  <span>لم يتم تعيين طبيب معالج حتى الآن</span>
                 </div>
               )}
             </div>
 
-            {/* كارت مستوى الكلام بالـ Progress Bar فقط وبدون أي أزرار أو نصوص للمستوى */}
-            <div className={styles.card} style={{ flex: 'none' }}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}><Activity size={22} />مستوى الكلام الحالي</h2>
-              </div>
-              <div className="flex flex-col gap-2 bg-[#F8F7FF] p-3.5 rounded-xl">
-                <div className="flex justify-between items-center text-xs font-bold text-[#581C87]">
-                  <span>مستوى التقدم</span>
-                  <span className="bg-[#EBE5F7] text-[#1E1B4B] px-2.5 py-0.5 rounded-full font-extrabold">
-                    {profileData.speechLevel ? `المستوى ${Math.min(Math.max(profileData.speechLevel.id, 1), 10)} من 10` : 'لم يحدد بعد'}
-                  </span>
+            {/* كارت مستوى الكلام الحالي لولي الأمر بشريط التقدم (Progress Bar) الحقيقي من الـ API */}
+            {(() => {
+              const speechLevelObj = profileData.speechLevel;
+              const rawLevelNum = (profileData as any).speechLevelNumber || (profileData as any).speechLevelId || speechLevelObj?.id;
+              const levelName = (profileData as any).speechLevelName || speechLevelObj?.levelName;
+              
+              let levelNum = 0;
+              const hasLevel = Boolean(rawLevelNum || levelName);
+
+              if (hasLevel) {
+                const targetId = Number(rawLevelNum);
+                if ((profileData as any).speechLevelNumber && (profileData as any).speechLevelNumber >= 1 && (profileData as any).speechLevelNumber <= 10) {
+                  levelNum = Number((profileData as any).speechLevelNumber);
+                } 
+                else if (allLevels.length > 0 && targetId) {
+                  const idx = allLevels.findIndex((l) => l.id === targetId);
+                  if (idx !== -1) {
+                    levelNum = idx + 1; // الترتيب الحقيقي من 1 إلى 10
+                  } else if (targetId >= 1 && targetId <= 10) {
+                    levelNum = targetId;
+                  }
+                } 
+                else if (targetId >= 1 && targetId <= 10) {
+                  levelNum = targetId;
+                }
+              }
+
+              const percentage = levelNum > 0 ? Math.min(Math.max((levelNum / 10) * 100, 0), 100) : 0;
+
+              return (
+                <div className={`${styles.card} ${styles.speechLevelCardCustom}`}>
+                  <div className={styles.cardHeader}>
+                    <h2 className={styles.cardTitle}>مستوى الكلام الحالي</h2>
+                  </div>
+
+                  <div className={styles.progressSection}>
+                    <div className={styles.progressHeader}>
+                      <span className={styles.levelNameText}>
+                        {levelName || (levelNum > 0 ? `المستوى ${levelNum}` : 'لم يتم تحديد مستوى')}
+                      </span>
+                      <span className={styles.progressBadge}>
+                        {levelNum > 0 ? `المستوى ${levelNum} من 10` : 'لم يتم تحديد مستوى'}
+                      </span>
+                    </div>
+                    <div className={styles.progressBarTrack}>
+                      <div 
+                        className={styles.progressBarFill} 
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="w-full h-3.5 bg-[#EBE5F7] rounded-full overflow-hidden mt-1">
-                  <div 
-                    className="h-full bg-gradient-to-r from-[#FACC15] to-[#F59E0B] rounded-full transition-all duration-500"
-                    style={{ width: `${profileData.speechLevel ? (Math.min(Math.max(profileData.speechLevel.id, 1), 10) / 10) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         </div>
       )}
 
-      {/* قسم الأنشطة الحالية */}
+      {/* قسم جدول الأنشطة الخاصة بالطفل */}
       <div className={styles.card}>
         <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>الأنشطة الحالية</h2>
-          {/* زر إضافة نشاط يظهر للدكتور فقط */}
+          <h2 className={styles.cardTitle}>
+            <Activity size={24} style={{ color: '#581C87' }} />
+            الأنشطة المطلوبة من الطفل
+          </h2>
           {isDoctor && (
             <button onClick={handleOpenAddActivity} className={styles.primaryBtn}>
               إضافة نشاط
@@ -286,27 +351,27 @@ const ChildProfile = () => {
           )}
         </div>
 
-        <div className="flex flex-col gap-3 mt-4">
-          {isLoadingActivities ? (
-            <div className="text-center py-4 text-[#6C34AF] font-bold">جاري تحميل الأنشطة...</div>
-          ) : activities.length > 0 ? (
-            activities.map((activity) => (
+        {isActivitiesLoading ? (
+          <div className="text-center py-8 text-[#6C34AF] font-bold">جاري تحميل الأنشطة...</div>
+        ) : activities && activities.length > 0 ? (
+          <div className="flex flex-col gap-3 mt-2">
+            {activities.map((act) => (
               isDoctor ? (
                 /* واجهة الدكتور: محتوى النشاط وأسفله الأهداف، وعلى الشمال زراير التعديل والحذف */
                 <div 
-                  key={activity.id} 
+                  key={act.id} 
                   className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-4"
                 >
-                  <div className="flex flex-col gap-3 w-full sm:w-auto">
+                  <div className="flex flex-col gap-2 w-full sm:w-auto">
                     <span className="font-extrabold text-[#1E1B4B] text-xl">
-                      {activity.content}
+                      {act.content}
                     </span>
                     <div className="flex flex-wrap gap-2 sm:gap-3 text-sm font-bold">
                       <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
-                        الهدف: {getActivityTargetText(activity.activityTarget)}
+                        الهدف: {getActivityTargetText(act.activityTarget)}
                       </span>
                       <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md whitespace-nowrap">
-                        المدة: {activity.estimatedDurationMinutes} دقائق
+                        المدة: {act.estimatedDurationMinutes} دقائق
                       </span>
                       <span
                         className={`px-3 py-1 rounded-md whitespace-nowrap ${
@@ -322,17 +387,17 @@ const ChildProfile = () => {
 
                   <div className="flex gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 mt-1 sm:mt-0">
                     <button 
-                      onClick={() => handleOpenEditActivity(activity)}
+                      onClick={() => handleOpenEditActivity(act)}
                       className={styles.itemEditBtn}
-                      title="تعديل"
+                      title="تعديل النشاط"
                     >
                       <Edit2 size={18} strokeWidth={2.5} />
                     </button>
                     
                     <button 
-                      onClick={() => setActivityToDelete(activity.id)}
+                      onClick={() => setActivityToDelete(act.id)}
                       className={styles.itemDeleteBtn}
-                      title="حذف"
+                      title="حذف النشاط"
                     >
                       <Trash2 size={18} strokeWidth={2.5} />
                     </button>
@@ -341,30 +406,30 @@ const ChildProfile = () => {
               ) : (
                 /* واجهة ولي الأمر: اسم النشاط ع اليمين، والهدف والمدة ع الشمال ف نفس السطر ومكبرين لتوحيد التوازن */
                 <div 
-                  key={activity.id} 
+                  key={act.id} 
                   className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-4"
                 >
                   <span className="font-extrabold text-[#1E1B4B] text-xl">
-                    {activity.content}
+                    {act.content}
                   </span>
                   
                   <div className="flex flex-wrap items-center gap-3 text-sm sm:text-base font-extrabold flex-shrink-0">
                     <span className="bg-[#EBE5F7] text-[#581C87] px-3.5 py-1.5 rounded-lg whitespace-nowrap">
-                      الهدف: {getActivityTargetText(activity.activityTarget)}
+                      الهدف: {getActivityTargetText(act.activityTarget)}
                     </span>
                     <span className="bg-[#EBE5F7] text-[#581C87] px-3.5 py-1.5 rounded-lg whitespace-nowrap">
-                      المدة: {activity.estimatedDurationMinutes} دقائق
+                      المدة: {act.estimatedDurationMinutes} دقائق
                     </span>
                   </div>
                 </div>
               )
-            ))
-          ) : (
-            <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
-              لا توجد أنشطة مضافة لهذا الطفل حالياً.
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
+            لا توجد أنشطة مضافة لهذا الطفل حالياً.
+          </div>
+        )}
       </div>
 
       {/* سجل الجلسات — ملخصات محفوظة يمكن فتحها في أي وقت */}
@@ -435,7 +500,7 @@ const ChildProfile = () => {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>
-            ملاحظات الطبيب
+            ملاحظات الدكتور الموجهة للأهل
           </h2>
           {/* زر إضافة ملاحظة يظهر للدكتور فقط */}
           {isDoctor && (
@@ -445,7 +510,7 @@ const ChildProfile = () => {
           )}
         </div>
 
-        <div className="flex flex-col gap-3 mt-4">
+        <div className="flex flex-col gap-3 mt-2">
           {isNotesLoading ? (
             <div className="text-center py-4 text-[#6C34AF] font-bold">جاري تحميل الملاحظات...</div>
           ) : notesData && notesData.items && notesData.items.length > 0 ? (
@@ -560,7 +625,7 @@ const ChildProfile = () => {
             onConfirm={async () => {
               if (activityToDelete !== null) {
                 await deleteActivityApi(activityToDelete);
-                fetchActivities();
+                dispatch(fetchChildActivities(Number(id)));
               }
             }}
             title="تأكيد الحذف"
@@ -594,7 +659,7 @@ const ChildProfile = () => {
             childId={Number(id)}
             activityToEdit={activityToEdit}
             onSuccess={() => {
-              fetchActivities();
+              dispatch(fetchChildActivities(Number(id)));
             }}
           />
 

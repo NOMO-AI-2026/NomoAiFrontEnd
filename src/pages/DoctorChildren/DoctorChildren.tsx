@@ -19,6 +19,7 @@ const DoctorChildren = () => {
   const [page, setPage] = useState(1);
   const [childToDelete, setChildToDelete] = useState<number | null>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   // العودة للصفحة الأولى عند تعديل البحث
   useEffect(() => {
     setPage(1);
@@ -36,6 +37,7 @@ const DoctorChildren = () => {
       window.removeEventListener('refreshChildrenList', handleRefresh);
     };
   }, [dispatch, searchQuery, page]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleDeleteClick = (id: number) => {
     setChildToDelete(id);
@@ -77,8 +79,8 @@ const DoctorChildren = () => {
                     name={child.fullName} 
                     age={`${child.age} سنوات`} 
                     gender={child.gender} 
-                    speechLevelNumber={(child as any).speechLevelNumber || (child as any).speechLevelId || (child as any).speechLevel?.id}
-                    speechLevelName={(child as any).speechLevelName || (child as any).speechLevel?.levelName}
+                    speechLevelNumber={child.speechLevelNumber || child.speechLevelId || child.speechLevel?.id}
+                    speechLevelName={child.speechLevelName || child.speechLevel?.levelName}
                     onDelete={handleDeleteClick} 
                     onView={handleView} 
                 />

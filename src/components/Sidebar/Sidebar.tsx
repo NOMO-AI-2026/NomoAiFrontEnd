@@ -9,7 +9,8 @@ import {
   UserCheck,
   BarChart3,
   HeadphonesIcon,
-  CreditCard
+  CreditCard,
+  Receipt
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -37,10 +38,12 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
     navigate("/login");
   };
   
-  // روابط الطبيب (تم إضافة الدعم الفني)
+  // روابط الطبيب (تم إضافة الاشتراكات والدعم الفني والعمليات)
   const doctorLinks = [
     { title: "اللوحة الرئيسية", icon: LayoutDashboard, path: "/doctor" },
     { title: "المرضى", icon: Users, path: "/doctor/children" },
+    { title: "الاشتراكات والخطط", icon: CreditCard, path: "/doctor/subscriptions" },
+    { title: "سجل العمليات", icon: Receipt, path: "/doctor/transactions" },
     { title: "الدعم الفني", icon: HeadphonesIcon, path: "/doctor/support" },
   ];
 
@@ -57,6 +60,7 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
     { title: "إدارة الأطباء", icon: UserCheck, path: "/admin/doctors" },
     { title: "إدارة الأهالي", icon: Users, path: "/admin/parents" },
     { title: "الاشتراكات والخطط", icon: CreditCard, path: "/admin/subscriptions" },
+    { title: "العمليات المالية", icon: Receipt, path: "/admin/transactions" },
     { title: "تقارير النظام", icon: BarChart3, path: "#" },
     { title: "تذاكر الدعم", icon: HeadphonesIcon, path: "/admin/tickets" },
   ];

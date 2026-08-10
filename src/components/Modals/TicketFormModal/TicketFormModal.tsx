@@ -37,8 +37,8 @@ const TicketFormModal: React.FC<TicketFormModalProps> = ({
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2 className={styles.title}>
-            {isEditMode ? <Edit className="ml-2" size={24} style={{ color: '#581C87' }}/> : <PlusCircle className="ml-2" size={24} style={{ color: '#581C87' }}/>}
-            {isEditMode ? 'تعديل التذكرة' : 'إنشاء تذكرة جديدة'}
+            {isEditMode ? <Edit size={22} style={{ color: '#581C87' }} /> : <PlusCircle size={22} style={{ color: '#581C87' }} />}
+            <span>{isEditMode ? 'تعديل التذكرة' : 'إنشاء تذكرة جديدة'}</span>
           </h2>
           <button className={styles.closeButton} onClick={onClose} disabled={isSubmitting}>
             <X size={20} />

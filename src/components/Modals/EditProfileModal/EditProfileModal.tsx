@@ -39,6 +39,7 @@ const EditProfileModal = ({ isOpen, onClose, currentData, isDoctor, updateLoadin
     doctorSpecificData: null
   });
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (currentData && isOpen) {
       setForm({
@@ -55,6 +56,7 @@ const EditProfileModal = ({ isOpen, onClose, currentData, isDoctor, updateLoadin
       });
     }
   }, [currentData, isOpen, isDoctor]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!isOpen) return null;
 

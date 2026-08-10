@@ -2,19 +2,15 @@ import { useEffect, useState } from 'react';
 import { 
   CreditCard, 
   Globe, 
-  Clock, 
-  CheckCircle2, 
-  ShieldCheck,
   RefreshCw,
-  PlusCircle,
-  Edit2,
-  Trash2
+  PlusCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchPlansAndRate, deletePlan } from '../../../store/slices/plansSlice';
 import PlanModal from '../../../components/Modals/PlanModal/PlanModal';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
+import PlanCard from '../../../components/PlanCard/PlanCard';
 import { type SubscriptionPlan } from '../../../types/plan.types';
 import styles from './AdminSubscriptions.module.css';
 
@@ -42,15 +38,6 @@ const AdminSubscriptions = () => {
   const handleOpenEditModal = (plan: SubscriptionPlan) => {
     setSelectedPlanToEdit(plan);
     setIsModalOpen(true);
-  };
-
-  // تنسيق الساعات والدقائق
-  const formatMinutes = (minutes: number) => {
-    const hours = minutes / 60;
-    if (hours >= 1) {
-      return `${minutes} دقيقة (${hours} ${hours === 1 ? 'ساعة' : hours === 2 ? 'ساعتان' : 'ساعات'})`;
-    }
-    return `${minutes} دقيقة`;
   };
 
   return (
@@ -109,71 +96,16 @@ const AdminSubscriptions = () => {
       ) : (
         <div className={styles.plansGrid}>
           {plans && plans.length > 0 ? (
-            plans.map((plan) => {
-              const priceInEgp = (plan.price * usdToEgpRate).toFixed(2);
-
-              return (
-                <div key={plan.id} className={styles.planCard}>
-                  <div>
-                    <div className={styles.cardHeader}>
-                      <h3 className={styles.planName}>{plan.name}</h3>
-                      <p className={styles.planDesc}>{plan.description}</p>
-                    </div>
-
-                    {/* قسم الأسعار */}
-                    <div className={styles.priceSection}>
-                      <div className={styles.usdPriceRow}>
-                        <span className={styles.usdAmount}>${plan.price}</span>
-                        <span className={styles.usdLabel}>/ شهرياً</span>
-                      </div>
-
-                      <div className={styles.egpPriceRow}>
-                        <span className={styles.egpLabel}>
-                          <Globe size={14} />
-                          القيمة المعادلة بالجنيه:
-                        </span>
-                        <span className={styles.egpAmount}>
-                          ~ {priceInEgp} ج.م
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* المميزات */}
-                    <div className={styles.featuresList}>
-                      <div className={styles.featureItem}>
-                        <Clock size={18} className={styles.featureIcon} />
-                        <span>رصيد الجلسات: {formatMinutes(plan.includedMinutes)}</span>
-                      </div>
-                      <div className={styles.featureItem}>
-                        <CheckCircle2 size={18} className={styles.featureIcon} />
-                        <span>وصول كامل لكافة ألعاب وتحليلات NomoAI</span>
-                      </div>
-                      <div className={styles.featureItem}>
-                        <ShieldCheck size={18} className={styles.featureIcon} />
-                        <span>متابعة تفاعلية مستمرة من الطبيب المختص</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.cardActions}>
-                    <button 
-                      className={styles.actionBtn}
-                      onClick={() => handleOpenEditModal(plan)}
-                    >
-                      <Edit2 size={18} />
-                      تعديل تفاصيل الباقة
-                    </button>
-                    <button 
-                      className={styles.deleteActionBtn}
-                      onClick={() => setPlanToDeleteId(plan.id)}
-                      title="حذف الباقة"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })
+            plans.map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                usdToEgpRate={usdToEgpRate}
+                variant="admin"
+                onEdit={handleOpenEditModal}
+                onDelete={(id) => setPlanToDeleteId(id)}
+              />
+            ))
           ) : (
             <div className="col-span-full text-center py-12 text-gray-500 font-bold bg-white rounded-2xl border border-dashed border-gray-300">
               لا يوجد باقات اشتراك مضافة حالياً.
