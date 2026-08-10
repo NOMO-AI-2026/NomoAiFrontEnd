@@ -43,7 +43,6 @@ const ChildProfile = () => {
   const rawRole = useAppSelector((state) => state.auth?.role);
   const isDoctor = rawRole === 'doctor';
 
-  const [allLevels, setAllLevels] = useState<{ id: number; levelName: string }[]>([]);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<number | null>(null);
@@ -275,16 +274,7 @@ const ChildProfile = () => {
                 const targetId = Number(rawLevelNum);
                 if ((profileData as any).speechLevelNumber && (profileData as any).speechLevelNumber >= 1 && (profileData as any).speechLevelNumber <= 10) {
                   levelNum = Number((profileData as any).speechLevelNumber);
-                } 
-                else if (allLevels.length > 0 && targetId) {
-                  const idx = allLevels.findIndex((l) => l.id === targetId);
-                  if (idx !== -1) {
-                    levelNum = idx + 1; // الترتيب الحقيقي من 1 إلى 10
-                  } else if (targetId >= 1 && targetId <= 10) {
-                    levelNum = targetId;
-                  }
-                } 
-                else if (targetId >= 1 && targetId <= 10) {
+                } else if (targetId >= 1 && targetId <= 10) {
                   levelNum = targetId;
                 }
               }
