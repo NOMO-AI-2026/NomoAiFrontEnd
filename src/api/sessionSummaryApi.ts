@@ -27,6 +27,7 @@ export interface SessionSummaryDto {
   startedAt?: string | null;
   endedAt?: string | null;
   outcome: string;
+  outcomeLabel?: string;
   shortSummary: string;
   strengths: string[];
   practiceAreas: string[];
@@ -64,6 +65,7 @@ export interface DoctorSessionSummaryResponse {
   startedAt?: string | null;
   endedAt?: string | null;
   outcome: string;
+  outcomeLabel: string;
   shortSummary: string;
   strengths: string[];
   practiceAreas: string[];
@@ -138,4 +140,38 @@ export async function getParentSessionSummaryApi(
     { signal: options?.signal },
   );
   return response.data;
+}
+
+export interface ChildSessionHistoryItem {
+  sessionId: number;
+  childId: number;
+  sessionTitle: string;
+  prompt?: string | null;
+  activityType?: string | null;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  hasSummary: boolean;
+  outcome?: string | null;
+  outcomeLabel?: string | null;
+  shortSummary?: string | null;
+  totalAttempts?: number | null;
+  successfulAttempts?: number | null;
+  averageScore?: number | null;
+}
+
+export type ChildSessionHistoryResponse =
+  | ChildSessionHistoryItem[]
+  | { value: ChildSessionHistoryItem[]; isSuccess?: boolean };
+
+/** GET /children/{childId}/sessions/history — completed sessions for reopen. */
+export async function getChildSessionHistoryApi(
+  childId: number | string,
+  options?: ApiCallOptions,
+): Promise<ChildSessionHistoryItem[]> {
+  const response = await axiosInstance.get<ChildSessionHistoryResponse>(
+    `/children/${childId}/sessions/history`,
+    { signal: options?.signal },
+  );
+  const data = response.data;
+  return Array.isArray(data) ? data : data?.value ?? [];
 }

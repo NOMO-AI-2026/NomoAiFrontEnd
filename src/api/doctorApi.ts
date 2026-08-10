@@ -117,6 +117,7 @@ export interface UpdateActivityPayload {
   activityTarget: number;
   content: string;
   estimatedDurationMinutes: number;
+  canMakeSession: boolean;
 }
 
 export interface ActivityItem {
@@ -124,6 +125,7 @@ export interface ActivityItem {
   activityTarget: number;
   content: string;
   estimatedDurationMinutes: number;
+  canMakeSession?: boolean;
 }
 
 export const createActivityApi = async (payload: CreateActivityPayload) => {
@@ -142,8 +144,14 @@ export type ActivitiesResponse = ActivityItem[] | {
   isFailure?: boolean;
 };
 
-export const getChildActivitiesApi = async (childId: number) => {
-  const response = await axiosInstance.get<ActivitiesResponse>(`/children/${childId}/activities`); 
+export const getChildActivitiesApi = async (
+  childId: number,
+  options?: { onlyAvailableForSession?: boolean },
+) => {
+  // شيلنا كلمة /api من هنا لأن الـ axiosInstance بيضيفها تلقائي
+  const response = await axiosInstance.get<ActivitiesResponse>(`/children/${childId}/activities`, {
+    params: options?.onlyAvailableForSession ? { onlyAvailableForSession: true } : undefined,
+  });
   return response.data;
 };
 
