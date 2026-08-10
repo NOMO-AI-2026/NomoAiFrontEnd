@@ -111,6 +111,7 @@ export interface CreateActivityPayload {
   activityTarget: number;
   content: string;
   estimatedDurationMinutes: number;
+  canMakeSession: boolean;
 }
 
 export interface UpdateActivityPayload {
@@ -129,12 +130,23 @@ export interface ActivityItem {
 }
 
 export const createActivityApi = async (payload: CreateActivityPayload) => {
-  const response = await axiosInstance.post('/activities', payload);
+  const response = await axiosInstance.post('/activities', {
+    childId: payload.childId,
+    activityTarget: Number(payload.activityTarget),
+    content: payload.content,
+    estimatedDurationMinutes: Number(payload.estimatedDurationMinutes),
+    canMakeSession: Boolean(payload.canMakeSession),
+  });
   return response.data;
 };
 
 export const updateActivityApi = async (activityId: number, payload: UpdateActivityPayload) => {
-  const response = await axiosInstance.put(`/activities/${activityId}`, payload);
+  const response = await axiosInstance.put(`/activities/${activityId}`, {
+    activityTarget: Number(payload.activityTarget),
+    content: payload.content,
+    estimatedDurationMinutes: Number(payload.estimatedDurationMinutes),
+    canMakeSession: Boolean(payload.canMakeSession),
+  });
   return response.data;
 };
 

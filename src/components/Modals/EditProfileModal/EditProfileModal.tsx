@@ -102,6 +102,7 @@ const EditProfileModal = ({ isOpen, onClose, currentData, isDoctor, updateLoadin
         yearsOfExperience: form.doctorSpecificData?.yearsOfExperience !== '' 
           ? Number(form.doctorSpecificData?.yearsOfExperience) 
           : null,
+        availableMinutes: currentData?.doctorSpecificData?.availableMinutes ?? null,
       } : null
     };
 

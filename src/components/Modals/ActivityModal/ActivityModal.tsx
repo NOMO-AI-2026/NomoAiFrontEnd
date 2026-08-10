@@ -25,7 +25,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const [content, setContent] = useState('');
   const [activityTarget, setActivityTarget] = useState<number | ''>('');
   const [estimatedDurationMinutes, setEstimatedDurationMinutes] = useState<number | ''>('');
-  const [canMakeSession, setCanMakeSession] = useState(true);
+  const [canMakeSession, setCanMakeSession] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -38,12 +38,12 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         setContent(activityToEdit.content);
         setActivityTarget(activityToEdit.activityTarget);
         setEstimatedDurationMinutes(activityToEdit.estimatedDurationMinutes);
-        setCanMakeSession(activityToEdit.canMakeSession ?? true);
+        setCanMakeSession(activityToEdit.canMakeSession ?? false);
       } else {
         setContent('');
         setActivityTarget('');
         setEstimatedDurationMinutes('');
-        setCanMakeSession(true);
+        setCanMakeSession(false);
       }
       setErrorMsg('');
     }
@@ -75,6 +75,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
           content,
           activityTarget: Number(activityTarget),
           estimatedDurationMinutes: Number(estimatedDurationMinutes),
+          canMakeSession: Boolean(canMakeSession),
         });
       }
       
@@ -162,26 +163,24 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
               </div>
             </div>
 
-            {isEditMode && (
-              <div className={styles.inputGroup}>
-                <label className={styles.toggleRow}>
-                  <input
-                    type="checkbox"
-                    checked={canMakeSession}
-                    onChange={(e) => setCanMakeSession(e.target.checked)}
-                    className={styles.checkbox}
-                  />
-                  <span>
-                    <strong>متاح لبدء جلسة</strong>
-                    <span className={styles.toggleHint}>
-                      {canMakeSession
-                        ? ' يمكن اختيار هذا النشاط عند بدء جلسة جديدة.'
-                        : ' النشاط غير متاح لجلسة جديدة (بعد اكتمال جلسة سابقة أو تعطيل يدوي).'}
-                    </span>
+            <div className={styles.inputGroup}>
+              <label className={styles.toggleRow}>
+                <input
+                  type="checkbox"
+                  checked={canMakeSession}
+                  onChange={(e) => setCanMakeSession(e.target.checked)}
+                  className={styles.checkbox}
+                />
+                <span>
+                  <strong>متاح لبدء جلسة</strong>
+                  <span className={styles.toggleHint}>
+                    {canMakeSession
+                      ? ' يمكن اختيار هذا النشاط عند بدء جلسة جديدة.'
+                      : ' النشاط غير متاح لجلسة جديدة.'}
                   </span>
-                </label>
-              </div>
-            )}
+                </span>
+              </label>
+            </div>
 
             <button 
               type="submit" 

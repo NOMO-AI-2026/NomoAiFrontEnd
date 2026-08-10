@@ -157,7 +157,15 @@ const Profile = () => {
                     {data.doctorSpecificData?.clinicName || 'لم يتم التحديد'}
                   </span>
                 </div>
-                <div className={styles.infoItem} style={{ gridColumn: 'span 2' }}>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>رصيد الدقائق المتاحة</span>
+                  <span className={styles.infoValue}>
+                    {data.doctorSpecificData?.availableMinutes !== null && data.doctorSpecificData?.availableMinutes !== undefined
+                      ? `${data.doctorSpecificData.availableMinutes} دقيقة`
+                      : '0 دقيقة'}
+                  </span>
+                </div>
+                <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>نبذة مهنية</span>
                   <span className={styles.infoValue}>
                     {data.doctorSpecificData?.professionalBio || 'لا توجد نبذة حالياً'}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, Eye, ArrowLeft, User, Phone, Calendar } from 'lucide-react';
+import { Mail, Lock, Eye, ArrowLeft, User, Phone, Calendar, Award, Building2, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import { registerApi } from '../../api/authApi'; 
@@ -34,13 +34,20 @@ export default function SignUpPage() {
     password: '',
     age: '',
     gender: 0,
-    role: 1 // 1: ولي أمر (افتراضي)، 0: طبيب
+    role: 1, // 1: ولي أمر (افتراضي)، 0: طبيب
+    yearsOfExperience: '',
+    clinicName: '',
+    professionalBio: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    let { name, value } = e.target;
+    if (name === 'yearsOfExperience') {
+      value = value.replace(/[^0-9]/g, '');
+    }
+    setFormData({ ...formData, [name]: value });
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
     }
     setServerError('');
   };
@@ -51,6 +58,15 @@ export default function SignUpPage() {
 
   const handleRoleChange = (value: number) => {
     setFormData({ ...formData, role: value });
+    if (errors.yearsOfExperience || errors.clinicName || errors.professionalBio) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.yearsOfExperience;
+        delete copy.clinicName;
+        delete copy.professionalBio;
+        return copy;
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,20 +83,28 @@ export default function SignUpPage() {
     setServerError('');
 
     try {
-      const payload = {
-        ...formData,
+      const isDoctor = Number(formData.role) === 0;
+
+      const payload: Record<string, unknown> = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        password: formData.password,
         age: Number(formData.age),
         gender: Number(formData.gender),
-        role: Number(formData.role)
+        role: Number(formData.role),
       };
+
+      if (isDoctor) {
+        payload.yearsOfExperience = Number(formData.yearsOfExperience) || 0;
+        payload.clinicName = formData.clinicName.trim();
+        payload.professionalBio = formData.professionalBio.trim();
+      }
 
       const response = await registerApi(payload);
       
-      // استخراج الـ ID بأمان لتجنب أي أخطاء لو شكل الرد اختلف
-      // (بيغطي احتمالات Axios والـ Fetch العادي)
       const newUserId = response?.data?.value?.userId || response?.data?.id || response?.data?.userId || response?.value?.userId || '';
 
-      // التوجيه لصفحة الـ OTP مع البيانات المطلوبة
       navigate('/verify-otp', { 
         state: { 
           userId: newUserId, 
@@ -130,6 +154,21 @@ export default function SignUpPage() {
           
           <div className="flex flex-col gap-5">
             
+            <div className="flex flex-col gap-1">
+              <label className={styles.inputLabel}>نوع الحساب</label>
+              <div className={`flex items-center justify-around bg-white px-4 py-3 ${styles.inputContainer}`}>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="role" value={1} checked={formData.role === 1} onChange={() => handleRoleChange(1)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
+                  <span className="text-base font-bold text-[#1E1B4B]">ولي أمر</span>
+                </label>
+                <div className="w-px h-5 bg-gray-200"></div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="role" value={0} checked={formData.role === 0} onChange={() => handleRoleChange(0)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
+                  <span className="text-base font-bold text-[#1E1B4B]">طبيب</span>
+                </label>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-1">
               <label className={styles.inputLabel}>الاسم الكامل</label>
               <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.fullName ? 'border-red-500' : ''}`}>
@@ -190,21 +229,69 @@ export default function SignUpPage() {
               </div>
               {errors.password && <span className="text-red-500 text-xs font-bold leading-relaxed">{errors.password}</span>}
             </div>
-          </div>
 
-          <div className="flex flex-col gap-1 mt-4">
-            <label className={styles.inputLabel}>نوع الحساب</label>
-            <div className={`flex items-center justify-around bg-white px-4 py-3 ${styles.inputContainer}`}>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="role" value={1} checked={formData.role === 1} onChange={() => handleRoleChange(1)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
-                <span className="text-sm font-bold text-[#1E1B4B]">ولي أمر</span>
-              </label>
-              <div className="w-px h-5 bg-gray-200"></div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="role" value={0} checked={formData.role === 0} onChange={() => handleRoleChange(0)} className="w-4 h-4 accent-[#581C87] cursor-pointer" />
-                <span className="text-sm font-bold text-[#1E1B4B]">طبيب</span>
-              </label>
-            </div>
+            {/* حقول خاصة بالطبيب تظهر فقط عند اختيار دور "طبيب" (role === 0) */}
+            {formData.role === 0 && (
+              <div className="flex flex-col gap-5 pt-3 border-t-2 border-dashed border-[#EBE5F7]">
+                <h3 className="text-base font-extrabold text-[#581C87]">البيانات المهنية للطبيب</h3>
+
+                <div className="flex flex-col gap-1">
+                  <label className={styles.inputLabel}>
+                    سنوات الخبرة <span className="text-red-500">*</span>
+                  </label>
+                  <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.yearsOfExperience ? 'border-red-500' : ''}`}>
+                    <Award className="w-5 h-5 text-[#581C87] flex-shrink-0" />
+                    <input 
+                      type="text" 
+                      inputMode="numeric"
+                      name="yearsOfExperience" 
+                      value={formData.yearsOfExperience} 
+                      onChange={handleChange} 
+                      placeholder="عدد سنوات الخبرة (مثال: 5)" 
+                      className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0" 
+                    />
+                  </div>
+                  {errors.yearsOfExperience && <span className="text-red-500 text-sm font-bold">{errors.yearsOfExperience}</span>}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={styles.inputLabel}>
+                    اسم العيادة <span className="text-red-500">*</span>
+                  </label>
+                  <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.clinicName ? 'border-red-500' : ''}`}>
+                    <Building2 className="w-5 h-5 text-[#581C87] flex-shrink-0" />
+                    <input 
+                      type="text" 
+                      name="clinicName" 
+                      value={formData.clinicName} 
+                      onChange={handleChange} 
+                      placeholder="أدخل اسم العيادة أو المركز الطبي" 
+                      className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0" 
+                    />
+                  </div>
+                  {errors.clinicName && <span className="text-red-500 text-sm font-bold">{errors.clinicName}</span>}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={styles.inputLabel}>
+                    نبذة مهنية <span className="text-red-500">*</span>
+                  </label>
+                  <div className={`flex items-start bg-white px-4 py-3 ${styles.inputContainer} ${errors.professionalBio ? 'border-red-500' : ''}`}>
+                    <FileText className="w-5 h-5 text-[#581C87] flex-shrink-0 mt-1" />
+                    <textarea 
+                      name="professionalBio" 
+                      value={formData.professionalBio} 
+                      onChange={handleChange} 
+                      placeholder="اكتب نبذة مختصرة عن مؤهلاتك وخبراتك الطبية..." 
+                      rows={3}
+                      className="bg-transparent border-none outline-none flex-1 font-bold text-[#1E1B4B] placeholder-gray-400 placeholder:text-sm placeholder:md:text-base mr-2 min-w-0 resize-none" 
+                    />
+                  </div>
+                  {errors.professionalBio && <span className="text-red-500 text-sm font-bold">{errors.professionalBio}</span>}
+                </div>
+              </div>
+            )}
+
           </div>
 
           <button disabled={isLoading} type="submit" className={`w-full bg-[#FACC15] text-[#581C87] font-extrabold rounded-full flex justify-center items-center gap-2 mt-6 py-3.5 ${styles.buttonShadow}`}>

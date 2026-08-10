@@ -725,13 +725,13 @@ const SessionScreen = () => {
             <div className={styles.statusBlock}>
               <PartyPopper size={32} className={styles.iconAccent} />
               <p className={styles.statusText}>أحسنت! لقد أنهيت الجلسة بنجاح</p>
-              <p className={styles.softHint}>جاهزين نجهّز ملخص ما حصل في الجلسة.</p>
+              <p className={styles.softHint}>جاهزين نجهّز نتائج الجلسة.</p>
               <button
                 className={styles.primaryBtn}
                 type="button"
                 onClick={() => navigate(`/session/${sessionId}/summary`)}
               >
-                عرض ملخص الجلسة
+                عرض نتائج الجلسة
               </button>
             </div>
           )}

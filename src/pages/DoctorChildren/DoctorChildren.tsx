@@ -17,13 +17,14 @@ const DoctorChildren = () => {
   const { children, isLoading, error, totalPages, searchQuery } = useAppSelector((state) => state.children);
 
   const [page, setPage] = useState(1);
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery);
   const [childToDelete, setChildToDelete] = useState<number | null>(null);
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  // العودة للصفحة الأولى عند تعديل البحث
-  useEffect(() => {
+  // العودة للصفحة الأولى عند تعديل البحث بدون set-state-in-effect
+  if (prevSearchQuery !== searchQuery) {
+    setPrevSearchQuery(searchQuery);
     setPage(1);
-  }, [searchQuery]);
+  }
 
   useEffect(() => {
     dispatch(fetchChildren({ Name: searchQuery || undefined, pageNumber: page, pageSize: 10 }));
@@ -37,7 +38,6 @@ const DoctorChildren = () => {
       window.removeEventListener('refreshChildrenList', handleRefresh);
     };
   }, [dispatch, searchQuery, page]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleDeleteClick = (id: number) => {
     setChildToDelete(id);

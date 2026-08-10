@@ -4,6 +4,7 @@ export interface DoctorSpecificData {
   yearsOfExperience: number | null;
   clinicName: string | null;
   professionalBio: string | null;
+  availableMinutes: number | null;
 }
 
 export interface ProfileData {

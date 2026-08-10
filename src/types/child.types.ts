@@ -21,6 +21,9 @@ export interface ChildProfileData {
     id: number;
     levelName: string;
   } | null;
+  speechLevelNumber?: number | null;
+  speechLevelId?: number | null;
+  speechLevelName?: string | null;
 }
 
 export interface SpeechHistoryItem {

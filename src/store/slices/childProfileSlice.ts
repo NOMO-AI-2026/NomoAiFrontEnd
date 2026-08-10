@@ -7,9 +7,15 @@ import {
   addDoctorNoteApi, 
   updateDoctorNoteApi, 
   getChildActivitiesApi,
+  getSpeechLevelsApi,
   type PaginatedNotesResponse,
-  type ActivityItem
+  type ActivityItem,
+  type DoctorNote
 } from '../../api/doctorApi';
+import { 
+  getChildSessionHistoryApi, 
+  type ChildSessionHistoryItem 
+} from '../../api/sessionSummaryApi';
 import { type ChildProfileData, type PaginatedSpeechHistory } from '../../types/child.types';
 
 interface ChildProfileState {
@@ -25,6 +31,10 @@ interface ChildProfileState {
   activities: ActivityItem[];
   isActivitiesLoading: boolean;
   activitiesError: string | null;
+  sessionHistory: ChildSessionHistoryItem[];
+  isLoadingSessionHistory: boolean;
+  sessionHistoryError: string | null;
+  allSpeechLevels: { id: number; levelName: string }[];
 }
 
 interface ApiError {
@@ -57,6 +67,10 @@ const initialState: ChildProfileState = {
   activities: [],
   isActivitiesLoading: false,
   activitiesError: null,
+  sessionHistory: [],
+  isLoadingSessionHistory: true,
+  sessionHistoryError: null,
+  allSpeechLevels: [],
 };
 
 export const fetchChildProfile = createAsyncThunk(
@@ -165,6 +179,36 @@ export const fetchChildActivities = createAsyncThunk(
   }
 );
 
+export const fetchSessionHistory = createAsyncThunk(
+  'childProfile/fetchSessionHistory',
+  async (childId: number, { rejectWithValue }) => {
+    try {
+      const rows = await getChildSessionHistoryApi(childId);
+      return rows;
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في جلب سجل الجلسات'));
+    }
+  }
+);
+
+export const fetchAllSpeechLevels = createAsyncThunk(
+  'childProfile/fetchAllSpeechLevels',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await getSpeechLevelsApi();
+      if (res && res.value) {
+        return res.value;
+      }
+      if (Array.isArray(res)) {
+        return res;
+      }
+      return [];
+    } catch (error: unknown) {
+      return rejectWithValue(getErrorMessage(error, 'حدث خطأ في جلب مستويات النطق'));
+    }
+  }
+);
+
 const childProfileSlice = createSlice({
   name: 'childProfile',
   initialState,
@@ -175,6 +219,8 @@ const childProfileSlice = createSlice({
       state.notesData = null;
       state.activities = [];
       state.activitiesError = null;
+      state.sessionHistory = [];
+      state.sessionHistoryError = null;
     }
   },
   extraReducers: (builder) => {
@@ -220,6 +266,43 @@ const childProfileSlice = createSlice({
           state.notesData.items = state.notesData.items.filter((n) => n.id !== action.payload);
         }
       })
+      .addCase(addChildNote.fulfilled, (state, action) => {
+        const payloadObj = action.payload?.value || action.payload;
+        const newNote: DoctorNote = {
+          id: payloadObj?.id || Date.now(),
+          title: payloadObj?.noteTitle || payloadObj?.title || action.meta.arg.noteTitle,
+          description: payloadObj?.noteContent || payloadObj?.description || action.meta.arg.noteContent,
+          createdAt: payloadObj?.createdAt || new Date().toISOString(),
+        };
+        if (state.notesData) {
+          const existingItems = state.notesData.items || [];
+          state.notesData.items = [newNote, ...existingItems.filter((n) => n.id !== newNote.id)];
+        } else {
+          state.notesData = {
+            items: [newNote],
+            pageNumber: 1,
+            totalPages: 1,
+            hasPreviousPage: false,
+            hasNextPage: false,
+          };
+        }
+      })
+      .addCase(updateChildNote.fulfilled, (state, action) => {
+        const payloadObj = action.payload?.value || action.payload;
+        const noteId = action.meta.arg.noteId;
+        if (state.notesData && state.notesData.items) {
+          state.notesData.items = state.notesData.items.map((n) => {
+            if (n.id === noteId) {
+              return {
+                ...n,
+                title: action.meta.arg.title || payloadObj?.title || n.title,
+                description: action.meta.arg.description || payloadObj?.description || n.description,
+              };
+            }
+            return n;
+          });
+        }
+      })
       .addCase(fetchChildActivities.pending, (state) => {
         state.isActivitiesLoading = true;
         state.activitiesError = null;
@@ -231,6 +314,22 @@ const childProfileSlice = createSlice({
       .addCase(fetchChildActivities.rejected, (state, action) => {
         state.isActivitiesLoading = false;
         state.activitiesError = action.payload as string;
+      })
+      .addCase(fetchSessionHistory.pending, (state) => {
+        state.isLoadingSessionHistory = true;
+        state.sessionHistoryError = null;
+      })
+      .addCase(fetchSessionHistory.fulfilled, (state, action) => {
+        state.isLoadingSessionHistory = false;
+        state.sessionHistory = action.payload;
+      })
+      .addCase(fetchSessionHistory.rejected, (state, action) => {
+        state.isLoadingSessionHistory = false;
+        state.sessionHistory = [];
+        state.sessionHistoryError = action.payload as string;
+      })
+      .addCase(fetchAllSpeechLevels.fulfilled, (state, action) => {
+        state.allSpeechLevels = action.payload;
       });
   },
 });

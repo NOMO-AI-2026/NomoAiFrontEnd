@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
   Gamepad2, 
-  TrendingUp,
   Calendar,
-  AlertCircle,
   FileText,
   Activity,
   Target
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchParentDashboard, type ParentDashboardChild } from '../../store/slices/profileSlice';
+import { fetchParentDashboard, getProfile, type ParentDashboardChild } from '../../store/slices/profileSlice';
 import styles from './ParentOverview.module.css';
 
 interface FormattedLatestNote {
@@ -46,18 +45,21 @@ const getLatestDoctorNote = (children: ParentDashboardChild[]): FormattedLatestN
 
 const ParentOverview = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { 
     data: profileData, 
     parentDashboardData, 
-    isParentDashboardLoading, 
-    parentDashboardError 
+    isParentDashboardLoading
   } = useAppSelector((state) => state.profile);
 
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
+    if (!profileData) {
+      dispatch(getProfile());
+    }
     dispatch(fetchParentDashboard());
-  }, [dispatch]);
+  }, [dispatch, profileData]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -76,18 +78,6 @@ const ParentOverview = () => {
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
         <p style={{ fontWeight: 800, color: '#581C87', fontSize: '1.2rem' }}>جاري جلب الإحصائيات...</p>
-      </div>
-    );
-  }
-
-  if (parentDashboardError) {
-    return (
-      <div className={styles.errorContainer}>
-        <AlertCircle size={48} />
-        <p style={{ fontWeight: 800, fontSize: '1.2rem' }}>{parentDashboardError}</p>
-        <button className={styles.retryBtn} onClick={() => dispatch(fetchParentDashboard())}>
-          إعادة المحاولة
-        </button>
       </div>
     );
   }
@@ -247,9 +237,23 @@ const ParentOverview = () => {
                 );
               })
             ) : (
-              <div className={styles.emptyState}>
-                <TrendingUp size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-                <p>لا توجد بيانات أطفال مسجلة حتى الآن.</p>
+              <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl border-2 border-dashed border-[#0D9488]/30 my-2 shadow-sm">
+                <div className="w-16 h-16 rounded-full bg-[#CCFBF1] flex items-center justify-center text-[#0D9488] mb-4">
+                  <Users size={32} />
+                </div>
+                <h3 className="text-xl font-extrabold text-[#1E1B4B] mb-2">
+                  لم تقم بإضافة أطفال إلى حسابك حتى الآن
+                </h3>
+                <p className="text-base font-bold text-gray-500 max-w-lg mb-6 leading-relaxed">
+                  بمجرد إضافة أطفالك إلى المنصة ومتابعة حالتهم مع الطبيب، ستتمكن هنا من الاطلاع على نسب تطور نطقهم، وأحدث الملاحظات الطبية، وإحصائيات الجلسات بسهولة.
+                </p>
+                <button
+                  onClick={() => navigate('/parent/children')}
+                  className="flex items-center gap-2 bg-[#581C87] text-white font-extrabold px-6 py-3 rounded-full hover:bg-[#4C1D95] transition-all shadow-md cursor-pointer"
+                >
+                  <Users size={20} />
+                  عرض أطفالي
+                </button>
               </div>
             )}
           </div>

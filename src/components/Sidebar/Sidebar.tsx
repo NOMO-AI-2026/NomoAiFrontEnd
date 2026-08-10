@@ -7,7 +7,6 @@ import {
   LogOut, 
   X,
   UserCheck,
-  BarChart3,
   HeadphonesIcon,
   CreditCard,
   Receipt
@@ -61,7 +60,6 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
     { title: "إدارة الأهالي", icon: Users, path: "/admin/parents" },
     { title: "الاشتراكات والخطط", icon: CreditCard, path: "/admin/subscriptions" },
     { title: "العمليات المالية", icon: Receipt, path: "/admin/transactions" },
-    { title: "تقارير النظام", icon: BarChart3, path: "#" },
     { title: "تذاكر الدعم", icon: HeadphonesIcon, path: "/admin/tickets" },
   ];
 

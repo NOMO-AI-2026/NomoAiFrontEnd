@@ -7,6 +7,7 @@ export interface DoctorSpecificData {
   yearsOfExperience: number | null;
   clinicName: string | null;
   professionalBio: string | null;
+  availableMinutes: number | null;
 }
 
 export interface ProfileData {
@@ -119,16 +120,17 @@ export const updateProfile = createAsyncThunk(
 // Thunk جلب إحصائيات لوحة تحكم الطبيب
 export const fetchDoctorDashboard = createAsyncThunk(
   'profile/fetchDoctorDashboard',
-  async (_, thunkAPI) => {
+  async () => {
     try {
       const response = await getDoctorDashboardApi();
-      const payload = response.value || response;
+      const payload = response?.value || response || {};
       return payload as DoctorDashboardData;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: { description?: string }; message?: string } } };
-      return thunkAPI.rejectWithValue(
-        err.response?.data?.error?.description || err.response?.data?.message || 'فشل في جلب بيانات اللوحة الرئيسية.'
-      );
+      console.warn('Doctor dashboard fetch returned error, falling back to empty state:', error);
+      return {
+        sessions: { completedLast7Days: 0, completedToday: 0, awaitingDoctorReview: 0 },
+        cases: { totalChildren: 0, progressedLast7Days: [], stableLast7Days: [], regressedLast7Days: [] }
+      } as DoctorDashboardData;
     }
   }
 );
@@ -136,16 +138,14 @@ export const fetchDoctorDashboard = createAsyncThunk(
 // Thunk جلب إحصائيات لوحة تحكم ولي الأمر
 export const fetchParentDashboard = createAsyncThunk(
   'profile/fetchParentDashboard',
-  async (_, thunkAPI) => {
+  async () => {
     try {
       const response = await getParentDashboardApi();
-      const payload = response.value || response;
+      const payload = response?.value || response || {};
       return payload as ParentDashboardData;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: { description?: string }; message?: string } } };
-      return thunkAPI.rejectWithValue(
-        err.response?.data?.error?.description || err.response?.data?.message || 'فشل في جلب بيانات اللوحة الرئيسية.'
-      );
+      console.warn('Parent dashboard fetch returned error, falling back to empty state:', error);
+      return { children: [] } as ParentDashboardData;
     }
   }
 );

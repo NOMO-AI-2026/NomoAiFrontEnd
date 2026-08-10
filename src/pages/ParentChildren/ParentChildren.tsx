@@ -13,11 +13,13 @@ const ParentChildren = () => {
   const { children, isLoading, error, totalPages, searchQuery } = useAppSelector((state) => state.children);
 
   const [page, setPage] = useState(1);
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery);
 
-  // العودة للصفحة الأولى عند تعديل البحث
-  useEffect(() => {
+  // العودة للصفحة الأولى عند تعديل البحث بدون set-state-in-effect
+  if (prevSearchQuery !== searchQuery) {
+    setPrevSearchQuery(searchQuery);
     setPage(1);
-  }, [searchQuery]);
+  }
 
   useEffect(() => {
     dispatch(fetchParentChildren({ Name: searchQuery || undefined, pageNumber: page, pageSize: 10 }));
@@ -59,8 +61,8 @@ const ParentChildren = () => {
                   name={child.fullName} 
                   age={`${child.age} سنوات`} 
                   gender={child.gender} 
-                  speechLevelNumber={(child as any).speechLevelNumber || (child as any).speechLevelId || (child as any).speechLevel?.id}
-                  speechLevelName={(child as any).speechLevelName || (child as any).speechLevel?.levelName}
+                  speechLevelNumber={child.speechLevelNumber || child.speechLevelId || child.speechLevel?.id}
+                  speechLevelName={child.speechLevelName || child.speechLevel?.levelName}
                   onView={handleView} 
                 />
               ))

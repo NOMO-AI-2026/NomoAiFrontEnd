@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -8,7 +8,9 @@ import {
   fetchSpeechHistory, 
   fetchChildNotes, 
   deleteChildNote,
-  fetchChildActivities
+  fetchChildActivities,
+  fetchSessionHistory,
+  fetchAllSpeechLevels
 } from '../../store/slices/childProfileSlice';
 import styles from './ChildProfile.module.css';
 import { useModal } from '../../context/ModalContext';
@@ -16,12 +18,8 @@ import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/Speec
 import UpdateSpeechLevelModal from '../../components/Modals/UpdateSpeechLevelModal/UpdateSpeechLevelModal';
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/DeleteConfirmModal";
 import ActivityModal from '../../components/Modals/ActivityModal/ActivityModal';
-import NoteModal from '../../components/Modals/NoteModal/NoteModal'; // تم استيراد مودال الملاحظات
+import NoteModal from '../../components/Modals/NoteModal/NoteModal';
 import { deleteActivityApi, type ActivityItem, type DoctorNote } from '../../api/doctorApi';
-import {
-  getChildSessionHistoryApi,
-  type ChildSessionHistoryItem,
-} from '../../api/sessionSummaryApi';
 
 const ChildProfile = () => {
   const { openAssignParentModal, openAddChildModal } = useModal();
@@ -29,7 +27,7 @@ const ChildProfile = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   
-  // جلب بيانات الطفل، الملاحظات، والأنشطة بالكامل من الريدكس
+  // جلب بيانات الطفل، الملاحظات، والأنشطة والسجل بالكامل من الريدكس
   const { 
     profileData, 
     isLoading, 
@@ -37,7 +35,10 @@ const ChildProfile = () => {
     notesData, 
     isNotesLoading, 
     activities, 
-    isActivitiesLoading 
+    isActivitiesLoading,
+    sessionHistory,
+    isLoadingSessionHistory,
+    allSpeechLevels
   } = useAppSelector((state) => state.childProfile);
   
   const rawRole = useAppSelector((state) => state.auth?.role);
@@ -54,9 +55,6 @@ const ChildProfile = () => {
   // States الخاصة بمودال الملاحظات
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [noteToEdit, setNoteToEdit] = useState<DoctorNote | null>(null);
-
-  const [sessionHistory, setSessionHistory] = useState<ChildSessionHistoryItem[]>([]);
-  const [isLoadingSessionHistory, setIsLoadingSessionHistory] = useState(true);
 
   // دوال فتح مودال الأنشطة
   const handleOpenAddActivity = () => {
@@ -80,30 +78,22 @@ const ChildProfile = () => {
     setIsNoteModalOpen(true);
   };
 
-  const fetchSessionHistory = useCallback(async () => {
-    if (!id) return;
-    setIsLoadingSessionHistory(true);
-    try {
-      const rows = await getChildSessionHistoryApi(Number(id));
-      setSessionHistory(rows);
-    } catch (error) {
-      console.error('خطأ في جلب سجل الجلسات:', error);
-      setSessionHistory([]);
-    } finally {
-      setIsLoadingSessionHistory(false);
-    }
-  }, [id]);
+  // جلب مستويات النطق من الريدكس
+  useEffect(() => {
+    dispatch(fetchAllSpeechLevels());
+  }, [dispatch]);
 
+  // جلب بيانات الطفل والأنشطة والسجل عبر الريدكس
   useEffect(() => {
     if (id) {
       dispatch(fetchChildProfile(Number(id)));
       dispatch(fetchChildActivities(Number(id)));
-      fetchSessionHistory();
+      dispatch(fetchSessionHistory(Number(id)));
     }
     return () => {
       dispatch(clearProfileData());
     };
-  }, [dispatch, id, fetchSessionHistory]);
+  }, [dispatch, id]);
 
   useEffect(() => {
     if (id) {
@@ -264,17 +254,60 @@ const ChildProfile = () => {
             {/* كارت مستوى الكلام الحالي لولي الأمر بشريط التقدم (Progress Bar) الحقيقي من الـ API */}
             {(() => {
               const speechLevelObj = profileData.speechLevel;
-              const rawLevelNum = (profileData as any).speechLevelNumber || (profileData as any).speechLevelId || speechLevelObj?.id;
-              const levelName = (profileData as any).speechLevelName || speechLevelObj?.levelName;
+              const rawLevelNum = profileData.speechLevelNumber || profileData.speechLevelId || speechLevelObj?.id;
+              const levelName = profileData.speechLevelName || speechLevelObj?.levelName || '';
               
               let levelNum = 0;
               const hasLevel = Boolean(rawLevelNum || levelName);
 
               if (hasLevel) {
                 const targetId = Number(rawLevelNum);
-                if ((profileData as any).speechLevelNumber && (profileData as any).speechLevelNumber >= 1 && (profileData as any).speechLevelNumber <= 10) {
-                  levelNum = Number((profileData as any).speechLevelNumber);
-                } else if (targetId >= 1 && targetId <= 10) {
+
+                // 1. البحث عن الترتيب الحقيقي للـ ID داخل مصفوفة الـ 10 مستويات القادمة من الـ API (index + 1)
+                if (allSpeechLevels.length > 0 && targetId) {
+                  const idx = allSpeechLevels.findIndex((l) => l.id === targetId);
+                  if (idx !== -1) {
+                    levelNum = idx + 1;
+                  }
+                }
+
+                // 2. البحث باسم المستوى داخل مصفوفة المستويات إذا لم يطابق الـ ID
+                if (levelNum === 0 && allSpeechLevels.length > 0 && levelName) {
+                  const idx = allSpeechLevels.findIndex((l) => l.levelName.trim() === levelName.trim());
+                  if (idx !== -1) {
+                    levelNum = idx + 1;
+                  }
+                }
+
+                // 3. تحليل اسم المستوى إذا احتوى على أرقام أو كلمات مثل (الثاني / Level 2 / 2)
+                if (levelNum === 0 && levelName) {
+                  const wordMap: Record<string, number> = {
+                    'الأول': 1, 'اول': 1, '1': 1,
+                    'الثاني': 2, 'ثاني': 2, '2': 2,
+                    'الثالث': 3, 'ثالث': 3, '3': 3,
+                    'الرابع': 4, 'رابع': 4, '4': 4,
+                    'الخامس': 5, 'خامس': 5, '5': 5,
+                    'السادس': 6, 'سادس': 6, '6': 6,
+                    'السابع': 7, 'سابع': 7, '7': 7,
+                    'الثامن': 8, 'ثامن': 8, '8': 8,
+                    'التاسع': 9, 'تاسع': 9, '9': 9,
+                    'العاشر': 10, 'عاشر': 10, '10': 10,
+                  };
+                  for (const [key, val] of Object.entries(wordMap)) {
+                    if (levelName.includes(key)) {
+                      levelNum = val;
+                      break;
+                    }
+                  }
+                }
+
+                // 4. إذا كان speechLevelNumber صريح بين 1 و 10
+                if (levelNum === 0 && profileData.speechLevelNumber && profileData.speechLevelNumber >= 1 && profileData.speechLevelNumber <= 10) {
+                  levelNum = Number(profileData.speechLevelNumber);
+                }
+
+                // 5. إذا كانت الـ ID نفسها بين 1 و 10 وقائمة allSpeechLevels لم تُجلب بعد
+                if (levelNum === 0 && targetId >= 1 && targetId <= 10 && allSpeechLevels.length === 0) {
                   levelNum = targetId;
                 }
               }
@@ -377,7 +410,7 @@ const ChildProfile = () => {
                   </div>
                 </div>
               ) : (
-                /* واجهة ولي الأمر: اسم النشاط ع اليمين، والهدف والمدة ع الشمال ف نفس السطر ومكبرين لتوحيد التوازن */
+                /* واجهة ولي الأمر: اسم النشاط ع اليمين، والهدف والمدة وحالة الجلسة ع الشمال ف نفس السطر ومكبرين لتوحيد التوازن */
                 <div 
                   key={act.id} 
                   className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-4"
@@ -392,6 +425,15 @@ const ChildProfile = () => {
                     </span>
                     <span className="bg-[#EBE5F7] text-[#581C87] px-3.5 py-1.5 rounded-lg whitespace-nowrap">
                       المدة: {act.estimatedDurationMinutes} دقائق
+                    </span>
+                    <span
+                      className={`px-3.5 py-1.5 rounded-lg whitespace-nowrap ${
+                        act.canMakeSession === true
+                          ? 'bg-[#DCFCE7] text-[#166534]'
+                          : 'bg-[#FEE2E2] text-[#991B1B]'
+                      }`}
+                    >
+                      {act.canMakeSession === true ? 'متاح لجلسة' : 'غير متاح لجلسة'}
                     </span>
                   </div>
                 </div>
@@ -422,9 +464,9 @@ const ChildProfile = () => {
                 key={session.sessionId}
                 type="button"
                 onClick={() => navigate(`/session/${session.sessionId}/summary`)}
-                className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-3 text-right hover:bg-[#EFEAFF] transition-colors border-2 border-transparent hover:border-[#C4B5FD]"
+                className="w-full flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-3 text-right cursor-pointer transition-all duration-200 border-2 border-[#581C87] hover:bg-[#F3E8FF] hover:shadow-md"
               >
-                <div className="flex flex-col gap-2 w-full sm:w-auto">
+                <div className="flex flex-col gap-2 w-full">
                   <span className="font-extrabold text-[#1E1B4B] text-lg">
                     {session.sessionTitle || session.prompt || `جلسة #${session.sessionId}`}
                   </span>
@@ -458,7 +500,6 @@ const ChildProfile = () => {
                     <p className="text-sm font-semibold text-[#4C1D95] m-0">{session.outcomeLabel}</p>
                   )}
                 </div>
-                <span className="text-[#581C87] font-extrabold whitespace-nowrap">عرض الملخص ←</span>
               </button>
             ))
           ) : (
@@ -643,8 +684,11 @@ const ChildProfile = () => {
             childId={Number(id)}
             noteToEdit={noteToEdit}
             onSuccess={() => {
-              // إعادة تحميل الملاحظات بعد الإضافة أو التعديل بنجاح
-              dispatch(fetchChildNotes({ childId: Number(id), pageNumber: notesPage, pageSize: 5 }));
+              const targetPage = !noteToEdit ? 1 : notesPage;
+              if (!noteToEdit) {
+                setNotesPage(1);
+              }
+              dispatch(fetchChildNotes({ childId: Number(id), pageNumber: targetPage, pageSize: 5 }));
             }}
           />
         </>

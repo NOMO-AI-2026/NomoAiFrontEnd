@@ -4,6 +4,10 @@ interface SignupFormData {
   phoneNumber: string;
   age: string | number;
   password: string;
+  role?: number;
+  yearsOfExperience?: string | number;
+  clinicName?: string;
+  professionalBio?: string;
 }
 
 export const validateSignup = (formData: SignupFormData) => {
@@ -57,6 +61,19 @@ export const validateSignup = (formData: SignupFormData) => {
     errors.password = "كلمة المرور مطلوبة.";
   } else if (!isLongEnough || !hasLetter || !hasNumber || !hasSpecialChar) {
     errors.password = "يجب أن تحتوي على (8 خانات، حرف، رقم، رمز مثل @#$).";
+  }
+
+  // 6. بيانات الطبيب (عندما يكون الدور طبيب role === 0)
+  if (Number(formData.role) === 0) {
+    if (formData.yearsOfExperience === undefined || formData.yearsOfExperience === '' || Number(formData.yearsOfExperience) < 0) {
+      errors.yearsOfExperience = "عدد سنوات الخبرة مطلوب ويجب أن يكون رقماً صحيحاً.";
+    }
+    if (!formData.clinicName || !formData.clinicName.trim()) {
+      errors.clinicName = "اسم العيادة مطلوب.";
+    }
+    if (!formData.professionalBio || !formData.professionalBio.trim()) {
+      errors.professionalBio = "النبذة المهنية مطلوبة.";
+    }
   }
 
   return errors;

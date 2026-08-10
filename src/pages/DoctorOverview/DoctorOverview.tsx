@@ -4,27 +4,31 @@ import {
   Gamepad2, 
   TrendingUp,
   Calendar,
-  AlertCircle,
-  Activity
+  Activity,
+  PlusCircle
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchDoctorDashboard } from '../../store/slices/profileSlice';
+import { fetchDoctorDashboard, getProfile } from '../../store/slices/profileSlice';
+import { useModal } from '../../context/ModalContext';
 import styles from './DoctorOverview.module.css';
 
 const DoctorOverview = () => {
   const dispatch = useAppDispatch();
+  const { openAddChildModal } = useModal();
   const { 
     data: profileData, 
     dashboardData, 
-    isDashboardLoading, 
-    dashboardError 
+    isDashboardLoading
   } = useAppSelector((state) => state.profile);
 
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
+    if (!profileData) {
+      dispatch(getProfile());
+    }
     dispatch(fetchDoctorDashboard());
-  }, [dispatch]);
+  }, [dispatch, profileData]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -43,18 +47,6 @@ const DoctorOverview = () => {
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
         <p style={{ fontWeight: 800, color: '#581C87', fontSize: '1.2rem' }}>جاري جلب الإحصائيات...</p>
-      </div>
-    );
-  }
-
-  if (dashboardError) {
-    return (
-      <div className={styles.errorContainer}>
-        <AlertCircle size={48} />
-        <p style={{ fontWeight: 800, fontSize: '1.2rem' }}>{dashboardError}</p>
-        <button className={styles.retryBtn} onClick={() => dispatch(fetchDoctorDashboard())}>
-          إعادة المحاولة
-        </button>
       </div>
     );
   }
@@ -155,62 +147,81 @@ const DoctorOverview = () => {
 
       {/* Charts Section */}
       <div className={styles.chartsSection}>
-        
-        <div className={styles.chartCard} style={{ gridColumn: '1 / -1' }}>
-          <div className={styles.chartHeader}>
-            <h3 className={styles.chartTitle}>
-              <Activity size={20} style={{ color: '#581C87' }} />
-              تطور مستويات النطق للحالات (آخر 7 أيام)
-            </h3>
-          </div>
-          
-          <div className={styles.barChartContainer}>
+        {totalChildren > 0 ? (
+          <div className={styles.chartCard} style={{ gridColumn: '1 / -1' }}>
+            <div className={styles.chartHeader}>
+              <h3 className={styles.chartTitle}>
+                <Activity size={20} style={{ color: '#581C87' }} />
+                تطور مستويات النطق للحالات (آخر 7 أيام)
+              </h3>
+            </div>
             
-            {/* Progressed */}
-            <div className={styles.barRow}>
-              <div className={styles.barInfo}>
-                <span className={styles.barName} style={{ color: '#10B981' }}>حالات في تحسن (Progressed)</span>
-                <span className={styles.barCount}>{progressedCount} طفل</span>
+            <div className={styles.barChartContainer}>
+              
+              {/* Progressed */}
+              <div className={styles.barRow}>
+                <div className={styles.barInfo}>
+                  <span className={styles.barName} style={{ color: '#10B981' }}>حالات في تحسن (Progressed)</span>
+                  <span className={styles.barCount}>{progressedCount} طفل</span>
+                </div>
+                <div className={styles.barTrack}>
+                  <div 
+                    className={styles.barFill} 
+                    style={{ width: animate ? `${Math.round((progressedCount / maxProgress) * 100)}%` : '0%', background: 'linear-gradient(90deg, #10B981, #34D399)' }}
+                  ></div>
+                </div>
               </div>
-              <div className={styles.barTrack}>
-                <div 
-                  className={styles.barFill} 
-                  style={{ width: animate ? `${Math.round((progressedCount / maxProgress) * 100)}%` : '0%', background: 'linear-gradient(90deg, #10B981, #34D399)' }}
-                ></div>
-              </div>
-            </div>
 
-            {/* Stable */}
-            <div className={styles.barRow}>
-              <div className={styles.barInfo}>
-                <span className={styles.barName} style={{ color: '#F59E0B' }}>حالات مستقرة (Stable)</span>
-                <span className={styles.barCount}>{stableCount} طفل</span>
+              {/* Stable */}
+              <div className={styles.barRow}>
+                <div className={styles.barInfo}>
+                  <span className={styles.barName} style={{ color: '#F59E0B' }}>حالات مستقرة (Stable)</span>
+                  <span className={styles.barCount}>{stableCount} طفل</span>
+                </div>
+                <div className={styles.barTrack}>
+                  <div 
+                    className={styles.barFill} 
+                    style={{ width: animate ? `${Math.round((stableCount / maxProgress) * 100)}%` : '0%', background: 'linear-gradient(90deg, #F59E0B, #FBBF24)' }}
+                  ></div>
+                </div>
               </div>
-              <div className={styles.barTrack}>
-                <div 
-                  className={styles.barFill} 
-                  style={{ width: animate ? `${Math.round((stableCount / maxProgress) * 100)}%` : '0%', background: 'linear-gradient(90deg, #F59E0B, #FBBF24)' }}
-                ></div>
-              </div>
-            </div>
 
-            {/* Regressed */}
-            <div className={styles.barRow}>
-              <div className={styles.barInfo}>
-                <span className={styles.barName} style={{ color: '#EF4444' }}>حالات تراجعت (Regressed)</span>
-                <span className={styles.barCount}>{regressedCount} طفل</span>
+              {/* Regressed */}
+              <div className={styles.barRow}>
+                <div className={styles.barInfo}>
+                  <span className={styles.barName} style={{ color: '#EF4444' }}>حالات تراجعت (Regressed)</span>
+                  <span className={styles.barCount}>{regressedCount} طفل</span>
+                </div>
+                <div className={styles.barTrack}>
+                  <div 
+                    className={styles.barFill} 
+                    style={{ width: animate ? `${Math.round((regressedCount / maxProgress) * 100)}%` : '0%', background: 'linear-gradient(90deg, #EF4444, #F87171)' }}
+                  ></div>
+                </div>
               </div>
-              <div className={styles.barTrack}>
-                <div 
-                  className={styles.barFill} 
-                  style={{ width: animate ? `${Math.round((regressedCount / maxProgress) * 100)}%` : '0%', background: 'linear-gradient(90deg, #EF4444, #F87171)' }}
-                ></div>
-              </div>
-            </div>
 
+            </div>
           </div>
-        </div>
-
+        ) : (
+          <div className="col-span-full flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl border-2 border-dashed border-[#581C87]/30 my-2 shadow-sm" style={{ gridColumn: '1 / -1' }}>
+            <div className="w-16 h-16 rounded-full bg-[#F3E8FF] flex items-center justify-center text-[#581C87] mb-4">
+              <Users size={32} />
+            </div>
+            <h3 className="text-xl font-extrabold text-[#1E1B4B] mb-2">
+              لا يوجد أطفال مسجلون في سجلّك الطبي حالياً
+            </h3>
+            <p className="text-base font-bold text-gray-500 max-w-lg mb-6 leading-relaxed">
+              بمجرد إضافة أطفال جدد وتكليفك بمتابعة حالتهم، ستظهر هنا كافة الإحصائيات والتحليلات التفاعلية ونسب تقدمهم في التخاطب تلقائياً.
+            </p>
+            <button
+              onClick={() => openAddChildModal(null)}
+              className="flex items-center gap-2 bg-[#FACC15] text-[#581C87] font-extrabold px-6 py-3 rounded-full hover:bg-[#eab308] transition-all shadow-md cursor-pointer"
+            >
+              <PlusCircle size={20} />
+              إضافة طفل جديد
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

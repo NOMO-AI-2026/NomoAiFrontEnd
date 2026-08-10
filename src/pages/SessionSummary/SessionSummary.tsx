@@ -151,9 +151,9 @@ const SessionSummaryPage = () => {
           <ArrowRight size={20} />
         </button>
         <div className={styles.headerText}>
-          <h1 className={styles.title}>ملخص الجلسة</h1>
+          <h1 className={styles.title}>نتائج الجلسة</h1>
           <p className={styles.subtitle}>
-            {historyChildId ? 'من سجل الجلسات — يمكن الرجوع إليه في أي وقت' : 'نتيجة تحليلية لما حدث في الجلسة'}
+            {historyChildId ? 'سجل متابعة نتائج الجلسة — يمكنك الرجوع إليه في أي وقت' : 'عرض شامل ومبسط لأداء الطفل في الجلسة'}
           </p>
         </div>
       </header>
@@ -182,9 +182,9 @@ const SessionSummaryPage = () => {
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>
                 <Stethoscope size={22} />
-                عرض الأخصائي
+                تقرير الجلسة
               </h2>
-              <span className={styles.badge}>تفصيلي وتحليلي</span>
+              <span className={styles.badge}>تحليل متقدم ومفصّل</span>
             </div>
 
             <h3 className={styles.heading}>{doctorSummary.sessionTitle}</h3>
@@ -326,9 +326,9 @@ const SessionSummaryPage = () => {
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>
                 <PartyPopper className={styles.accent} size={22} />
-                ملخص مبسّط لولي الأمر
+                نتائج الجلسة
               </h2>
-              <span className={`${styles.badge} ${styles.badgeSuccess}`}>مشجّع وواضح</span>
+              <span className={`${styles.badge} ${styles.badgeSuccess}`}>تطور ومتابعة الطفل</span>
             </div>
 
             <h3 className={styles.heading}>{parentSummary.friendlyOutcome}</h3>
