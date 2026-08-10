@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -17,7 +17,7 @@ import UpdateSpeechLevelModal from '../../components/Modals/UpdateSpeechLevelMod
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/DeleteConfirmModal";
 import ActivityModal from '../../components/Modals/ActivityModal/ActivityModal';
 import NoteModal from '../../components/Modals/NoteModal/NoteModal'; // تم استيراد مودال الملاحظات
-import { getChildActivitiesApi, deleteActivityApi, type ActivityItem } from '../../api/doctorApi';
+import { deleteActivityApi, type ActivityItem, type DoctorNote } from '../../api/doctorApi';
 import {
   getChildSessionHistoryApi,
   type ChildSessionHistoryItem,
@@ -56,8 +56,6 @@ const ChildProfile = () => {
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [noteToEdit, setNoteToEdit] = useState<DoctorNote | null>(null);
 
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
-  const [isLoadingActivities, setIsLoadingActivities] = useState(true);
   const [sessionHistory, setSessionHistory] = useState<ChildSessionHistoryItem[]>([]);
   const [isLoadingSessionHistory, setIsLoadingSessionHistory] = useState(true);
 
@@ -83,21 +81,6 @@ const ChildProfile = () => {
     setIsNoteModalOpen(true);
   };
 
-  // تم استخدام useCallback لمنع إعادة بناء الدالة وتفادي تحذيرات الـ useEffect
-  const fetchActivities = useCallback(async () => {
-    if (!id) return;
-    setIsLoadingActivities(true);
-    try {
-      const data = await getChildActivitiesApi(Number(id));
-      const activitiesList = Array.isArray(data) ? data : (data?.value || []);
-      setActivities(activitiesList); 
-    } catch (error) {
-      console.error("خطأ في جلب الأنشطة:", error);
-    } finally {
-      setIsLoadingActivities(false);
-    }
-  }, [id]);
-
   const fetchSessionHistory = useCallback(async () => {
     if (!id) return;
     setIsLoadingSessionHistory(true);
@@ -115,13 +98,13 @@ const ChildProfile = () => {
   useEffect(() => {
     if (id) {
       dispatch(fetchChildProfile(Number(id)));
-      fetchActivities();
+      dispatch(fetchChildActivities(Number(id)));
       fetchSessionHistory();
     }
     return () => {
       dispatch(clearProfileData());
     };
-  }, [dispatch, id, fetchActivities, fetchSessionHistory]);
+  }, [dispatch, id, fetchSessionHistory]);
 
   useEffect(() => {
     if (id) {
@@ -375,12 +358,12 @@ const ChildProfile = () => {
                       </span>
                       <span
                         className={`px-3 py-1 rounded-md whitespace-nowrap ${
-                          activity.canMakeSession === true
+                          act.canMakeSession === true
                             ? 'bg-[#DCFCE7] text-[#166534]'
                             : 'bg-[#FEE2E2] text-[#991B1B]'
                         }`}
                       >
-                        {activity.canMakeSession === true ? 'متاح لجلسة' : 'غير متاح لجلسة'}
+                        {act.canMakeSession === true ? 'متاح لجلسة' : 'غير متاح لجلسة'}
                       </span>
                     </div>
                   </div>
