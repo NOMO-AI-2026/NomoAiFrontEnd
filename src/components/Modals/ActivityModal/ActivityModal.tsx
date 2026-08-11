@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Activity } from 'lucide-react';
+import { X, Activity, CreditCard } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import styles from './ActivityModal.module.css';
 import { 
   createActivityApi, 
@@ -22,6 +23,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   activityToEdit, 
   onSuccess 
 }) => {
+  const navigate = useNavigate();
   const [content, setContent] = useState('');
   const [activityTarget, setActivityTarget] = useState<number | ''>('');
   const [estimatedDurationMinutes, setEstimatedDurationMinutes] = useState<number | ''>('');
@@ -29,6 +31,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isCreditError, setIsCreditError] = useState(false);
 
   // التأكد من ملء البيانات عند فتح المودال في وضع التعديل، أو تفريغها في وضع الإضافة
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -46,6 +49,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         setCanMakeSession(false);
       }
       setErrorMsg('');
+      setIsCreditError(false);
     }
   }, [isOpen, activityToEdit]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -56,8 +60,16 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrorMsg('');
+    setIsCreditError(false);
+
+    const durationNum = Number(estimatedDurationMinutes);
+    if (!durationNum || durationNum < 1 || durationNum > 60) {
+      setErrorMsg('يجب أن تكون المدة التقديرية للنشاط بين 1 و 60 دقيقة.');
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       if (isEditMode && activityToEdit) {
@@ -83,12 +95,49 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       onClose();
     } catch (err: unknown) {
       console.error("Error saving activity:", err);
-      const errorResponse = err as { response?: { data?: { message?: string; description?: string } } };
-      setErrorMsg(
-        errorResponse.response?.data?.description ||
-          errorResponse.response?.data?.message ||
-          'حدث خطأ أثناء حفظ النشاط. يرجى المحاولة لاحقاً.',
-      );
+      const errorResponse = err as { 
+        response?: { 
+          data?: { 
+            message?: string; 
+            description?: string;
+            code?: string;
+            type?: string;
+            errors?: Record<string, string[]>;
+            error?: { code?: string; description?: string };
+          } 
+        } 
+      };
+
+      const responseData = errorResponse.response?.data;
+      const errString = JSON.stringify(responseData || "").toLowerCase();
+
+      const isInsufficientCredit = 
+        errString.includes('insufficientcredit') ||
+        errString.includes('enough credits') ||
+        responseData?.code === 'DoctorDashboard.InsufficientCredit' ||
+        responseData?.error?.code === 'DoctorDashboard.InsufficientCredit' ||
+        responseData?.type === 'DoctorDashboard.InsufficientCredit';
+
+      const isDurationError =
+        errString.includes('estimateddurationminutes') ||
+        errString.includes('between 1 and 60') ||
+        errString.includes('60 minutes');
+
+      if (isInsufficientCredit) {
+        setIsCreditError(true);
+        setErrorMsg('رصيد الدقائق المتاح لديك غير كافٍ لإتاحة هذا النشاط لبدء جلسة جديدة. يرجى تجديد الاشتراكات أو شراء باقة دقائق جديدة.');
+      } else if (isDurationError) {
+        setIsCreditError(false);
+        setErrorMsg('يجب أن تكون المدة التقديرية للنشاط بين 1 و 60 دقيقة.');
+      } else {
+        setIsCreditError(false);
+        setErrorMsg(
+          responseData?.error?.description ||
+            responseData?.description ||
+            responseData?.message ||
+            'حدث خطأ أثناء حفظ النشاط. يرجى المحاولة لاحقاً.',
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +163,24 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         </div>
 
         <div className={styles.content}>
-          {errorMsg && <div className={styles.errorMsg}>{errorMsg}</div>}
+          {errorMsg && (
+            <div className={styles.errorMsg}>
+              <div>{errorMsg}</div>
+              {isCreditError && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    navigate('/doctor/subscriptions');
+                  }}
+                  className="mt-3 inline-flex items-center gap-2 bg-[#581C87] text-white text-sm font-extrabold px-4 py-2 rounded-xl hover:bg-[#4C1D95] transition-all shadow-sm cursor-pointer"
+                >
+                  <CreditCard size={16} />
+                  الانتقال للخطط والباقات
+                </button>
+              )}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             
@@ -154,11 +220,13 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
               <div className={styles.inputContainer}>
                 <input 
                   type="number" 
-                  required min="1"
+                  required 
+                  min="1"
+                  max="60"
                   value={estimatedDurationMinutes}
                   onChange={(e) => setEstimatedDurationMinutes(Number(e.target.value))}
                   className={styles.input}
-                  placeholder="مثال: 10"
+                  placeholder="مثال: 10 (من 1 إلى 60 دقيقة)"
                 />
               </div>
             </div>

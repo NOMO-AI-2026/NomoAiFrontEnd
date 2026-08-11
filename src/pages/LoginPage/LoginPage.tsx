@@ -58,7 +58,25 @@ export default function LoginPage() {
       };
 
       if (data.isFailure === true) {
-        setServerError(data.error?.description || 'فشل تسجيل الدخول.');
+        const errObj = data.error;
+        const errStr = JSON.stringify(errObj || "").toLowerCase();
+
+        if (
+          errStr.includes('doctornotapproved') || 
+          errStr.includes('not approved') || 
+          errObj?.code === 'Auth.DoctorNotApproved'
+        ) {
+          setServerError('حسابك كطبيب قيد المراجعة وبانتظار موافقة الإدارة. يرجى الانتظار لحين تفعيل الحساب.');
+        } else if (
+          errStr.includes('emailnotconfirmed') || 
+          errStr.includes('must confirm') || 
+          errStr.includes('confirm') || 
+          errObj?.code === 'Auth.EmailNotConfirmed'
+        ) {
+          setServerError('لم يتم تأكيد بريدك الإلكتروني بعد. يرجى تأكيد الحساب بواسطة رمز التحقق (OTP) أولاً.');
+        } else {
+          setServerError(data.error?.description || 'فشل تسجيل الدخول.');
+        }
         return;
       }
 
@@ -145,7 +163,9 @@ export default function LoginPage() {
             message?: string;
             title?: string;
             detail?: string;
-            error?: { description?: string };
+            type?: string;
+            code?: string;
+            error?: { description?: string; code?: string };
           };
         };
       };
@@ -158,15 +178,28 @@ export default function LoginPage() {
       if (!apiError.response) {
         // Typical when the browser blocks a cross-origin response (CORS) or the network is down.
         setServerError(
-          'تعذر الوصول إلى الخادم من المتصفح (غالبًا بسبب CORS). تأكد أن عنوان الواجهة مسموح به على الـ API، أو استخدم وضع التطوير مع proxy.',
+          'تعذر الوصول إلى الخادم من المتصفح. يرجى التحقق من الاتصال بالإنترنت.',
         );
+      } else if (
+        errorString.includes('doctornotapproved') ||
+        errorString.includes('not approved') ||
+        responseData?.error?.code === 'Auth.DoctorNotApproved' ||
+        responseData?.code === 'Auth.DoctorNotApproved' ||
+        responseData?.type === 'Auth.DoctorNotApproved'
+      ) {
+        setServerError('حسابك كطبيب قيد المراجعة وبانتظار موافقة الإدارة. يرجى الانتظار لحين تفعيل الحساب.');
+      } else if (
+        errorString.includes('emailnotconfirmed') ||
+        errorString.includes('must confirm') ||
+        errorString.includes('confirm your email') ||
+        responseData?.error?.code === 'Auth.EmailNotConfirmed' ||
+        responseData?.code === 'Auth.EmailNotConfirmed' ||
+        responseData?.type === 'Auth.EmailNotConfirmed'
+      ) {
+        setServerError('لم يتم تأكيد بريدك الإلكتروني بعد. يرجى تأكيد الحساب بواسطة رمز التحقق (OTP) أولاً.');
       } else if (status === 401) {
-        if (errorString.includes('confirm') || errorString.includes('تأكيد')) {
-          setErrors({ email: 'يرجى تأكيد بريدك الإلكتروني أولاً.' });
-        } else {
-          setServerError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
-          setErrors({ email: ' ', password: ' ' });
-        }
+        setServerError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+        setErrors({ email: ' ', password: ' ' });
       } else if (status === 404) {
         setErrors({ email: 'هذا الحساب غير مسجل لدينا.' });
       } else {
