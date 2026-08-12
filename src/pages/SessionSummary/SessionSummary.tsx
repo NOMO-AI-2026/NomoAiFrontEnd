@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowRight,
   ClipboardList,
+  Mic,
   PartyPopper,
   RefreshCw,
   Sparkles,
@@ -10,6 +11,7 @@ import {
   TriangleAlert,
 } from 'lucide-react';
 import styles from './SessionSummary.module.css';
+import AttemptAudioPlayer from './AttemptAudioPlayer';
 import {
   generateSessionSummaryApi,
   getDoctorSessionSummaryApi,
@@ -18,6 +20,10 @@ import {
   type ParentSessionSummaryResponse,
   type SessionSummaryDto,
 } from '../../api/sessionSummaryApi';
+import {
+  getSessionAttemptsApi,
+  type SessionAttemptItem,
+} from '../../api/sessionsApi';
 import { useAppSelector } from '../../store/hooks';
 
 type LoadState = 'loading' | 'ready' | 'error';
@@ -63,6 +69,19 @@ const SessionSummaryPage = () => {
   const [parentSummary, setParentSummary] = useState<ParentSessionSummaryResponse | null>(null);
   const [shared, setShared] = useState<SessionSummaryDto | null>(null);
   const [historyChildId, setHistoryChildId] = useState<number | null>(null);
+  const [attempts, setAttempts] = useState<SessionAttemptItem[]>([]);
+  const [attemptsError, setAttemptsError] = useState<string | null>(null);
+
+  const loadAttempts = useCallback(async (id: string) => {
+    try {
+      const response = await getSessionAttemptsApi(id);
+      setAttempts(response.attempts ?? []);
+      setAttemptsError(null);
+    } catch {
+      setAttempts([]);
+      setAttemptsError('تعذر تحميل تسجيلات المحاولات.');
+    }
+  }, []);
 
   const load = useCallback(async () => {
     if (!sessionId) {
@@ -82,6 +101,7 @@ const SessionSummaryPage = () => {
           setParentSummary(null);
           setShared(null);
           setHistoryChildId(detailed.childId);
+          await loadAttempts(sessionId);
           setLoadState('ready');
           return;
         } catch (err) {
@@ -95,6 +115,7 @@ const SessionSummaryPage = () => {
           setDoctorSummary(null);
           setShared(null);
           setHistoryChildId(simple.childId);
+          await loadAttempts(sessionId);
           setLoadState('ready');
           return;
         } catch (err) {
@@ -116,6 +137,7 @@ const SessionSummaryPage = () => {
         setParentSummary(simple);
         setDoctorSummary(null);
       }
+      await loadAttempts(sessionId);
       setLoadState('ready');
     } catch (err) {
       const message =
@@ -127,7 +149,7 @@ const SessionSummaryPage = () => {
       setErrorMessage(message);
       setLoadState('error');
     }
-  }, [role, sessionId]);
+  }, [loadAttempts, role, sessionId]);
 
   useEffect(() => {
     void load();
@@ -317,6 +339,56 @@ const SessionSummaryPage = () => {
               </div>
             )}
           </section>
+
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <Mic size={22} />
+                تسجيلات محاولات الطفل
+              </h2>
+              <span className={styles.badge}>{attempts.length} محاولة</span>
+            </div>
+
+            {attemptsError && <p className={styles.attemptAudioError}>{attemptsError}</p>}
+
+            {!attemptsError && attempts.length === 0 && (
+              <p className={styles.body}>لا توجد محاولات محفوظة لهذه الجلسة بعد.</p>
+            )}
+
+            <div className={styles.attemptsList}>
+              {attempts.map((attempt) => (
+                <article key={attempt.attemptId} className={styles.attemptCard}>
+                  <div className={styles.attemptMeta}>
+                    <strong>المحاولة {attempt.attemptNumber}</strong>
+                    {attempt.evaluation && (
+                      <span className={styles.chip}>
+                        الدرجة:{' '}
+                        {formatScore(
+                          Number(attempt.evaluation.overallScore) > 4
+                            ? Number(attempt.evaluation.overallScore)
+                            : Number(attempt.evaluation.overallScore) * 25,
+                        )}
+                      </span>
+                    )}
+                    {attempt.transcription?.transcribedText && (
+                      <span className={styles.chip}>
+                        النص: {attempt.transcription.transcribedText}
+                      </span>
+                    )}
+                  </div>
+                  {attempt.audioUrl ? (
+                    <AttemptAudioPlayer
+                      sessionId={sessionId!}
+                      attemptId={attempt.attemptId}
+                      label={`استماع لتسجيل المحاولة ${attempt.attemptNumber}`}
+                    />
+                  ) : (
+                    <p className={styles.attemptAudioHint}>لا يوجد تسجيل صوتي لهذه المحاولة.</p>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
         </div>
       )}
 
@@ -378,6 +450,30 @@ const SessionSummaryPage = () => {
               </div>
             )}
           </section>
+
+          {attempts.some((a) => a.audioUrl) && (
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>
+                  <Mic size={22} />
+                  استماع لمحاولات الطفل
+                </h2>
+              </div>
+              <div className={styles.attemptsList}>
+                {attempts
+                  .filter((attempt) => attempt.audioUrl)
+                  .map((attempt) => (
+                    <article key={attempt.attemptId} className={styles.attemptCard}>
+                      <AttemptAudioPlayer
+                        sessionId={sessionId!}
+                        attemptId={attempt.attemptId}
+                        label={`المحاولة ${attempt.attemptNumber}`}
+                      />
+                    </article>
+                  ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
 

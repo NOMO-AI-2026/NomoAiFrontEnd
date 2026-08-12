@@ -290,6 +290,63 @@
   line-height: 1.7;
 }
 
+.attemptsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.attemptCard {
+  background: #f8f7ff;
+  border: 2px solid #ebe5f7;
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attemptMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  color: #1e1b4b;
+  font-weight: 800;
+}
+
+.attemptAudio {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.attemptAudioLabel {
+  margin: 0;
+  color: #581c87;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.attemptAudioHint {
+  margin: 0;
+  color: #6c34af;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.attemptAudioError {
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.attemptAudioPlayer {
+  width: 100%;
+  max-width: 420px;
+}
+
 .softNote {
   margin: 0;
   color: #581c87;

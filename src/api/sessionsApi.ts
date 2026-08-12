@@ -154,6 +154,73 @@ export const fetchFeedbackSpeechBlobApi = async (
   }
 };
 
+export interface SessionAttemptEvaluation {
+  accuracyScore: number;
+  fluencyScore: number;
+  pronunciationScore: number;
+  completenessScore: number;
+  overallScore: number;
+  isSuccessful: boolean;
+  speechOutcome?: string | null;
+  adaptiveAction?: string | null;
+  matched?: boolean | null;
+  feedback?: string | null;
+  avatarSpokenText?: string | null;
+  avatarEmotion?: string | null;
+  normalizedTranscript?: string | null;
+}
+
+export interface SessionAttemptTranscription {
+  transcribedText: string;
+  normalizedText?: string | null;
+  detectedLanguage: string;
+}
+
+export interface SessionAttemptItem {
+  attemptId: number;
+  attemptNumber: number;
+  audioUrl?: string | null;
+  createdAt: string;
+  evaluation?: SessionAttemptEvaluation | null;
+  transcription?: SessionAttemptTranscription | null;
+}
+
+export interface SessionAttemptsResponse {
+  sessionId: number;
+  childId: number;
+  totalAttempts: number;
+  attempts: SessionAttemptItem[];
+}
+
+/** GET /sessions/{sessionId}/attempts — list persisted attempts for doctor/parent review. */
+export const getSessionAttemptsApi = async (
+  sessionId: number | string,
+  options?: ApiCallOptions,
+): Promise<SessionAttemptsResponse> => {
+  const response = await axiosInstance.get<SessionAttemptsResponse>(
+    `/sessions/${sessionId}/attempts`,
+    { signal: options?.signal },
+  );
+  return response.data;
+};
+
+/** GET /sessions/{sessionId}/attempts/{attemptId}/audio — child attempt audio as Blob. */
+export const fetchAttemptAudioBlobApi = async (
+  sessionId: number | string,
+  attemptId: number | string,
+  options?: ApiCallOptions,
+): Promise<Blob> => {
+  try {
+    const response = await axiosInstance.get(
+      `/sessions/${sessionId}/attempts/${attemptId}/audio`,
+      { responseType: 'blob', signal: options?.signal },
+    );
+    return response.data as Blob;
+  } catch (err) {
+    throw await rethrowBlobApiError(err);
+  }
+};
+
 /** When responseType is blob, error bodies are Blobs — parse JSON ProblemDetails for UI. */
 async function rethrowBlobApiError(err: unknown): Promise<never> {
   if (err && typeof err === 'object' && 'response' in err) {
