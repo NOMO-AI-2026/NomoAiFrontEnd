@@ -149,6 +149,11 @@
   color: #DC2626;
 }
 
+.statusCancelled {
+  background-color: #F3F4F6;
+  color: #6B7280;
+}
+
 .amount {
   font-weight: 800;
   color: #1E1B4B;

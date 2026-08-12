@@ -65,14 +65,21 @@ const AdminTransactions = () => {
         return (
           <div className={`${styles.statusBadge} ${styles.statusSuccess}`}>
             <CheckCircle2 size={16} />
-            <span>مكتمل</span>
+            <span>مدفوع</span>
           </div>
         );
       case 2:
         return (
           <div className={`${styles.statusBadge} ${styles.statusFailed}`}>
             <XCircle size={16} />
-            <span>مرفوض</span>
+            <span>فشلت العملية</span>
+          </div>
+        );
+      case 3:
+        return (
+          <div className={`${styles.statusBadge} ${styles.statusCancelled}`}>
+            <XCircle size={16} />
+            <span>ملغاة</span>
           </div>
         );
       case 0:
@@ -80,7 +87,7 @@ const AdminTransactions = () => {
         return (
           <div className={`${styles.statusBadge} ${styles.statusPending}`}>
             <Clock size={16} />
-            <span>قيد المعالجة</span>
+            <span>قيد الانتظار</span>
           </div>
         );
     }

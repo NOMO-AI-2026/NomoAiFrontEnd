@@ -163,18 +163,14 @@ const AdminOverview = () => {
           </div>
           <h2 className={styles.cardValue}>{overview.support.ticketsTotal}</h2>
           <div className={styles.cardBadge} style={{ backgroundColor: '#FEF3C7', color: '#D97706' }}>
-            <span style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
-              بانتظار رد الأدمن: {overview.support.awaitingAdminAction}
-              <br />
-              مفتوحة وقابلة للتعديل: {overview.support.userMutableOpen}
-            </span>
+            <span>بانتظار رد الأدمن: {overview.support.awaitingAdminAction}</span>
           </div>
         </div>
 
-        {/* كارت مستويات النطق */}
+        {/* كارت مستويات الكلام */}
         <div className={`${styles.statCard} ${styles.statCardLevels}`}>
           <div className={styles.cardTop}>
-            <span className={styles.cardTitle}>تصنيفات النطق</span>
+            <span className={styles.cardTitle}>مستويات الكلام</span>
             <div className={styles.iconWrapper}>
               <TrendingUp size={24} />
             </div>
@@ -190,12 +186,12 @@ const AdminOverview = () => {
       {/* ================= المخططات والرسومات البيانية (Visual Charts) ================= */}
       <div className={styles.chartsSection}>
         
-        {/* مخطط توزيع الأطفال على مستويات النطق (الأيسر - الطويل) */}
+        {/* مخطط توزيع الأطفال على مستويات الكلام (الأيسر - الطويل) */}
         <div className={styles.chartCard}>
           <div className={styles.chartHeader}>
             <h3 className={styles.chartTitle}>
               <Activity size={20} style={{ color: '#581C87' }} />
-              توزيع أعداد الأطفال على مستويات النطق
+              توزيع أعداد الأطفال على مستويات الكلام
             </h3>
           </div>
           
@@ -223,12 +219,12 @@ const AdminOverview = () => {
         {/* كروت التحليلات والتنبيهات المكدسة رأسياً (الأيمن) */}
         <div className={styles.rightChartsStack}>
           
-          {/* كارت النسبة التناسبية للنشاط */}
+          {/* كارت النسبة التناسبية للحسابات */}
           <div className={styles.chartCard}>
             <div className={styles.chartHeader}>
               <h3 className={styles.chartTitle}>
                 <Heart size={20} style={{ color: '#581C87' }} />
-                النسبة التناسبية للنشاط
+                نسبة توزيع الحسابات بالمنصة
               </h3>
             </div>
 
@@ -279,12 +275,12 @@ const AdminOverview = () => {
             </div>
           </div>
 
-          {/* كارت التنبيهات وإشعارات تقدم الحالات (نُقلت تحت النسبة التناسبية ليتوازى الارتفاعان) */}
+          {/* كارت التنبيهات وإشعارات تقدم الحالات */}
           <div className={`${styles.chartCard} ${styles.chartCardAlerts}`}>
             <div className={styles.chartHeader}>
               <h3 className={styles.chartTitle} style={{ color: '#3B82F6' }}>
                 <ShieldAlert size={20} />
-                تنبيهات تقدم الحالات
+                تنبيهات ومؤشرات تقدم الأطفال
               </h3>
             </div>
             
@@ -292,7 +288,7 @@ const AdminOverview = () => {
               <div className={styles.alertItem} style={{ borderColor: '#E5E7EB', backgroundColor: '#F9FAFB' }}>
                 <div className={styles.alertLeft}>
                   <Bookmark size={18} style={{ color: '#3B82F6' }} />
-                  <span>إجمالي التنبيهات</span>
+                  <span>إجمالي التنبيهات المسجلة</span>
                 </div>
                 <span className={styles.alertVal} style={{ color: '#1E1B4B' }}>{overview.alerts.progressAlertsTotal}</span>
               </div>
@@ -300,7 +296,7 @@ const AdminOverview = () => {
               <div className={styles.alertItem} style={{ borderColor: '#D1FAE5', backgroundColor: '#ECFDF5' }}>
                 <div className={styles.alertLeft}>
                   <Award size={18} style={{ color: '#10B981' }} />
-                  <span>تحقيق أهداف (Milestone)</span>
+                  <span>تخطي الأطفال للمستويات (Milestone)</span>
                 </div>
                 <span className={styles.alertVal} style={{ color: '#10B981' }}>{overview.alerts.byType.milestone}</span>
               </div>
@@ -308,7 +304,7 @@ const AdminOverview = () => {
               <div className={styles.alertItem} style={{ borderColor: '#DBEAFE', backgroundColor: '#EFF6FF' }}>
                 <div className={styles.alertLeft}>
                   <ChevronUp size={18} style={{ color: '#3B82F6' }} />
-                  <span>تحسن ملحوظ (Improvement)</span>
+                  <span>تحسن وتطور أداء الأطفال (Improvement)</span>
                 </div>
                 <span className={styles.alertVal} style={{ color: '#3B82F6' }}>{overview.alerts.byType.improvement}</span>
               </div>
@@ -316,7 +312,7 @@ const AdminOverview = () => {
               <div className={styles.alertItem} style={{ borderColor: '#FEF3C7', backgroundColor: '#FFFBEB' }}>
                 <div className={styles.alertLeft}>
                   <AlertTriangle size={18} style={{ color: '#D97706' }} />
-                  <span>ملاحظات ومخاوف (Concern)</span>
+                  <span>ملاحظات ومخاوف بشأن الأطفال (Concern)</span>
                 </div>
                 <span className={styles.alertVal} style={{ color: '#D97706' }}>{overview.alerts.byType.concern}</span>
               </div>
@@ -324,7 +320,7 @@ const AdminOverview = () => {
               <div className={styles.alertItem} style={{ borderColor: '#FEE2E2', backgroundColor: '#FEF2F2' }}>
                 <div className={styles.alertLeft}>
                   <TrendingDown size={18} style={{ color: '#EF4444' }} />
-                  <span>تراجع في الحالة (Regression)</span>
+                  <span>تراجع حالة الأطفال (Regression)</span>
                 </div>
                 <span className={styles.alertVal} style={{ color: '#EF4444' }}>{overview.alerts.byType.regression}</span>
               </div>
@@ -420,28 +416,16 @@ const AdminOverview = () => {
                 </span>
               </div>
               <div className={styles.metadataItem}>
-                تم حلها بالأدمن
+                تم حلها بواسطة الأدمن
                 <span className={styles.metadataVal} style={{ color: '#10B981' }}>
                   {overview.support.handledByAdmin}
-                </span>
-              </div>
-              <div className={styles.metadataItem}>
-                مفتوحة للمستخدم
-                <span className={styles.metadataVal} style={{ color: '#3B82F6' }}>
-                  {overview.support.userMutableOpen}
-                </span>
-              </div>
-              <div className={styles.metadataItem}>
-                مغلقة للمستخدم
-                <span className={styles.metadataVal} style={{ color: '#6B7280' }}>
-                  {overview.support.lockedForUser}
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 2. كارت تفاصيل وجلسات العلاج (يمتد بالعرض 1.8 ويعادل طول كارت الدعم) */}
+        {/* 2. كارت تفاصيل وجلسات العلاج */}
         <div className={`${styles.detailCard} ${styles.detailCardTherapy}`}>
           <div className={styles.chartHeader}>
             <h3 className={styles.chartTitle} style={{ color: '#059669' }}>
@@ -451,7 +435,7 @@ const AdminOverview = () => {
           </div>
           
           <div className={styles.sessionGrid}>
-            {/* عرض الحالات الجلسات عرضياً (Horizontal Item Container) */}
+            {/* عرض حالات الجلسات المفعلة (المجدولة، قيد التنفيذ، والمكتملة) */}
             <div className={styles.sessionItemContainer}>
               <div className={styles.sessionItem}>
                 <div className={styles.sessionInfoLeft}>
@@ -488,33 +472,9 @@ const AdminOverview = () => {
                 </div>
                 <span className={styles.sessionVal}>{overview.therapy.sessionsByStatus.completed}</span>
               </div>
-
-              <div className={styles.sessionItem}>
-                <div className={styles.sessionInfoLeft}>
-                  <div className={styles.sessionIcon} style={{ backgroundColor: '#EF4444' }}>
-                    <AlertCircle size={16} />
-                  </div>
-                  <div className={styles.sessionDetails}>
-                    <span className={styles.sessionName}>ملغاة (Cancelled)</span>
-                  </div>
-                </div>
-                <span className={styles.sessionVal}>{overview.therapy.sessionsByStatus.cancelled}</span>
-              </div>
-
-              <div className={styles.sessionItem}>
-                <div className={styles.sessionInfoLeft}>
-                  <div className={styles.sessionIcon} style={{ backgroundColor: '#D97706' }}>
-                    <AlertCircle size={16} />
-                  </div>
-                  <div className={styles.sessionDetails}>
-                    <span className={styles.sessionName}>فائتة (Missed)</span>
-                  </div>
-                </div>
-                <span className={styles.sessionVal}>{overview.therapy.sessionsByStatus.missed}</span>
-              </div>
             </div>
 
-            {/* شبكة البيانات الإحصائية الإضافية للجلسات ممتدة بالعرض أيضاً */}
+            {/* شبكة البيانات الإحصائية الإضافية للجلسات */}
             <div className={styles.metadataGridTherapy}>
               <div className={styles.metadataItem}>
                 إجمالي التمارين
@@ -538,12 +498,6 @@ const AdminOverview = () => {
                 ملخصات الجلسات
                 <span className={styles.metadataVal} style={{ color: '#EC4899' }}>
                   {overview.therapy.sessionSummariesTotal}
-                </span>
-              </div>
-              <div className={styles.metadataItem}>
-                تقييمات الأداء
-                <span className={styles.metadataVal} style={{ color: '#06B6D4' }}>
-                  {overview.therapy.attemptEvaluationsTotal}
                 </span>
               </div>
               <div className={styles.metadataItem}>

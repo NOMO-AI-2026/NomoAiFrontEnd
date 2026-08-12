@@ -431,7 +431,7 @@
 
 .sessionItemContainer {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 أعمدة لعرض الجلسات عرضياً وتوفير المساحة */
+  grid-template-columns: repeat(3, 1fr); /* 3 أعمدة متساوية للجلسات المجدولة، قيد التنفيذ، والمكتملة */
   gap: 0.8rem;
 }
 
@@ -483,14 +483,26 @@
   color: #1E1B4B;
 }
 
-/* ميتاداتا الجلسات الممتدة */
+/* ميتاداتا الجلسات الممتدة على سطرين بحجم كروت أكبر */
 .metadataGridTherapy {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* ممتدة بالعرض في 3 أعمدة */
-  gap: 0.6rem;
+  grid-template-columns: repeat(3, 1fr); /* 3 بنود بالسطر الأول و 2 بالسطر الثاني */
+  gap: 0.9rem;
   margin-top: 1.2rem;
-  padding-top: 1rem;
+  padding-top: 1.2rem;
   border-top: 1px solid #F3F4F6;
+}
+
+.metadataGridTherapy .metadataItem {
+  padding: 0.9rem 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  border-radius: 1rem;
+}
+
+.metadataGridTherapy .metadataVal {
+  font-size: 1.4rem;
+  margin-top: 0.4rem;
 }
 
 @media (max-width: 768px) {
