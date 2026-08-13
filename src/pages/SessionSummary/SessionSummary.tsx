@@ -221,13 +221,6 @@ const SessionSummaryPage = () => {
               )}
             </div>
 
-            <div className={styles.outcomeBanner}>
-              <p className={styles.outcomeLabel}>النتيجة العامة</p>
-              <p className={styles.outcomeValue}>
-                {doctorSummary.outcomeLabel || doctorSummary.outcome}
-              </p>
-            </div>
-
             <p className={styles.summaryText}>{doctorSummary.shortSummary}</p>
           </section>
 
@@ -439,7 +432,7 @@ const SessionSummaryPage = () => {
             </div>
 
             <div className={styles.outcomeBanner}>
-              <p className={styles.outcomeLabel}>الجلسة الجاية</p>
+              <p className={styles.outcomeLabel}>الجلسة الجاية:</p>
               <p className={styles.outcomeValue}>{parentSummary.nextSessionSuggestion}</p>
             </div>
 

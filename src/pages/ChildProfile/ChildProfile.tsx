@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck, RefreshCw } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck, RefreshCw, ArrowRight } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { 
   fetchChildProfile, 
@@ -128,8 +128,14 @@ const ChildProfile = () => {
     <div className={styles.profileContainer} dir="rtl">
       <div className={styles.pageHeader}>
         <div className={styles.titleWrapper}>
-          <button className={styles.backBtn} onClick={() => navigate(-1)}>
-            <ChevronRight size={24} />
+          <button 
+            className={styles.backBtn} 
+            onClick={() => navigate(isDoctor ? '/doctor/children' : '/parent/children')}
+            title="العودة إلى قائمة الأطفال"
+            type="button"
+            aria-label="رجوع"
+          >
+            <ArrowRight size={20} />
           </button>
           <h1 className={styles.profileTitle}>الملف الشخصي</h1>
         </div>
@@ -465,7 +471,8 @@ const ChildProfile = () => {
             sessionHistory.map((session) => (
               <div
                 key={session.sessionId}
-                className="w-full flex flex-col p-4 bg-[#F8F7FF] rounded-xl gap-4 text-right transition-all duration-200 border-2 border-[#581C87] shadow-sm hover:shadow-md"
+                onClick={() => navigate(`/session/${session.sessionId}/summary`)}
+                className="w-full flex flex-col p-4.5 bg-[#F8F7FF] rounded-2xl gap-4 text-right border-2 border-[#EBE5F7] shadow-sm cursor-pointer hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(88,28,135,0.18)] transition-all duration-200"
               >
                 {/* Session Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -496,28 +503,25 @@ const ChildProfile = () => {
                     </div>
                   </div>
                   
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    {isDoctor && (
+                  {isDoctor && (
+                    <div className="flex gap-2 w-full sm:w-auto">
                       <button
-                        onClick={() => setReviewModalData({
-                          sessionId: session.sessionId,
-                          rating: session.doctorRating || 0,
-                          comment: session.doctorComment || '',
-                          sessionTitle: session.sessionTitle || session.prompt || `جلسة #${session.sessionId}`,
-                          repeatSession: session.repeatSession || false
-                        })}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setReviewModalData({
+                            sessionId: session.sessionId,
+                            rating: session.doctorRating || 0,
+                            comment: session.doctorComment || '',
+                            sessionTitle: session.sessionTitle || session.prompt || `جلسة #${session.sessionId}`,
+                            repeatSession: session.repeatSession || false
+                          });
+                        }}
                         className="flex-1 sm:flex-none px-4 py-2 bg-[#F3E8FF] text-[#581C87] text-sm font-bold rounded-lg hover:bg-[#EBE5F7] transition-colors border border-[#581C87]"
                       >
                         {session.isDoctorReviewed ? 'تعديل التقييم' : 'إضافة تقييم'}
                       </button>
-                    )}
-                    <button 
-                      onClick={() => navigate(`/session/${session.sessionId}/summary`)}
-                      className="flex-1 sm:flex-none px-4 py-2 bg-[#581C87] text-white text-sm font-bold rounded-lg hover:bg-[#4C1D95] transition-colors"
-                    >
-                      التفاصيل
-                    </button>
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Session Outcome & Review */}

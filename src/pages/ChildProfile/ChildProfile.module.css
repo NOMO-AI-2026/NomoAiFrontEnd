@@ -22,22 +22,24 @@
 }
 
 .backBtn {
-  background: none;
-  border: 2px solid #1E1B4B;
+  background: #ffffff;
+  border: 1px solid #EBE5F7;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #1E1B4B;
+  color: #581C87;
   cursor: pointer;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
 .backBtn:hover {
-  background-color: #F4F0FF;
-  transform: translateX(4px); 
+  background: #F3E8FF;
+  border-color: #581C87;
+  transform: translateX(3px);
 }
 
 .profileTitle {

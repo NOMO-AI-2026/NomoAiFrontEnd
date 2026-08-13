@@ -3,7 +3,6 @@ import {
   Globe, 
   Clock, 
   CheckCircle2, 
-  ShieldCheck, 
   Edit2, 
   Trash2,
   Sparkles
@@ -86,10 +85,6 @@ const PlanCard: React.FC<PlanCardProps> = ({
           <div className={styles.featureItem}>
             <CheckCircle2 size={18} className={styles.featureIcon} />
             <span>وصول كامل لكافة ألعاب وتحليلات NomoAI</span>
-          </div>
-          <div className={styles.featureItem}>
-            <ShieldCheck size={18} className={styles.featureIcon} />
-            <span>متابعة تفاعلية مستمرة من الطبيب المختص</span>
           </div>
         </div>
       </div>

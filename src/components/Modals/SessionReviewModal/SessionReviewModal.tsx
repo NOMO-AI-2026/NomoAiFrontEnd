@@ -109,11 +109,11 @@ const SessionReviewModal = ({ isOpen, onClose, onSubmit, initialData, sessionTit
           </div>
 
           <div className={styles.footer}>
-            <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={isSubmitting}>
-              إلغاء
-            </button>
             <button type="submit" className={styles.saveBtn} disabled={isSubmitting}>
               {isSubmitting ? 'جاري الحفظ...' : 'حفظ التقييم'}
+            </button>
+            <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={isSubmitting}>
+              إلغاء
             </button>
           </div>
         </form>
