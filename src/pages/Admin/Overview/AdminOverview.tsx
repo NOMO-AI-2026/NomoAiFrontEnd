@@ -7,7 +7,7 @@ import {
   Calendar, 
   CheckCircle, 
   Clock, 
-  AlertCircle, 
+  AlertCircle,
   MessageSquare,
   Activity,
   Heart,
@@ -78,8 +78,6 @@ const AdminOverview = () => {
   const scheduledSessions = sessionsByStatus?.scheduled ?? 0;
   const inProgressSessions = sessionsByStatus?.inProgress ?? 0;
   const completedSessions = sessionsByStatus?.completed ?? 0;
-  const cancelledSessions = sessionsByStatus?.cancelled ?? 0;
-  const missedSessions = sessionsByStatus?.missed ?? 0;
 
   // حساب القيم الكلية والمستهدفة
   const totalUsers = (overview.users?.doctorsTotal || 0) + (overview.users?.parentsTotal || 0);
@@ -480,30 +478,6 @@ const AdminOverview = () => {
                 </div>
                 <span className={styles.sessionVal}>{completedSessions}</span>
               </div>
-
-              <div className={styles.sessionItem}>
-                <div className={styles.sessionInfoLeft}>
-                  <div className={styles.sessionIcon} style={{ backgroundColor: '#EF4444' }}>
-                    <AlertCircle size={16} />
-                  </div>
-                  <div className={styles.sessionDetails}>
-                    <span className={styles.sessionName}>ملغاة (Cancelled)</span>
-                  </div>
-                </div>
-                <span className={styles.sessionVal}>{cancelledSessions}</span>
-              </div>
-
-              <div className={styles.sessionItem}>
-                <div className={styles.sessionInfoLeft}>
-                  <div className={styles.sessionIcon} style={{ backgroundColor: '#D97706' }}>
-                    <AlertCircle size={16} />
-                  </div>
-                  <div className={styles.sessionDetails}>
-                    <span className={styles.sessionName}>فائتة (Missed)</span>
-                  </div>
-                </div>
-                <span className={styles.sessionVal}>{missedSessions}</span>
-              </div>
             </div>
 
             {/* شبكة البيانات الإحصائية الإضافية للجلسات */}
@@ -530,12 +504,6 @@ const AdminOverview = () => {
                 ملخصات الجلسات
                 <span className={styles.metadataVal} style={{ color: '#EC4899' }}>
                   {therapy?.sessionSummariesTotal ?? 0}
-                </span>
-              </div>
-              <div className={styles.metadataItem}>
-                تقييمات الأداء
-                <span className={styles.metadataVal} style={{ color: '#06B6D4' }}>
-                  {therapy?.attemptEvaluationsTotal ?? 0}
                 </span>
               </div>
               <div className={styles.metadataItem}>
