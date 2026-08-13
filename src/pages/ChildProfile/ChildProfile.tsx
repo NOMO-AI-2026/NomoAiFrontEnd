@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Edit2, Link as LinkIcon, History, Activity, Trash2, UserCheck, RefreshCw } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { 
   fetchChildProfile, 
@@ -20,6 +20,8 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/Delet
 import ActivityModal from '../../components/Modals/ActivityModal/ActivityModal';
 import NoteModal from '../../components/Modals/NoteModal/NoteModal';
 import { deleteActivityApi, type ActivityItem, type DoctorNote } from '../../api/doctorApi';
+import SessionReviewModal from '../../components/Modals/SessionReviewModal/SessionReviewModal';
+import { submitSessionReviewApi } from '../../api/sessionSummaryApi';
 
 const ChildProfile = () => {
   const { openAssignParentModal, openAddChildModal } = useModal();
@@ -48,6 +50,7 @@ const ChildProfile = () => {
   const [isUpdateLevelModalOpen, setIsUpdateLevelModalOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<number | null>(null);
   const [noteToDelete, setNoteToDelete] = useState<number | null>(null);
+  const [reviewModalData, setReviewModalData] = useState<{ sessionId: number; rating: number; comment: string; sessionTitle: string; repeatSession: boolean } | null>(null);
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
   const [activityToEdit, setActivityToEdit] = useState<ActivityItem | null>(null);
   const [notesPage, setNotesPage] = useState(1);
@@ -460,47 +463,95 @@ const ChildProfile = () => {
             <div className="text-center py-4 text-[#6C34AF] font-bold">جاري تحميل سجل الجلسات...</div>
           ) : sessionHistory.length > 0 ? (
             sessionHistory.map((session) => (
-              <button
+              <div
                 key={session.sessionId}
-                type="button"
-                onClick={() => navigate(`/session/${session.sessionId}/summary`)}
-                className="w-full flex flex-col sm:flex-row sm:justify-between items-start sm:items-center p-4 bg-[#F8F7FF] rounded-xl gap-3 text-right cursor-pointer transition-all duration-200 border-2 border-[#581C87] hover:bg-[#F3E8FF] hover:shadow-md"
+                className="w-full flex flex-col p-4 bg-[#F8F7FF] rounded-xl gap-4 text-right transition-all duration-200 border-2 border-[#581C87] shadow-sm hover:shadow-md"
               >
-                <div className="flex flex-col gap-2 w-full">
-                  <span className="font-extrabold text-[#1E1B4B] text-lg">
-                    {session.sessionTitle || session.prompt || `جلسة #${session.sessionId}`}
-                  </span>
-                  <div className="flex flex-wrap gap-2 text-sm font-bold">
-                    {session.prompt && (
-                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
-                        الهدف: {session.prompt}
-                      </span>
-                    )}
-                    {session.endedAt && (
-                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
-                        {new Date(session.endedAt).toLocaleDateString('ar-EG')}
-                      </span>
-                    )}
-                    {session.totalAttempts != null && (
-                      <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
-                        محاولات: {session.totalAttempts}
-                      </span>
-                    )}
-                    <span
-                      className={`px-3 py-1 rounded-md ${
-                        session.hasSummary
-                          ? 'bg-[#DCFCE7] text-[#166534]'
-                          : 'bg-[#FEF3C7] text-[#92400E]'
-                      }`}
-                    >
-                      {session.hasSummary ? 'ملخص محفوظ' : 'بانتظار الملخص'}
+                {/* Session Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="flex flex-col gap-2">
+                    <span className="font-extrabold text-[#1E1B4B] text-lg">
+                      {session.sessionTitle || session.prompt || `جلسة #${session.sessionId}`}
                     </span>
+                    <div className="flex flex-wrap gap-2 text-sm font-bold">
+                      {session.prompt && (
+                        <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
+                          الهدف: {session.prompt}
+                        </span>
+                      )}
+                      {session.endedAt && (
+                        <span className="bg-[#EBE5F7] text-[#581C87] px-3 py-1 rounded-md">
+                          {new Date(session.endedAt).toLocaleDateString('ar-EG')}
+                        </span>
+                      )}
+                      <span
+                        className={`px-3 py-1 rounded-md ${
+                          session.hasSummary
+                            ? 'bg-[#DCFCE7] text-[#166534]'
+                            : 'bg-[#FEF3C7] text-[#92400E]'
+                        }`}
+                      >
+                        {session.hasSummary ? 'ملخص محفوظ' : 'بانتظار الملخص'}
+                      </span>
+                    </div>
                   </div>
-                  {session.outcomeLabel && (
-                    <p className="text-sm font-semibold text-[#4C1D95] m-0">{session.outcomeLabel}</p>
-                  )}
+                  
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    {isDoctor && (
+                      <button
+                        onClick={() => setReviewModalData({
+                          sessionId: session.sessionId,
+                          rating: session.doctorRating || 0,
+                          comment: session.doctorComment || '',
+                          sessionTitle: session.sessionTitle || session.prompt || `جلسة #${session.sessionId}`,
+                          repeatSession: session.repeatSession || false
+                        })}
+                        className="flex-1 sm:flex-none px-4 py-2 bg-[#F3E8FF] text-[#581C87] text-sm font-bold rounded-lg hover:bg-[#EBE5F7] transition-colors border border-[#581C87]"
+                      >
+                        {session.isDoctorReviewed ? 'تعديل التقييم' : 'إضافة تقييم'}
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => navigate(`/session/${session.sessionId}/summary`)}
+                      className="flex-1 sm:flex-none px-4 py-2 bg-[#581C87] text-white text-sm font-bold rounded-lg hover:bg-[#4C1D95] transition-colors"
+                    >
+                      التفاصيل
+                    </button>
+                  </div>
                 </div>
-              </button>
+
+                {/* Session Outcome & Review */}
+                {(session.outcomeLabel || session.isDoctorReviewed || session.doctorComment || session.doctorRating || session.repeatSession) ? (
+                  <div className="mt-2 pt-3 border-t border-[#EBE5F7] flex flex-col gap-3">
+                    {session.outcomeLabel && (
+                      <p className="text-sm font-semibold text-[#4C1D95] m-0">نتيجة: {session.outcomeLabel}</p>
+                    )}
+                    {(session.isDoctorReviewed || session.doctorComment || session.doctorRating || session.repeatSession) ? (
+                      <div className="bg-white p-3 rounded-lg border border-[#EBE5F7] flex flex-col gap-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-extrabold text-[#1E1B4B]">رأي الطبيب وتوجيهاته</span>
+                          <div className="flex gap-1" dir="ltr">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill={(session.doctorRating || 0) >= star ? "#f59e0b" : "none"} stroke={(session.doctorRating || 0) >= star ? "#f59e0b" : "#d1d5db"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                        {session.doctorComment && (
+                          <p className="text-sm text-gray-700 m-0 font-semibold">{session.doctorComment}</p>
+                        )}
+                        {session.repeatSession && (
+                          <div className="mt-1 flex items-center gap-2 text-sm font-bold text-[#b45309] bg-[#fef3c7] p-2 rounded-md">
+                            <RefreshCw size={16} />
+                            يوصي الطبيب بإعادة هذه الجلسة
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
             ))
           ) : (
             <div className="text-center py-8 text-[#581C87] font-bold bg-[#F4F0FF] rounded-xl border-2 border-dashed border-[#581C87]">
@@ -694,6 +745,20 @@ const ChildProfile = () => {
         </>
       )}
 
+      {reviewModalData && (
+        <SessionReviewModal
+          isOpen={true}
+          onClose={() => setReviewModalData(null)}
+          sessionTitle={reviewModalData.sessionTitle}
+          initialData={{ rating: reviewModalData.rating, comment: reviewModalData.comment, repeatSession: reviewModalData.repeatSession }}
+          onSubmit={async (data) => {
+            await submitSessionReviewApi(reviewModalData.sessionId, data);
+            if (id) {
+              dispatch(fetchSessionHistory(Number(id)));
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -157,6 +157,10 @@ export interface ChildSessionHistoryItem {
   totalAttempts?: number | null;
   successfulAttempts?: number | null;
   averageScore?: number | null;
+  isDoctorReviewed?: boolean;
+  doctorRating?: number;
+  doctorComment?: string | null;
+  repeatSession?: boolean;
 }
 
 export type ChildSessionHistoryResponse =
@@ -174,4 +178,17 @@ export async function getChildSessionHistoryApi(
   );
   const data = response.data;
   return Array.isArray(data) ? data : data?.value ?? [];
+}
+
+/** PUT /doctor/sessions/{sessionId}/review — submit a rating and comment. */
+export async function submitSessionReviewApi(
+  sessionId: number | string,
+  data: { rating: number; comment: string; repeatSession: boolean },
+  options?: ApiCallOptions,
+): Promise<void> {
+  await axiosInstance.put(
+    `/doctor/sessions/${sessionId}/review`,
+    data,
+    { signal: options?.signal },
+  );
 }
