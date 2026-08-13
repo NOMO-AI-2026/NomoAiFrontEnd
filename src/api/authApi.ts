@@ -68,3 +68,19 @@ export const resetPasswordApi = async (payload: ResetPasswordPayload) => {
   const response = await axiosInstance.post('/auth/reset-password', payload);
   return response.data;
 };
+
+// تجديد الـ Access Token باستخدام الـ Refresh Token المخزن في HttpOnly Cookie
+export const refreshTokenApi = async () => {
+  const response = await axiosInstance.post('/auth/refresh');
+  return response.data;
+};
+
+// إلغاء الـ Refresh Token وتسجيل الخروج من السيرفر
+export const logoutApi = async () => {
+  try {
+    const response = await axiosInstance.post('/auth/logout');
+    return response.data;
+  } catch (error) {
+    return { isSuccess: true, error };
+  }
+};

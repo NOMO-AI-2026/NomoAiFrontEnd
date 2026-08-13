@@ -17,6 +17,7 @@ import { useAppDispatch } from "../../store/hooks";
 import { logout } from "../../store/slices/authSlice"; 
 import { clearProfile } from "../../store/slices/profileSlice"; 
 import { useModal } from "../../context/ModalContext";
+import { logoutApi } from "../../api/authApi";
 
 interface SidebarProps {
   role?: 'doctor' | 'parent' | 'admin';
@@ -31,10 +32,16 @@ const Sidebar = ({ role = 'doctor', isOpen = false, onClose }: SidebarProps) => 
   const dispatch = useAppDispatch();
   const { openAddChildModal } = useModal();
 
-  const handleLogout = () => {
-    dispatch(logout()); 
-    dispatch(clearProfile());
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logoutApi();
+    } catch {
+      // التجاهل الصامت عند حدوث خطأ لإنهاء الجلسة على أية حال
+    } finally {
+      dispatch(logout()); 
+      dispatch(clearProfile());
+      navigate("/login");
+    }
   };
   
   // روابط الطبيب (تم إضافة الاشتراكات والدعم الفني والعمليات)

@@ -80,8 +80,18 @@ export default function LoginPage() {
         return;
       }
 
-      const token = data.token || data.value?.token;
-      const apiRole = (data.userRole || data.value?.userRole || '').toLowerCase().trim();
+      const loginData = data as {
+        token?: string;
+        accessToken?: string;
+        userRole?: string;
+        value?: {
+          token?: string;
+          accessToken?: string;
+          userRole?: string;
+        };
+      };
+      const token = loginData.accessToken || loginData.value?.accessToken || loginData.token || loginData.value?.token;
+      const apiRole = (loginData.userRole || loginData.value?.userRole || '').toLowerCase().trim();
 
       if (token) {
         localStorage.setItem('token', token);

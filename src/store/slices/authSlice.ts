@@ -24,6 +24,11 @@ const authSlice = createSlice({
       localStorage.setItem('token', action.payload.token);
       localStorage.setItem('role', action.payload.role as string);
     },
+    // تحديث التوكن فقط عند نجاح عملية الـ Refresh Token
+    updateToken: (state, action: PayloadAction<string>) => {
+      state.token = action.payload;
+      localStorage.setItem('token', action.payload);
+    },
     // تتنفذ وقت الـ Logout
     logout: (state) => {
       state.token = null;
@@ -36,5 +41,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, updateToken, logout } = authSlice.actions;
 export default authSlice.reducer;

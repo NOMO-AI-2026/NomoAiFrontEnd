@@ -8,8 +8,13 @@ import ChangeEmailModal from '../../components/Modals/ChangeEmailModal/ChangeEma
 import ChangePasswordModal from '../../components/Modals/ChangePasswordModal/ChangePasswordModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
 
+import { useAppDispatch } from '../../store/hooks';
+import { logout } from '../../store/slices/authSlice';
+import { logoutApi } from '../../api/authApi';
+
 const Settings = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   // Modals display states
   const [isChangeEmailOpen, setIsChangeEmailOpen] = useState(false);
@@ -18,13 +23,15 @@ const Settings = () => {
 
   // Handle Delete Account Execution
   const handleDeleteAccountSubmit = async () => {
-    await deleteAccountApi();
-    
-    // Clear localStorage session
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-
-    navigate("/signup");
+    try {
+      await deleteAccountApi();
+      await logoutApi();
+    } catch {
+      // Ignore
+    } finally {
+      dispatch(logout());
+      navigate("/signup");
+    }
   };
 
   return (
