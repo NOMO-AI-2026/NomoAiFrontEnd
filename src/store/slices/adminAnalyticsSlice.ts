@@ -71,6 +71,27 @@ const initialState: AdminAnalyticsState = {
   error: null,
 };
 
+function unwrapAdminOverview(payload: unknown): AdminAnalyticsState['overview'] {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  const record = payload as Record<string, unknown>;
+  const nested = record.value;
+  if (nested && typeof nested === 'object') {
+    const nestedRecord = nested as Record<string, unknown>;
+    if ('therapy' in nestedRecord || 'users' in nestedRecord || 'generatedAtUtc' in nestedRecord) {
+      return nested as AdminAnalyticsState['overview'];
+    }
+  }
+
+  if ('therapy' in record || 'users' in record || 'generatedAtUtc' in record) {
+    return payload as AdminAnalyticsState['overview'];
+  }
+
+  return null;
+}
+
 // Async thunk لجلب بيانات الإحصائيات العامة للآدمن
 export const fetchAdminAnalyticsOverview = createAsyncThunk(
   'adminAnalytics/fetchOverview',
@@ -99,7 +120,7 @@ const adminAnalyticsSlice = createSlice({
       })
       .addCase(fetchAdminAnalyticsOverview.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.overview = action.payload?.value || action.payload || null;
+        state.overview = unwrapAdminOverview(action.payload);
       })
       .addCase(fetchAdminAnalyticsOverview.rejected, (state, action) => {
         state.isLoading = false;

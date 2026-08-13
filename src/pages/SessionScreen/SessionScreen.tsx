@@ -25,6 +25,7 @@ import {
   isAutoplayBlockedError,
   playMicOpenChime,
   playTherapistAckTone,
+  toDisplayPercent,
   type SessionUiState,
 } from './sessionScreenHelpers';
 import { getSilenceDurationMs, startEnergyVad, type VadController } from './sessionVad';
@@ -585,6 +586,7 @@ const SessionScreen = () => {
   const avatarSrc = getAvatarSrc(uiState, runtime?.feedback);
   const step = runtime?.currentStep;
   const feedback = runtime?.feedback;
+  const accuracyPercent = toDisplayPercent(feedback?.scores?.accuracy ?? feedback?.scores?.overall);
 
   if (!sessionId) {
     return (
@@ -657,10 +659,8 @@ const SessionScreen = () => {
             (uiState === 'awaiting_play' && runtime?.command === 'play_feedback')) && (
             <div className={styles.statusBlock}>
               <p className={styles.statusText}>{feedback?.spokenText || 'المساعد جاهز للرد'}</p>
-              {feedback?.scores && uiState === 'playing_feedback' && (
-                <p className={styles.attemptInfo}>
-                  الدقة: {Math.round(feedback.scores.overall * 100)}%
-                </p>
+              {uiState === 'playing_feedback' && accuracyPercent != null && (
+                <p className={styles.attemptInfo}>الدقة: {accuracyPercent}%</p>
               )}
               {uiState === 'awaiting_play' && (
                 <button className={styles.primaryBtn} onClick={handleResumePlayback} type="button">
@@ -697,7 +697,7 @@ const SessionScreen = () => {
                       ? `أسمعك... لما تخلّص هرد عليك (${recordingSeconds}s)`
                       : `دورَك الآن — تكلّم بهدوء (${recordingSeconds}s)`}
                   </div>
-                  <p className={styles.softHint}>هسمعك تلقائيًا لما تسكت شوية — زي جلسة التخاطب الحقيقية.</p>
+                  <p className={styles.softHint}>هسمعك تلقائيًا لما تسكت شوية.</p>
                 </>
               )}
             </div>
@@ -707,7 +707,6 @@ const SessionScreen = () => {
             <div className={styles.statusBlock}>
               <div className={styles.spinner} aria-hidden="true" />
               <p className={styles.statusText}>سمعْتك... لحظة بسيطة</p>
-              <p className={styles.softHint}>بفكّر في رد هادئ زي دكتور التخاطب.</p>
             </div>
           )}
 

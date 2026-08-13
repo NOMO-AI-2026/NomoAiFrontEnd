@@ -142,6 +142,18 @@ export function getStepTypeLabel(stepType?: string): string {
 }
 
 /**
+ * Session scores are 0–100. A 0–1 ratio is still accepted, then clamped
+ * so the UI never shows values like 1225%.
+ */
+export function toDisplayPercent(score?: number | null): number | null {
+  if (score == null) return null;
+  const value = Number(score);
+  if (!Number.isFinite(value)) return null;
+  const percent = value <= 1 ? value * 100 : value;
+  return Math.round(Math.min(100, Math.max(0, percent)));
+}
+
+/**
  * Short pleasant attention chime when the mic opens — draws the child's focus
  * without interrupting avatar TTS (separate AudioContext, best-effort).
  */

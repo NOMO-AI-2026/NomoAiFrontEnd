@@ -4,6 +4,7 @@ import {
   getErrorMessage,
   getMaxRecordingMs,
   isAutoplayBlockedError,
+  toDisplayPercent,
 } from './sessionScreenHelpers';
 
 describe('getMaxRecordingMs', () => {
@@ -110,5 +111,30 @@ describe('getErrorMessage', () => {
 
   it('uses the Error message when available', () => {
     expect(getErrorMessage(new Error('شبكة غير متاحة'))).toBe('شبكة غير متاحة');
+  });
+});
+
+describe('toDisplayPercent', () => {
+  it('keeps 0–100 scores as a percent without multiplying by 100', () => {
+    expect(toDisplayPercent(12.25)).toBe(12);
+    expect(toDisplayPercent(85.4)).toBe(85);
+    expect(toDisplayPercent(100)).toBe(100);
+  });
+
+  it('converts 0–1 ratios to a percent', () => {
+    expect(toDisplayPercent(0.85)).toBe(85);
+    expect(toDisplayPercent(0)).toBe(0);
+    expect(toDisplayPercent(1)).toBe(100);
+  });
+
+  it('clamps out-of-range values', () => {
+    expect(toDisplayPercent(1225)).toBe(100);
+    expect(toDisplayPercent(-10)).toBe(0);
+  });
+
+  it('returns null for missing or invalid scores', () => {
+    expect(toDisplayPercent(null)).toBeNull();
+    expect(toDisplayPercent(undefined)).toBeNull();
+    expect(toDisplayPercent(Number.NaN)).toBeNull();
   });
 });

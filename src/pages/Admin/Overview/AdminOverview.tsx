@@ -73,9 +73,17 @@ const AdminOverview = () => {
 
   if (!overview) return null;
 
+  const therapy = overview.therapy;
+  const sessionsByStatus = therapy?.sessionsByStatus;
+  const scheduledSessions = sessionsByStatus?.scheduled ?? 0;
+  const inProgressSessions = sessionsByStatus?.inProgress ?? 0;
+  const completedSessions = sessionsByStatus?.completed ?? 0;
+  const cancelledSessions = sessionsByStatus?.cancelled ?? 0;
+  const missedSessions = sessionsByStatus?.missed ?? 0;
+
   // حساب القيم الكلية والمستهدفة
-  const totalUsers = (overview.users.doctorsTotal || 0) + (overview.users.parentsTotal || 0);
-  const totalChildren = overview.children.total || 0;
+  const totalUsers = (overview.users?.doctorsTotal || 0) + (overview.users?.parentsTotal || 0);
+  const totalChildren = overview.children?.total || 0;
   const grandTotalEntities = totalUsers + totalChildren;
 
   const docPercentage = grandTotalEntities > 0 ? Math.round((overview.users.doctorsTotal / grandTotalEntities) * 100) : 0;
@@ -446,7 +454,7 @@ const AdminOverview = () => {
                     <span className={styles.sessionName}>مجدولة (Scheduled)</span>
                   </div>
                 </div>
-                <span className={styles.sessionVal}>{overview.therapy.sessionsByStatus.scheduled}</span>
+                <span className={styles.sessionVal}>{scheduledSessions}</span>
               </div>
 
               <div className={styles.sessionItem}>
@@ -458,7 +466,7 @@ const AdminOverview = () => {
                     <span className={styles.sessionName}>قيد التنفيذ (In Progress)</span>
                   </div>
                 </div>
-                <span className={styles.sessionVal}>{overview.therapy.sessionsByStatus.inProgress}</span>
+                <span className={styles.sessionVal}>{inProgressSessions}</span>
               </div>
 
               <div className={styles.sessionItem}>
@@ -470,7 +478,31 @@ const AdminOverview = () => {
                     <span className={styles.sessionName}>مكتملة (Completed)</span>
                   </div>
                 </div>
-                <span className={styles.sessionVal}>{overview.therapy.sessionsByStatus.completed}</span>
+                <span className={styles.sessionVal}>{completedSessions}</span>
+              </div>
+
+              <div className={styles.sessionItem}>
+                <div className={styles.sessionInfoLeft}>
+                  <div className={styles.sessionIcon} style={{ backgroundColor: '#EF4444' }}>
+                    <AlertCircle size={16} />
+                  </div>
+                  <div className={styles.sessionDetails}>
+                    <span className={styles.sessionName}>ملغاة (Cancelled)</span>
+                  </div>
+                </div>
+                <span className={styles.sessionVal}>{cancelledSessions}</span>
+              </div>
+
+              <div className={styles.sessionItem}>
+                <div className={styles.sessionInfoLeft}>
+                  <div className={styles.sessionIcon} style={{ backgroundColor: '#D97706' }}>
+                    <AlertCircle size={16} />
+                  </div>
+                  <div className={styles.sessionDetails}>
+                    <span className={styles.sessionName}>فائتة (Missed)</span>
+                  </div>
+                </div>
+                <span className={styles.sessionVal}>{missedSessions}</span>
               </div>
             </div>
 
@@ -479,31 +511,37 @@ const AdminOverview = () => {
               <div className={styles.metadataItem}>
                 إجمالي التمارين
                 <span className={styles.metadataVal} style={{ color: '#8B5CF6' }}>
-                  {overview.therapy.activitiesTotal}
+                  {therapy?.activitiesTotal ?? 0}
                 </span>
               </div>
               <div className={styles.metadataItem}>
                 إجمالي الجلسات
                 <span className={styles.metadataVal} style={{ color: '#10B981' }}>
-                  {overview.therapy.sessionsTotal}
+                  {therapy?.sessionsTotal ?? 0}
                 </span>
               </div>
               <div className={styles.metadataItem}>
                 محاولات النطق
                 <span className={styles.metadataVal} style={{ color: '#F59E0B' }}>
-                  {overview.therapy.sessionAttemptsTotal}
+                  {therapy?.sessionAttemptsTotal ?? 0}
                 </span>
               </div>
               <div className={styles.metadataItem}>
                 ملخصات الجلسات
                 <span className={styles.metadataVal} style={{ color: '#EC4899' }}>
-                  {overview.therapy.sessionSummariesTotal}
+                  {therapy?.sessionSummariesTotal ?? 0}
+                </span>
+              </div>
+              <div className={styles.metadataItem}>
+                تقييمات الأداء
+                <span className={styles.metadataVal} style={{ color: '#06B6D4' }}>
+                  {therapy?.attemptEvaluationsTotal ?? 0}
                 </span>
               </div>
               <div className={styles.metadataItem}>
                 تفريغات النصوص
                 <span className={styles.metadataVal} style={{ color: '#10B981' }}>
-                  {overview.therapy.attemptTranscriptionsTotal}
+                  {therapy?.attemptTranscriptionsTotal ?? 0}
                 </span>
               </div>
             </div>

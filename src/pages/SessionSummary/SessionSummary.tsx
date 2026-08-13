@@ -115,7 +115,8 @@ const SessionSummaryPage = () => {
           setDoctorSummary(null);
           setShared(null);
           setHistoryChildId(simple.childId);
-          await loadAttempts(sessionId);
+          setAttempts([]);
+          setAttemptsError(null);
           setLoadState('ready');
           return;
         } catch (err) {
@@ -132,12 +133,14 @@ const SessionSummaryPage = () => {
         const detailed = await getDoctorSessionSummaryApi(sessionId);
         setDoctorSummary(detailed);
         setParentSummary(null);
+        await loadAttempts(sessionId);
       } else {
         const simple = await getParentSessionSummaryApi(sessionId);
         setParentSummary(simple);
         setDoctorSummary(null);
+        setAttempts([]);
+        setAttemptsError(null);
       }
-      await loadAttempts(sessionId);
       setLoadState('ready');
     } catch (err) {
       const message =
@@ -443,30 +446,6 @@ const SessionSummaryPage = () => {
               </div>
             )}
           </section>
-
-          {attempts.some((a) => a.audioUrl) && (
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>
-                  <Mic size={22} />
-                  استماع لمحاولات الطفل
-                </h2>
-              </div>
-              <div className={styles.attemptsList}>
-                {attempts
-                  .filter((attempt) => attempt.audioUrl)
-                  .map((attempt) => (
-                    <article key={attempt.attemptId} className={styles.attemptCard}>
-                      <AttemptAudioPlayer
-                        sessionId={sessionId!}
-                        attemptId={attempt.attemptId}
-                        label={`المحاولة ${attempt.attemptNumber}`}
-                      />
-                    </article>
-                  ))}
-              </div>
-            </section>
-          )}
         </div>
       )}
 

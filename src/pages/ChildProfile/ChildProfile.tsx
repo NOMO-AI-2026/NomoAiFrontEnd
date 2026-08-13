@@ -91,12 +91,14 @@ const ChildProfile = () => {
     if (id) {
       dispatch(fetchChildProfile(Number(id)));
       dispatch(fetchChildActivities(Number(id)));
-      dispatch(fetchSessionHistory(Number(id)));
+      if (isDoctor) {
+        dispatch(fetchSessionHistory(Number(id)));
+      }
     }
     return () => {
       dispatch(clearProfileData());
     };
-  }, [dispatch, id]);
+  }, [dispatch, id, isDoctor]);
 
   useEffect(() => {
     if (id) {
@@ -456,7 +458,8 @@ const ChildProfile = () => {
         )}
       </div>
 
-      {/* سجل الجلسات — ملخصات محفوظة يمكن فتحها في أي وقت */}
+      {/* سجل الجلسات والتسجيلات محفوظة للطبيب فقط */}
+      {isDoctor && (
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>
@@ -564,6 +567,7 @@ const ChildProfile = () => {
           )}
         </div>
       </div>
+      )}
 
       {/* قسم ملاحظات الطبيب */}
       <div className={styles.card}>
