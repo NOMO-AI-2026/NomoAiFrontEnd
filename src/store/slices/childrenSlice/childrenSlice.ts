@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import { getDoctorChildrenApi, getChildProfileApi, getSpeechLevelsApi, type Child, type GetChildrenQueryParams } from '../../api/doctorApi'; 
-import { getParentChildrenApi } from '../../api/parentApi';
+import { getDoctorChildrenApi, getChildProfileApi, getSpeechLevelsApi, type Child, type GetChildrenQueryParams } from '../../../api/doctorApi'; 
+import { getParentChildrenApi } from '../../../api/parentApi';
 
 interface ChildrenState {
   children: Child[]; 

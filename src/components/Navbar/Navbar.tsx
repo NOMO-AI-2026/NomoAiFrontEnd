@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getProfile } from "../../store/slices/profileSlice";
-import { setSearchQuery } from "../../store/slices/childrenSlice";
+import { setSearchQuery } from "../../store/slices/childrenSlice/childrenSlice";
 
 interface NavbarProps {
   onMenuToggle?: () => void;

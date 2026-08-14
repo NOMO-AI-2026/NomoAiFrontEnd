@@ -5,7 +5,7 @@ import styles from './PaymentModal.module.css';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchPaymentMethods, createQuickLink, resetPaymentState } from '../../../store/slices/paymentSlice';
 import { type SubscriptionPlan } from '../../../types/plan.types';
-import { getOrCreateIdempotencyKey } from '../../../utils/idempotency';
+import { getOrCreateIdempotencyKey } from '../../../utils/idempotency/idempotency';
 
 interface PaymentModalProps {
   isOpen: boolean;

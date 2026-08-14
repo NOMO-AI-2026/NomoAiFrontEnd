@@ -3,7 +3,7 @@ import { addChildApi, updateChildApi, getSpeechLevelsApi } from '../../../api/do
 import { X, UserPlus } from 'lucide-react';
 import styles from './AddChildModal.module.css';
 import { useAppDispatch } from '../../../store/hooks'; 
-import { fetchChildProfile } from '../../../store/slices/childProfileSlice'; 
+import { fetchChildProfile } from '../../../store/slices/childProfileSlice/childProfileSlice'; 
 
 import { type ChildProfileData } from '../../../types/child.types';
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, Mic, Sparkles } from 'lucide-react';
 import styles from './SessionStart.module.css';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchChildren, fetchParentChildren } from '../../store/slices/childrenSlice';
+import { fetchChildren, fetchParentChildren } from '../../store/slices/childrenSlice/childrenSlice';
 import { getChildActivitiesApi, type ActivityItem } from '../../api/doctorApi';
 import { startSessionApi } from '../../api/sessionsApi';
 

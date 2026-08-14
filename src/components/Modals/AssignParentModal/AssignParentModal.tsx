@@ -3,7 +3,7 @@ import { X, Search, Phone, Link, CheckCircle, UserCheck } from 'lucide-react';
 import styles from './AssignParentModal.module.css';
 import { searchParentByPhoneApi, assignParentToChildApi } from '../../../api/doctorApi';
 import { useAppDispatch } from '../../../store/hooks';
-import { fetchChildProfile } from '../../../store/slices/childProfileSlice';
+import { fetchChildProfile } from '../../../store/slices/childProfileSlice/childProfileSlice';
 import UserAvatar from '../../UserAvatar/UserAvatar';
 
 interface AssignParentModalProps {

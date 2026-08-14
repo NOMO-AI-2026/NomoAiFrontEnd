@@ -3,7 +3,7 @@ import { PlusCircle, ChevronRight, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom"; 
 import ChildCard from "../../components/ChildCard/ChildCard";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchChildren } from "../../store/slices/childrenSlice";
+import { fetchChildren } from "../../store/slices/childrenSlice/childrenSlice";
 import styles from "./DoctorChildren.module.css";
 import { useModal } from '../../context/ModalContext'; 
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal/DeleteConfirmModal";

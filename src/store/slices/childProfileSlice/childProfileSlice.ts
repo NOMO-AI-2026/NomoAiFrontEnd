@@ -11,12 +11,12 @@ import {
   type PaginatedNotesResponse,
   type ActivityItem,
   type DoctorNote
-} from '../../api/doctorApi';
+} from '../../../api/doctorApi';
 import { 
   getChildSessionHistoryApi, 
   type ChildSessionHistoryItem 
-} from '../../api/sessionSummaryApi';
-import { type ChildProfileData, type PaginatedSpeechHistory } from '../../types/child.types';
+} from '../../../api/sessionSummaryApi';
+import { type ChildProfileData, type PaginatedSpeechHistory } from '../../../types/child.types';
 
 interface ChildProfileState {
   profileData: ChildProfileData | null;

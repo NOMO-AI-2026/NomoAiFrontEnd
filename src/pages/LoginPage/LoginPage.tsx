@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import { loginApi } from '../../api/authApi'; 
 import styles from '../../layouts/AuthLayout/SharedAuth.module.css';
-import { setCredentials } from '../../store/slices/authSlice';
+import { setCredentials } from '../../store/slices/authSlice/authSlice';
 import { useAppDispatch } from '../../store/hooks';
 
 export default function LoginPage() {

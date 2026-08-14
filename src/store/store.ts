@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import childrenReducer from './slices/childrenSlice';
-import childProfileReducer from './slices/childProfileSlice';
+import childrenReducer from './slices/childrenSlice/childrenSlice';
+import childProfileReducer from './slices/childProfileSlice/childProfileSlice';
 import profileReducer from './slices/profileSlice';
-import authReducer from './slices/authSlice';
+import authReducer from './slices/authSlice/authSlice';
 import supportTicketsReducer from './slices/supportTicketsSlice';
-import adminAnalyticsReducer from './slices/adminAnalyticsSlice';
+import adminAnalyticsReducer from './slices/adminAnalyticsSlice/adminAnalyticsSlice';
 import plansReducer from './slices/plansSlice';
 import paymentReducer from './slices/paymentSlice';
 

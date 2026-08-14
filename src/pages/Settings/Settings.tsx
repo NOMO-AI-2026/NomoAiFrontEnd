@@ -9,7 +9,7 @@ import ChangePasswordModal from '../../components/Modals/ChangePasswordModal/Cha
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
 
 import { useAppDispatch } from '../../store/hooks';
-import { logout } from '../../store/slices/authSlice';
+import { logout } from '../../store/slices/authSlice/authSlice';
 import { logoutApi } from '../../api/authApi';
 
 const Settings = () => {

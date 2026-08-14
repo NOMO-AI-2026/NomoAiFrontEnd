@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getAdminAnalyticsOverviewApi } from '../../api/adminApi';
+import { getAdminAnalyticsOverviewApi } from '../../../api/adminApi';
 
 export interface AdminAnalyticsState {
   overview: {

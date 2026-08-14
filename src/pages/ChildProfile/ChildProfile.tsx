@@ -11,7 +11,7 @@ import {
   fetchChildActivities,
   fetchSessionHistory,
   fetchAllSpeechLevels
-} from '../../store/slices/childProfileSlice';
+} from '../../store/slices/childProfileSlice/childProfileSlice';
 import styles from './ChildProfile.module.css';
 import { useModal } from '../../context/ModalContext';
 import SpeechHistoryModal from '../../components/Modals/SpeechHistoryModal/SpeechHistoryModal';

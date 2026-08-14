@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Gamepad2, ChevronRight, ChevronLeft } from "lucide-react";
 import ChildCard from "../../components/ChildCard/ChildCard";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchParentChildren } from "../../store/slices/childrenSlice";
+import { fetchParentChildren } from "../../store/slices/childrenSlice/childrenSlice";
 import styles from "./ParentChildren.module.css";
 
 const ParentChildren = () => {

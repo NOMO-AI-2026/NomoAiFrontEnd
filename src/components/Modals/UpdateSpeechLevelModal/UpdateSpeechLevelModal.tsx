@@ -3,7 +3,7 @@ import { X, TrendingUp } from 'lucide-react';
 import styles from './UpdateSpeechLevelModal.module.css';
 import { updateSpeechLevelApi, getSpeechLevelsApi, type SpeechLevel } from '../../../api/doctorApi';
 import { useAppDispatch } from '../../../store/hooks';
-import { fetchChildProfile } from '../../../store/slices/childProfileSlice';
+import { fetchChildProfile } from '../../../store/slices/childProfileSlice/childProfileSlice';
 import { type ChildProfileData } from '../../../types/child.types';
 
 interface UpdateSpeechLevelModalProps {

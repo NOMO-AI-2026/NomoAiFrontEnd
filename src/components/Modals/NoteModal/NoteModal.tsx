@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Edit2, PlusCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAppDispatch } from '../../../store/hooks';
-import { addChildNote, updateChildNote } from '../../../store/slices/childProfileSlice'; 
+import { addChildNote, updateChildNote } from '../../../store/slices/childProfileSlice/childProfileSlice'; 
 import { type DoctorNote } from '../../../api/doctorApi';
 import styles from './NoteModal.module.css';
 

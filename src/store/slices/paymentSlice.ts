@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getPaymentMethodsApi, createQuickLinkApi } from '../../api/paymentApi';
 import { type PaymentMethod, type CreateQuickLinkPayload, type QuickLinkResult } from '../../types/payment.types';
-import { clearIdempotencyKey } from '../../utils/idempotency';
+import { clearIdempotencyKey } from '../../utils/idempotency/idempotency';
 
 interface PaymentState {
   paymentMethods: PaymentMethod[];

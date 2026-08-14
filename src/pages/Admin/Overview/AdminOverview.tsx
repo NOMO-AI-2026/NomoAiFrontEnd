@@ -19,7 +19,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { fetchAdminAnalyticsOverview } from '../../../store/slices/adminAnalyticsSlice';
+import { fetchAdminAnalyticsOverview } from '../../../store/slices/adminAnalyticsSlice/adminAnalyticsSlice';
 import { getProfile } from '../../../store/slices/profileSlice';
 import styles from './AdminOverview.module.css';
 
