@@ -4,13 +4,22 @@ import toast from 'react-hot-toast';
 import styles from './AdminDoctors.module.css';
 import { getAdminDoctorsApi, handleDoctorApprovalApi, deleteDoctorByAdminApi, type GetDoctorsParams } from '../../../api/adminApi';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
+import DoctorDetailsModal from '../../../components/Modals/DoctorDetailsModal/DoctorDetailsModal';
 import UserAvatar from '../../../components/UserAvatar/UserAvatar';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import {
+  fetchDoctorDetailsByAdmin,
+  clearSelectedDoctor,
+  acceptPendingDoctorDocuments,
+  rejectPendingDoctorDocuments,
+} from '../../../store/slices/adminDoctorsSlice/adminDoctorsSlice';
 
 interface Doctor {
   userId: string;
   fullName: string;
   email: string;
   isApproved: boolean;
+  hasPendingDocuments?: boolean;
   doctorSpecificData?: {
     yearsOfExperience: number;
     clinicName: string;
@@ -18,11 +27,14 @@ interface Doctor {
 }
 
 const AdminDoctors = () => {
+  const dispatch = useAppDispatch();
+  const { selectedDoctor, isDetailsLoading, detailsError, isActionLoading: isDocActionLoading } = useAppSelector((state) => state.adminDoctors);
+
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // حالات الـ Pagination والبحث
-  const [filter, setFilter] = useState<'ALL' | 'APPROVED' | 'PENDING'>('ALL');
+  // حالات الـ Pagination والبحث (أضفنا DOCS_PENDING)
+  const [filter, setFilter] = useState<'ALL' | 'APPROVED' | 'PENDING' | 'DOCS_PENDING'>('ALL');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
@@ -30,6 +42,7 @@ const AdminDoctors = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   // حالات المودالز
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -42,7 +55,7 @@ const AdminDoctors = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-      if (searchTerm) setPage(1); // نرجع للصفحة الأولى لو بيبحث
+      if (searchTerm) setPage(1);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -52,26 +65,24 @@ const AdminDoctors = () => {
     const fetchDoctors = async () => {
       setLoading(true);
       try {
-        // تجهيز الباراميترز اللي هتتبعت للباك إند
         const params: GetDoctorsParams = {
           pageNumber: page,
-          pageSize: 10, // بنطلب 10 بس
+          pageSize: 10,
         };
         
-        // إرسال الاسم للبحث في الباك إند
         if (debouncedSearch) {
           params.name = debouncedSearch;
         }
 
-        // إرسال حالة الاعتماد للفلترة في الباك إند
+        // الفلترة حسب الاعتماد أومستندات التعديل المعلقة
         if (filter === 'APPROVED') params.isApproved = true;
         if (filter === 'PENDING') params.isApproved = false;
+        if (filter === 'DOCS_PENDING') params.hasPendingDocuments = true;
 
         const response = await getAdminDoctorsApi(params);
         
         if (response?.value?.items && Array.isArray(response.value.items)) {
           setDoctors(response.value.items);
-          // تأكدي إن الباك إند بيرجع totalPages، لو اسمه مختلف عدليه هنا
           setTotalPages(response.value.totalPages || 1); 
         } else {
           setDoctors([]);
@@ -90,10 +101,46 @@ const AdminDoctors = () => {
   }, [page, debouncedSearch, filter]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const handleApproveInstant = async (userId: string) => {
+  const handleDoctorRowClick = (userId: string) => {
+    dispatch(fetchDoctorDetailsByAdmin(userId));
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleCloseDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    dispatch(clearSelectedDoctor());
+  };
+
+  const handleAcceptPendingDocs = async (userId: string) => {
+    const res = await dispatch(acceptPendingDoctorDocuments(userId));
+    if (acceptPendingDoctorDocuments.fulfilled.match(res)) {
+      toast.success("تم قبول المستندات الجديدة وتفعيلها بنجاح!");
+      setDoctors((prev) => prev.map((doc) => doc.userId === userId ? { ...doc, hasPendingDocuments: false } : doc));
+    } else {
+      toast.error((res.payload as string) || "حدث خطأ أثناء قبول المستندات");
+    }
+  };
+
+  const handleRejectPendingDocs = async (userId: string) => {
+    const res = await dispatch(rejectPendingDoctorDocuments(userId));
+    if (rejectPendingDoctorDocuments.fulfilled.match(res)) {
+      toast.success("تم رفض المستندات الجديدة وإلغاؤها بنجاح!");
+      setDoctors((prev) => prev.map((doc) => doc.userId === userId ? { ...doc, hasPendingDocuments: false } : doc));
+    } else {
+      toast.error((res.payload as string) || "حدث خطأ أثناء رفض المستندات");
+    }
+  };
+
+  const handleApproveInstant = async (userId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     try {
       await handleDoctorApprovalApi({ userId, approveStatus: true });
       setDoctors((prev) => prev.map((doc) => doc.userId === userId ? { ...doc, isApproved: true } : doc));
+      
+      if (selectedDoctor && selectedDoctor.userId === userId) {
+        dispatch(fetchDoctorDetailsByAdmin(userId));
+      }
+
       toast.success("تم قبول الطبيب بنجاح!");
     } catch (error: unknown) {
       console.error("Error approving doctor:", error);
@@ -101,7 +148,8 @@ const AdminDoctors = () => {
     }
   };
 
-  const openRejectModal = (userId: string) => {
+  const openRejectModal = (userId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setDoctorToReject(userId);
     setIsRejectModalOpen(true);
   };
@@ -112,6 +160,11 @@ const AdminDoctors = () => {
     try {
       await handleDoctorApprovalApi({ userId: doctorToReject, approveStatus: false });
       setDoctors((prev) => prev.map((doc) => doc.userId === doctorToReject ? { ...doc, isApproved: false } : doc));
+      
+      if (selectedDoctor && selectedDoctor.userId === doctorToReject) {
+        dispatch(fetchDoctorDetailsByAdmin(doctorToReject));
+      }
+
       setIsRejectModalOpen(false);
       toast.success("تم إلغاء اعتماد الطبيب بنجاح!");
     } catch (error: unknown) {
@@ -123,7 +176,8 @@ const AdminDoctors = () => {
     }
   };
 
-  const openDeleteModal = (userId: string) => {
+  const openDeleteModal = (userId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setSelectedDoctorId(userId);
     setIsDeleteModalOpen(true);
   };
@@ -135,6 +189,9 @@ const AdminDoctors = () => {
       await deleteDoctorByAdminApi({ userId: selectedDoctorId });
       setDoctors((prev) => prev.filter((doc) => doc.userId !== selectedDoctorId));
       setIsDeleteModalOpen(false);
+      if (isDetailsModalOpen && selectedDoctor?.userId === selectedDoctorId) {
+        handleCloseDetailsModal();
+      }
       toast.success("تم حذف الطبيب نهائياً!");
     } catch (error: unknown) {
       console.error("Error deleting doctor:", error);
@@ -145,14 +202,12 @@ const AdminDoctors = () => {
     }
   };
 
-
-
   return (
     <div className={styles.pageContainer} dir="rtl">
       <div className={styles.header}>
         <div className={styles.titleArea}>
           <h1 className={styles.title}>إدارة الأطباء</h1>
-          <p className={styles.subtitle}>مراجعة والتحقق من حسابات الأطباء المسجلين في المنصة.</p>
+          <p className={styles.subtitle}>مراجعة والتحقق من حسابات الأطباء المسجلين في المنصة (اضغط على أي طبيب لمشاهدة كافة بياناته ومستنداته).</p>
         </div>
       </div>
 
@@ -164,7 +219,7 @@ const AdminDoctors = () => {
             className={styles.searchInput} 
             placeholder="البحث بالاسم أو البريد الإلكتروني..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // مبقناش نعمل setPage(1) هنا عشان الـ Debounce بيهندلها
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         
@@ -187,6 +242,12 @@ const AdminDoctors = () => {
           >
             المعتمدين
           </button>
+          <button 
+            className={`${styles.tabBtn} ${filter === 'DOCS_PENDING' ? styles.tabActive : ''}`}
+            onClick={() => { setFilter('DOCS_PENDING'); setPage(1); }}
+          >
+            تعديلات المستندات
+          </button>
         </div>
       </div>
 
@@ -204,7 +265,7 @@ const AdminDoctors = () => {
           {loading ? (
              <tbody>
                <tr>
-                 <td colSpan={5} className={styles.loadingOrEmpty}>
+                 <td colSpan={4} className={styles.loadingOrEmpty}>
                    جاري تحميل البيانات...
                  </td>
                </tr>
@@ -212,7 +273,7 @@ const AdminDoctors = () => {
           ) : doctors.length === 0 ? (
              <tbody>
                <tr>
-                 <td colSpan={5} className={styles.loadingOrEmpty}>
+                 <td colSpan={4} className={styles.loadingOrEmpty}>
                    لا يوجد أطباء لعرضهم.
                  </td>
                </tr>
@@ -221,21 +282,33 @@ const AdminDoctors = () => {
              <tbody>
                {doctors.map((doctor, index) => {
                  return (
-                   <tr key={`${doctor.userId}-${index}`}>
+                   <tr 
+                     key={`${doctor.userId}-${index}`} 
+                     className={styles.tableRowClickable}
+                     onClick={() => handleDoctorRowClick(doctor.userId)}
+                   >
                      <td>
                        <div className={styles.doctorInfo}>
                          <div className={styles.avatar}>
                            <UserAvatar type="doctor" size={28} />
                          </div>
-                         <span style={{ fontWeight: 800 }}>{doctor.fullName || 'غير محدد'}</span>
+                         <span style={{ fontWeight: 800, color: '#581C87' }}>{doctor.fullName || 'غير محدد'}</span>
                        </div>
                      </td>
                      <td><span dir="ltr">{doctor.email}</span></td>
                      <td>
-                       <span className={`${styles.badge} ${doctor.isApproved ? styles.badgeApproved : styles.badgePending}`}>
-                         <span className={styles.dot} style={{ backgroundColor: doctor.isApproved ? '#16A34A' : '#CA8A04' }}></span>
-                         {doctor.isApproved ? 'مقبول' : 'قيد الانتظار'}
-                       </span>
+                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                         <span className={`${styles.badge} ${doctor.isApproved ? styles.badgeApproved : styles.badgePending}`}>
+                           <span className={styles.dot} style={{ backgroundColor: doctor.isApproved ? '#16A34A' : '#CA8A04' }}></span>
+                           {doctor.isApproved ? 'مقبول' : 'قيد الانتظار'}
+                         </span>
+
+                         {doctor.hasPendingDocuments && (
+                           <span className={styles.badge} style={{ backgroundColor: '#FEF3C7', color: '#B45309', border: '1px solid #FCD34D' }}>
+                             مستندات معلقة
+                           </span>
+                         )}
+                       </div>
                      </td>
                      <td>
                        <div className={styles.actions}>
@@ -243,7 +316,7 @@ const AdminDoctors = () => {
                            <button 
                              title="قبول" 
                              className={`${styles.actionBtn} ${styles.actionAccept}`}
-                             onClick={() => handleApproveInstant(doctor.userId)}
+                             onClick={(e) => handleApproveInstant(doctor.userId, e)}
                            >
                              <UserCheck size={22} />
                            </button>
@@ -251,7 +324,7 @@ const AdminDoctors = () => {
                             <button 
                              title="إلغاء الاعتماد" 
                              className={`${styles.actionBtn} ${styles.actionReject}`}
-                             onClick={() => openRejectModal(doctor.userId)}
+                             onClick={(e) => openRejectModal(doctor.userId, e)}
                            >
                              <UserX size={22} />
                            </button>
@@ -260,7 +333,7 @@ const AdminDoctors = () => {
                          <button 
                            title="حذف نهائي" 
                            className={`${styles.actionBtn} ${styles.actionDelete}`}
-                           onClick={() => openDeleteModal(doctor.userId)}
+                           onClick={(e) => openDeleteModal(doctor.userId, e)}
                          >
                            <Trash2 size={22} />
                          </button>
@@ -300,6 +373,20 @@ const AdminDoctors = () => {
           </div>
         )}
       </div>
+
+      {/* مودال تفاصيل الطبيب ومستنداته */}
+      <DoctorDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={handleCloseDetailsModal}
+        doctor={selectedDoctor}
+        isLoading={isDetailsLoading}
+        error={detailsError}
+        onApprove={(userId) => handleApproveInstant(userId)}
+        onReject={(userId) => openRejectModal(userId)}
+        onAcceptPendingDocs={handleAcceptPendingDocs}
+        onRejectPendingDocs={handleRejectPendingDocs}
+        isActionLoading={isDocActionLoading}
+      />
 
       <DeleteConfirmModal 
         isOpen={isDeleteModalOpen}

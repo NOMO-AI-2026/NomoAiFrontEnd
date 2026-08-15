@@ -8,6 +8,8 @@ interface SignupFormData {
   yearsOfExperience?: string | number;
   clinicName?: string;
   professionalBio?: string;
+  practiceLicense?: File | null;
+  syndicateCard?: File | null;
 }
 
 export const validateSignup = (formData: SignupFormData) => {
@@ -65,14 +67,16 @@ export const validateSignup = (formData: SignupFormData) => {
 
   // 6. بيانات الطبيب (عندما يكون الدور طبيب role === 0)
   if (Number(formData.role) === 0) {
-    if (formData.yearsOfExperience === undefined || formData.yearsOfExperience === '' || Number(formData.yearsOfExperience) < 0) {
-      errors.yearsOfExperience = "عدد سنوات الخبرة مطلوب ويجب أن يكون رقماً صحيحاً.";
+    if (!formData.practiceLicense) {
+      errors.practiceLicense = "ترخيص ممارسة المهنة مطلوب (ملف PDF أو صورة).";
+    } else if (formData.practiceLicense.size > 5 * 1024 * 1024) {
+      errors.practiceLicense = "حجم ترخيص ممارسة المهنة يجب ألا يتجاوز 5 ميجابايت.";
     }
-    if (!formData.clinicName || !formData.clinicName.trim()) {
-      errors.clinicName = "اسم العيادة مطلوب.";
-    }
-    if (!formData.professionalBio || !formData.professionalBio.trim()) {
-      errors.professionalBio = "النبذة المهنية مطلوبة.";
+
+    if (!formData.syndicateCard) {
+      errors.syndicateCard = "كارنيه النقابة مطلوب (ملف PDF أو صورة).";
+    } else if (formData.syndicateCard.size > 5 * 1024 * 1024) {
+      errors.syndicateCard = "حجم كارنيه النقابة يجب ألا يتجاوز 5 ميجابايت.";
     }
   }
 

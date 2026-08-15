@@ -7,6 +7,11 @@ export interface DoctorSpecificData {
   yearsOfExperience: number | null;
   clinicName: string | null;
   professionalBio: string | null;
+  practiceLicenseUrl?: string | null;
+  syndicateCardUrl?: string | null;
+  pendingPracticeLicenseUrl?: string | null;
+  pendingSyndicateCardUrl?: string | null;
+  hasPendingDocuments?: boolean;
   availableMinutes: number | null;
 }
 

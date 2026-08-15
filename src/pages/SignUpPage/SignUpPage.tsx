@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, Eye, ArrowLeft, User, Phone, Calendar, Award, Building2, FileText } from 'lucide-react';
+import { Mail, Lock, Eye, ArrowLeft, User, Phone, Calendar, Award, Building2, FileText, UploadCloud, FileCheck, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import { registerApi } from '../../api/authApi'; 
@@ -37,7 +37,9 @@ export default function SignUpPage() {
     role: 1, // 1: ولي أمر (افتراضي)، 0: طبيب
     yearsOfExperience: '',
     clinicName: '',
-    professionalBio: ''
+    professionalBio: '',
+    practiceLicense: null as File | null,
+    syndicateCard: null as File | null,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -52,18 +54,43 @@ export default function SignUpPage() {
     setServerError('');
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'practiceLicense' | 'syndicateCard') => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors((prev) => ({ ...prev, [fieldName]: 'حجم الملف يجب ألا يتجاوز 5 ميجابايت.' }));
+        return;
+      }
+    }
+    setFormData((prev) => ({ ...prev, [fieldName]: file }));
+    if (errors[fieldName]) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy[fieldName];
+        return copy;
+      });
+    }
+    setServerError('');
+  };
+
+  const removeFile = (fieldName: 'practiceLicense' | 'syndicateCard') => {
+    setFormData((prev) => ({ ...prev, [fieldName]: null }));
+  };
+
   const handleGenderChange = (value: number) => {
     setFormData({ ...formData, gender: value });
   };
 
   const handleRoleChange = (value: number) => {
     setFormData({ ...formData, role: value });
-    if (errors.yearsOfExperience || errors.clinicName || errors.professionalBio) {
+    if (errors.yearsOfExperience || errors.clinicName || errors.professionalBio || errors.practiceLicense || errors.syndicateCard) {
       setErrors((prev) => {
         const copy = { ...prev };
         delete copy.yearsOfExperience;
         delete copy.clinicName;
         delete copy.professionalBio;
+        delete copy.practiceLicense;
+        delete copy.syndicateCard;
         return copy;
       });
     }
@@ -85,25 +112,61 @@ export default function SignUpPage() {
     try {
       const isDoctor = Number(formData.role) === 0;
 
-      const payload: Record<string, unknown> = {
-        fullName: formData.fullName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        password: formData.password,
-        age: Number(formData.age),
-        gender: Number(formData.gender),
-        role: Number(formData.role),
-      };
-
-      if (isDoctor) {
-        payload.yearsOfExperience = Number(formData.yearsOfExperience) || 0;
-        payload.clinicName = formData.clinicName.trim();
-        payload.professionalBio = formData.professionalBio.trim();
+      interface RegisterResponse {
+        userId?: string;
+        id?: string;
+        data?: {
+          value?: { userId?: string };
+          userId?: string;
+          id?: string;
+        };
+        value?: { userId?: string };
       }
 
-      const response = await registerApi(payload);
+      let response: RegisterResponse;
+
+      if (isDoctor) {
+        const payload = new FormData();
+        payload.append('fullName', formData.fullName.trim());
+        payload.append('email', formData.email.trim());
+        payload.append('phoneNumber', formData.phoneNumber.trim());
+        payload.append('password', formData.password);
+        payload.append('age', String(Number(formData.age)));
+        payload.append('gender', String(Number(formData.gender)));
+        payload.append('role', '0');
+
+        if (formData.yearsOfExperience !== '') {
+          payload.append('yearsOfExperience', String(Number(formData.yearsOfExperience)));
+        }
+        if (formData.clinicName.trim()) {
+          payload.append('clinicName', formData.clinicName.trim());
+        }
+        if (formData.professionalBio.trim()) {
+          payload.append('professionalBio', formData.professionalBio.trim());
+        }
+        if (formData.practiceLicense) {
+          payload.append('practiceLicense', formData.practiceLicense);
+        }
+        if (formData.syndicateCard) {
+          payload.append('syndicateCard', formData.syndicateCard);
+        }
+
+        response = await registerApi(payload);
+      } else {
+        const payload = {
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          phoneNumber: formData.phoneNumber.trim(),
+          password: formData.password,
+          age: Number(formData.age),
+          gender: Number(formData.gender),
+          role: 1,
+        };
+
+        response = await registerApi(payload);
+      }
       
-      const newUserId = response?.data?.value?.userId || response?.data?.id || response?.data?.userId || response?.value?.userId || '';
+      const newUserId = response?.data?.value?.userId || response?.data?.id || response?.data?.userId || response?.value?.userId || response?.userId || '';
 
       navigate('/verify-otp', { 
         state: { 
@@ -233,12 +296,10 @@ export default function SignUpPage() {
             {/* حقول خاصة بالطبيب تظهر فقط عند اختيار دور "طبيب" (role === 0) */}
             {formData.role === 0 && (
               <div className="flex flex-col gap-5 pt-3 border-t-2 border-dashed border-[#EBE5F7]">
-                <h3 className="text-base font-extrabold text-[#581C87]">البيانات المهنية للطبيب</h3>
+                <h3 className="text-base font-extrabold text-[#581C87]">البيانات المهنية والوثائق للطبيب</h3>
 
                 <div className="flex flex-col gap-1">
-                  <label className={styles.inputLabel}>
-                    سنوات الخبرة <span className="text-red-500">*</span>
-                  </label>
+                  <label className={styles.inputLabel}>سنوات الخبرة</label>
                   <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.yearsOfExperience ? 'border-red-500' : ''}`}>
                     <Award className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                     <input 
@@ -255,9 +316,7 @@ export default function SignUpPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className={styles.inputLabel}>
-                    اسم العيادة <span className="text-red-500">*</span>
-                  </label>
+                  <label className={styles.inputLabel}>اسم العيادة</label>
                   <div className={`flex items-center bg-white px-4 py-3 ${styles.inputContainer} ${errors.clinicName ? 'border-red-500' : ''}`}>
                     <Building2 className="w-5 h-5 text-[#581C87] flex-shrink-0" />
                     <input 
@@ -273,9 +332,7 @@ export default function SignUpPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className={styles.inputLabel}>
-                    نبذة مهنية <span className="text-red-500">*</span>
-                  </label>
+                  <label className={styles.inputLabel}>نبذة مهنية</label>
                   <div className={`flex items-start bg-white px-4 py-3 ${styles.inputContainer} ${errors.professionalBio ? 'border-red-500' : ''}`}>
                     <FileText className="w-5 h-5 text-[#581C87] flex-shrink-0 mt-1" />
                     <textarea 
@@ -289,6 +346,75 @@ export default function SignUpPage() {
                   </div>
                   {errors.professionalBio && <span className="text-red-500 text-sm font-bold">{errors.professionalBio}</span>}
                 </div>
+
+                {/* ترخيص ممارسة المهنة (مطلوب للطبيب) */}
+                <div className="flex flex-col gap-1">
+                  <label className={styles.inputLabel}>
+                    ترخيص ممارسة المهنة <span className="text-red-500">*</span>
+                  </label>
+                  {!formData.practiceLicense ? (
+                    <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-4 cursor-pointer transition-colors bg-[#F9F7FD] hover:bg-[#F3EBFB] ${errors.practiceLicense ? 'border-red-500' : 'border-[#581C87]/30'}`}>
+                      <UploadCloud className="w-7 h-7 text-[#581C87] mb-1" />
+                      <span className="text-sm font-bold text-[#1E1B4B]">اضغط لاختيار ملف ترخيص ممارسة المهنة (PDF, PNG, JPG)</span>
+                      <span className="text-xs text-gray-500 font-medium mt-0.5">الحد الأقصى 5 ميجابايت</span>
+                      <input 
+                        type="file" 
+                        accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/*" 
+                        onChange={(e) => handleFileChange(e, 'practiceLicense')} 
+                        className="hidden" 
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center justify-between bg-[#F3EBFB] border border-[#581C87]/30 px-4 py-3 rounded-xl">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileCheck className="w-5 h-5 text-[#581C87] flex-shrink-0" />
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-bold text-[#1E1B4B] truncate">{formData.practiceLicense.name}</span>
+                          <span className="text-xs text-gray-500 font-medium">({(formData.practiceLicense.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => removeFile('practiceLicense')} className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  {errors.practiceLicense && <span className="text-red-500 text-sm font-bold">{errors.practiceLicense}</span>}
+                </div>
+
+                {/* كارنيه النقابة (مطلوب للطبيب) */}
+                <div className="flex flex-col gap-1">
+                  <label className={styles.inputLabel}>
+                    كارنيه النقابة <span className="text-red-500">*</span>
+                  </label>
+                  {!formData.syndicateCard ? (
+                    <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-4 cursor-pointer transition-colors bg-[#F9F7FD] hover:bg-[#F3EBFB] ${errors.syndicateCard ? 'border-red-500' : 'border-[#581C87]/30'}`}>
+                      <UploadCloud className="w-7 h-7 text-[#581C87] mb-1" />
+                      <span className="text-sm font-bold text-[#1E1B4B]">اضغط لاختيار ملف كارنيه النقابة (PDF, PNG, JPG)</span>
+                      <span className="text-xs text-gray-500 font-medium mt-0.5">الحد الأقصى 5 ميجابايت</span>
+                      <input 
+                        type="file" 
+                        accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/*" 
+                        onChange={(e) => handleFileChange(e, 'syndicateCard')} 
+                        className="hidden" 
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center justify-between bg-[#F3EBFB] border border-[#581C87]/30 px-4 py-3 rounded-xl">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileCheck className="w-5 h-5 text-[#581C87] flex-shrink-0" />
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-bold text-[#1E1B4B] truncate">{formData.syndicateCard.name}</span>
+                          <span className="text-xs text-gray-500 font-medium">({(formData.syndicateCard.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => removeFile('syndicateCard')} className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  {errors.syndicateCard && <span className="text-red-500 text-sm font-bold">{errors.syndicateCard}</span>}
+                </div>
+
               </div>
             )}
 

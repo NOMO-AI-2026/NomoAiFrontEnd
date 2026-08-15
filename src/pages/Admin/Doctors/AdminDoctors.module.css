@@ -157,6 +157,15 @@
   cursor: default;
 }
 
+.tableRowClickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tableRowClickable:hover {
+  background-color: #F3EBFB; /* لون بنفسجي هادي أغمق قاطبة لإبراز الصف عند الهوفر */
+}
+
 .doctorInfo {
   display: flex;
   align-items: center;

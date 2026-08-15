@@ -4,6 +4,11 @@ export interface DoctorSpecificData {
   yearsOfExperience: number | null;
   clinicName: string | null;
   professionalBio: string | null;
+  practiceLicenseUrl?: string | null;
+  syndicateCardUrl?: string | null;
+  pendingPracticeLicenseUrl?: string | null;
+  pendingSyndicateCardUrl?: string | null;
+  hasPendingDocuments?: boolean;
   availableMinutes: number | null;
 }
 
@@ -30,6 +35,11 @@ export const fetchProfileApi = async () => {
 export const updateProfileApi = async (profileData: ProfileData) => {
   const response = await axiosInstance.put('/me/profile', profileData);
   return response.data; 
+};
+
+export const updateDoctorDocumentsApi = async (formData: FormData) => {
+  const response = await axiosInstance.put('/profile/doctor-documents', formData);
+  return response.data;
 };
 
 export const changePasswordApi = async (payload: ChangePasswordPayload) => {

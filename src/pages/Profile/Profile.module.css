@@ -206,6 +206,72 @@
 }
 
 /* =========================================
+   مستندات الطبيب المضمّنة (الترخيص وكارنيه النقابة)
+   ========================================= */
+.docsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px dashed #EBE5F7;
+}
+
+@media (min-width: 640px) {
+  .docsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.docItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.docPreviewContainer {
+  width: 100%;
+  height: 240px;
+  background-color: #F9F7FD;
+  border: 2px solid rgba(88, 28, 135, 0.2);
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  transition: border-color 0.2s ease;
+}
+
+.docPreviewContainer:hover {
+  border-color: #581C87;
+}
+
+.docImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* إظهار الصورة كاملة داخل الإطار لضمان عدم قص أي جزء منها */
+  border-radius: 0.5rem;
+}
+
+.docIframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.noDocState {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #9CA3AF;
+}
+
+/* =========================================
    Responsive Design 
    ========================================= */
 
@@ -235,6 +301,10 @@
   .cardTitle {
     font-size: 1.25rem;
   }
+
+  .docPreviewContainer {
+    height: 200px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -248,5 +318,9 @@
 
   .card {
     box-shadow: 4px 4px 0 rgba(88, 28, 135, 0.15);
+  }
+
+  .docPreviewContainer {
+    height: 180px;
   }
 }

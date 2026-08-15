@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks'; 
 import { getProfile, clearProfile } from '../../store/slices/profileSlice';
 import styles from './Profile.module.css';
-import { Edit2 } from 'lucide-react';
+import { Edit2, UploadCloud, AlertCircle } from 'lucide-react';
 
 // استيراد المودالز
 import EditProfileModal from '../../components/Modals/EditProfileModal/EditProfileModal';
+import UpdateDoctorDocumentsModal from '../../components/Modals/UpdateDoctorDocumentsModal/UpdateDoctorDocumentsModal';
 
 const Profile = () => {
   const dispatch = useAppDispatch();
@@ -13,6 +14,7 @@ const Profile = () => {
 
   // Modal display states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdateDocsModalOpen, setIsUpdateDocsModalOpen] = useState(false);
 
   // Decode JWT payload dynamically to verify role
   const getRoleFromToken = (): number | null => {
@@ -86,6 +88,12 @@ const Profile = () => {
     ); 
   }
 
+  const hasPendingDocs = Boolean(
+    data.doctorSpecificData?.hasPendingDocuments ||
+    data.doctorSpecificData?.pendingPracticeLicenseUrl ||
+    data.doctorSpecificData?.pendingSyndicateCardUrl
+  );
+
   return (
     <div className={styles.profileContainer} dir="rtl">
       <div className={styles.pageHeader}>
@@ -139,9 +147,32 @@ const Profile = () => {
           {/* Doctor-Specific Card (Conditional) */}
           {isDoctor && (
             <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h3 className={styles.cardTitle}>البيانات المهنية للطبيب</h3>
+              <div className={styles.cardHeaderWithAction}>
+                <h3 className={styles.cardTitle}>البيانات والوثائق المهنية للطبيب</h3>
+                <button className={styles.editBtn} onClick={() => setIsUpdateDocsModalOpen(true)}>
+                  <UploadCloud size={16} /> تحديث المستندات
+                </button>
               </div>
+
+              {hasPendingDocs && (
+                <div style={{
+                  backgroundColor: '#FEF3C7',
+                  color: '#B45309',
+                  border: '1.5px solid #FCD34D',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '0.75rem',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  marginBottom: '1rem'
+                }}>
+                  <AlertCircle size={20} />
+                  <span>تنبيه: لقد قمت برفع مستندات جديدة لتحديث ترخيصك أو كارنيهك، وهي حالياً قيد المراجعة والاعتماد من قِبل الأدمن (تظل مستنداتك المفعلة الحالية قائمة حتى الاعتماد).</span>
+                </div>
+              )}
+
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>سنوات الخبرة</span>
@@ -172,6 +203,56 @@ const Profile = () => {
                   </span>
                 </div>
               </div>
+
+              {/* قسم عرض المستندات المضمنة مباشرة بنفس الصفحة */}
+              <div className={styles.docsGrid}>
+                <div className={styles.docItem}>
+                  <span className={styles.infoLabel}>ترخيص ممارسة المهنة الحالي</span>
+                  <div className={styles.docPreviewContainer}>
+                    {data.doctorSpecificData?.practiceLicenseUrl ? (
+                      data.doctorSpecificData.practiceLicenseUrl.toLowerCase().includes('.pdf') ? (
+                        <iframe 
+                          src={`${data.doctorSpecificData.practiceLicenseUrl}#toolbar=0&navpanes=0`} 
+                          title="ترخيص ممارسة المهنة الحالي"
+                          className={styles.docIframe} 
+                        />
+                      ) : (
+                        <img 
+                          src={data.doctorSpecificData.practiceLicenseUrl} 
+                          alt="ترخيص ممارسة المهنة الحالي" 
+                          className={styles.docImage} 
+                        />
+                      )
+                    ) : (
+                      <div className={styles.noDocState}>المستند غير متوفر</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.docItem}>
+                  <span className={styles.infoLabel}>كارنيه النقابة الحالي</span>
+                  <div className={styles.docPreviewContainer}>
+                    {data.doctorSpecificData?.syndicateCardUrl ? (
+                      data.doctorSpecificData.syndicateCardUrl.toLowerCase().includes('.pdf') ? (
+                        <iframe 
+                          src={`${data.doctorSpecificData.syndicateCardUrl}#toolbar=0&navpanes=0`} 
+                          title="كارنيه النقابة الحالي"
+                          className={styles.docIframe} 
+                        />
+                      ) : (
+                        <img 
+                          src={data.doctorSpecificData.syndicateCardUrl} 
+                          alt="كارنيه النقابة الحالي" 
+                          className={styles.docImage} 
+                        />
+                      )
+                    ) : (
+                      <div className={styles.noDocState}>المستند غير متوفر</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -185,6 +266,12 @@ const Profile = () => {
         currentData={data}
         isDoctor={isDoctor}
         updateLoading={updateLoading}
+      />
+
+      <UpdateDoctorDocumentsModal
+        isOpen={isUpdateDocsModalOpen}
+        onClose={() => setIsUpdateDocsModalOpen(false)}
+        onSuccess={() => dispatch(getProfile())}
       />
     </div>
   );
