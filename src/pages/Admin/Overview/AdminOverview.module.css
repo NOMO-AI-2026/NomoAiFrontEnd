@@ -127,7 +127,6 @@
 
 .statCardLevels { border-color: #059669; box-shadow: 6px 6px 0 rgba(5, 150, 105, 0.15); }
 .statCardLevels .iconWrapper { background-color: #D1FAE5; color: #059669; }
-.statCardLevels .iconWrapper { background-color: #D1FAE5; color: #059669; }
 
 /* ================= شبكة المخططات (Charts Section) ================= */
 .chartsSection {
@@ -135,6 +134,7 @@
   grid-template-columns: 1.8fr 1.2fr;
   gap: 2rem;
   margin-bottom: 2.5rem;
+  align-items: stretch;
 }
 
 @media (max-width: 1024px) {
@@ -146,7 +146,9 @@
 .rightChartsStack {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 1.5rem;
+  height: 100%;
 }
 
 .chartCard {
@@ -156,11 +158,6 @@
   padding: 2rem;
   box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
   height: auto;
-}
-
-.chartCardAlerts {
-  border-color: #3B82F6;
-  box-shadow: 8px 8px 0 rgba(59, 130, 246, 0.15);
 }
 
 .chartHeader {
@@ -295,19 +292,10 @@
   font-size: 1rem;
 }
 
-/* ================= قسم البيانات التفصيلية السفلية (Bottom Grid) ================= */
-.bottomSectionGrid {
-  display: grid;
-  grid-template-columns: 1.2fr 1.8fr; /* تذاكر الدعم: 1.2، مخرجات الجلسات تمتد بالعرض: 1.8 */
-  gap: 2rem;
+/* ================= قسم مخرجات الجلسات وتفاصيل العلاج المتمتد بكامل عرض الصفحة ================= */
+.fullWidthSection {
+  width: 100%;
   margin-bottom: 2.5rem;
-  align-items: stretch; /* نفس الطول تماماً */
-}
-
-@media (max-width: 1024px) {
-  .bottomSectionGrid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .detailCard {
@@ -318,7 +306,6 @@
   box-shadow: 8px 8px 0 rgba(88, 28, 135, 0.15);
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* نوزع المساحة ليتساوى الطول مع المحتوى */
 }
 
 .detailCardSupport {
@@ -389,7 +376,7 @@
 /* التنسيق لبيانات الميتا-داتا الملحقة للدعم */
 .metadataGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* جعلناها صفين متناسقين للشبكة */
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.6rem;
   margin-top: 1.2rem;
   padding-top: 1rem;
@@ -425,14 +412,14 @@
 .sessionGrid {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1.2rem;
   flex: 1;
 }
 
 .sessionItemContainer {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 أعمدة متساوية للجلسات المجدولة، قيد التنفيذ، والمكتملة */
-  gap: 0.8rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -445,7 +432,7 @@
   background-color: #F9FAFB;
   border: 1px solid #E5E7EB;
   border-radius: 1rem;
-  padding: 0.8rem 1rem;
+  padding: 1rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -472,46 +459,50 @@
 }
 
 .sessionName {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #6B7280;
 }
 
 .sessionVal {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: #1E1B4B;
 }
 
-/* ميتاداتا الجلسات الممتدة على سطرين بحجم كروت أكبر */
+/* ميتاداتا الجلسات الممتدة بكامل عرض الصفحة */
 .metadataGridTherapy {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 بنود بالسطر الأول و 2 بالسطر الثاني */
-  gap: 0.9rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
   margin-top: 1.2rem;
   padding-top: 1.2rem;
   border-top: 1px solid #F3F4F6;
 }
 
 .metadataGridTherapy .metadataItem {
-  padding: 0.9rem 0.8rem;
-  font-size: 0.88rem;
+  padding: 1rem 0.8rem;
+  font-size: 0.9rem;
   font-weight: 800;
   border-radius: 1rem;
 }
 
 .metadataGridTherapy .metadataVal {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   margin-top: 0.4rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .metadataGridTherapy {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
   .metadataGridTherapy {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* التنبيهات وإشعارات التقدم (Alerts Card) */
 .alertsList {
   display: flex;
   flex-direction: column;

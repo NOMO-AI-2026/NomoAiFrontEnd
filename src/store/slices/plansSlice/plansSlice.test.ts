@@ -28,16 +28,11 @@ describe('plansSlice reducer & thunks', () => {
   const samplePlans: SubscriptionPlan[] = [
     {
       id: 1,
-      nameAr: 'خطة تجريبية',
-      nameEn: 'Trial Plan',
-      descriptionAr: 'وصف',
-      descriptionEn: 'Description',
+      name: 'خطة تجريبية',
+      description: 'وصف',
+      includedMinutes: 60,
       price: 100,
       currency: 1,
-      sessionsCount: 5,
-      isActive: true,
-      createdAtUtc: '2026-08-16',
-      updatedAtUtc: '2026-08-16',
     },
   ];
 
@@ -63,8 +58,9 @@ describe('plansSlice reducer & thunks', () => {
     it('updates plans and rate on fulfilled (when plans in value property)', async () => {
       vi.mocked(plansApi.getPlansApi).mockResolvedValueOnce({
         isSuccess: true,
+        isFailure: false,
         value: samplePlans,
-      } as any);
+      });
       vi.mocked(plansApi.getUsdToEgpRateApi).mockResolvedValueOnce(50.0);
 
       const dispatch = vi.fn();
@@ -120,7 +116,7 @@ describe('plansSlice reducer & thunks', () => {
 
   describe('createPlan thunk', () => {
     const payload = {
-      nameAr: 'خطة', nameEn: 'Plan', descriptionAr: '', descriptionEn: '', price: 100, currency: 1, sessionsCount: 5, isActive: true
+      name: 'خطة', description: 'وصف', includedMinutes: 60, price: 100, currency: 1
     };
 
     it('sets isActionLoading on pending/fulfilled/rejected', () => {
@@ -165,7 +161,7 @@ describe('plansSlice reducer & thunks', () => {
   describe('updatePlan thunk', () => {
     const payload = {
       planId: 1,
-      payload: { nameAr: 'تعديل', nameEn: 'Edit', descriptionAr: '', descriptionEn: '', price: 100, currency: 1, sessionsCount: 5, isActive: true }
+      payload: { name: 'تعديل', description: 'وصف', includedMinutes: 60, price: 100, currency: 1 }
     };
 
     it('sets isActionLoading on pending/fulfilled/rejected', () => {

@@ -10,13 +10,7 @@ import {
   AlertCircle,
   MessageSquare,
   Activity,
-  Heart,
-  Bookmark,
-  Award,
-  ChevronUp,
-  AlertTriangle,
-  TrendingDown,
-  ShieldAlert
+  Heart
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchAdminAnalyticsOverview } from '../../../store/slices/adminAnalyticsSlice/adminAnalyticsSlice';
@@ -222,10 +216,10 @@ const AdminOverview = () => {
           </div>
         </div>
 
-        {/* كروت التحليلات والتنبيهات المكدسة رأسياً (الأيمن) */}
+        {/* كروت التحليلات والدعم المكدسة رأسياً (الأيمن) */}
         <div className={styles.rightChartsStack}>
           
-          {/* كارت النسبة التناسبية للحسابات */}
+          {/* 1. كارت النسبة التناسبية للحسابات */}
           <div className={styles.chartCard}>
             <div className={styles.chartHeader}>
               <h3 className={styles.chartTitle}>
@@ -281,54 +275,93 @@ const AdminOverview = () => {
             </div>
           </div>
 
-          {/* كارت التنبيهات وإشعارات تقدم الحالات */}
-          <div className={`${styles.chartCard} ${styles.chartCardAlerts}`}>
+          {/* 2. كارت الدعم الفني وتذاكر الدعم المباشرة (محاذية مع نهاية كارت مستويات الكلام) */}
+          <div className={`${styles.chartCard} ${styles.detailCardSupport}`}>
             <div className={styles.chartHeader}>
-              <h3 className={styles.chartTitle} style={{ color: '#3B82F6' }}>
-                <ShieldAlert size={20} />
-                تنبيهات ومؤشرات تقدم الأطفال
+              <h3 className={styles.chartTitle} style={{ color: '#D97706' }}>
+                <MessageSquare size={20} />
+                حالة تذاكر الدعم الفني
               </h3>
             </div>
             
-            <div className={styles.alertsList}>
-              <div className={styles.alertItem} style={{ borderColor: '#E5E7EB', backgroundColor: '#F9FAFB' }}>
-                <div className={styles.alertLeft}>
-                  <Bookmark size={18} style={{ color: '#3B82F6' }} />
-                  <span>إجمالي التنبيهات المسجلة</span>
+            <div className={styles.supportList}>
+              <div className={styles.supportItem}>
+                <span className={styles.supportLabel}>تذاكر غير مقروءة</span>
+                <div className={styles.supportProgress}>
+                  <div className={styles.supportBar}>
+                    <div 
+                      className={styles.supportBarFill} 
+                      style={{ 
+                        width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.unread / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
+                        backgroundColor: '#3B82F6' 
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.supportVal}>{overview.support.byStatus.unread}</span>
                 </div>
-                <span className={styles.alertVal} style={{ color: '#1E1B4B' }}>{overview.alerts.progressAlertsTotal}</span>
               </div>
 
-              <div className={styles.alertItem} style={{ borderColor: '#D1FAE5', backgroundColor: '#ECFDF5' }}>
-                <div className={styles.alertLeft}>
-                  <Award size={18} style={{ color: '#10B981' }} />
-                  <span>تخطي الأطفال للمستويات (Milestone)</span>
+              <div className={styles.supportItem}>
+                <span className={styles.supportLabel}>قيد المعالجة</span>
+                <div className={styles.supportProgress}>
+                  <div className={styles.supportBar}>
+                    <div 
+                      className={styles.supportBarFill} 
+                      style={{ 
+                        width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.inProgress / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
+                        backgroundColor: '#F59E0B' 
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.supportVal}>{overview.support.byStatus.inProgress}</span>
                 </div>
-                <span className={styles.alertVal} style={{ color: '#10B981' }}>{overview.alerts.byType.milestone}</span>
               </div>
 
-              <div className={styles.alertItem} style={{ borderColor: '#DBEAFE', backgroundColor: '#EFF6FF' }}>
-                <div className={styles.alertLeft}>
-                  <ChevronUp size={18} style={{ color: '#3B82F6' }} />
-                  <span>تحسن وتطور أداء الأطفال (Improvement)</span>
+              <div className={styles.supportItem}>
+                <span className={styles.supportLabel}>المحلولة</span>
+                <div className={styles.supportProgress}>
+                  <div className={styles.supportBar}>
+                    <div 
+                      className={styles.supportBarFill} 
+                      style={{ 
+                        width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.resolved / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
+                        backgroundColor: '#10B981' 
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.supportVal}>{overview.support.byStatus.resolved}</span>
                 </div>
-                <span className={styles.alertVal} style={{ color: '#3B82F6' }}>{overview.alerts.byType.improvement}</span>
               </div>
 
-              <div className={styles.alertItem} style={{ borderColor: '#FEF3C7', backgroundColor: '#FFFBEB' }}>
-                <div className={styles.alertLeft}>
-                  <AlertTriangle size={18} style={{ color: '#D97706' }} />
-                  <span>ملاحظات ومخاوف بشأن الأطفال (Concern)</span>
+              <div className={styles.supportItem}>
+                <span className={styles.supportLabel}>المغلقة نهائياً</span>
+                <div className={styles.supportProgress}>
+                  <div className={styles.supportBar}>
+                    <div 
+                      className={styles.supportBarFill} 
+                      style={{ 
+                        width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.closed / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
+                        backgroundColor: '#6B7280' 
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.supportVal}>{overview.support.byStatus.closed}</span>
                 </div>
-                <span className={styles.alertVal} style={{ color: '#D97706' }}>{overview.alerts.byType.concern}</span>
               </div>
 
-              <div className={styles.alertItem} style={{ borderColor: '#FEE2E2', backgroundColor: '#FEF2F2' }}>
-                <div className={styles.alertLeft}>
-                  <TrendingDown size={18} style={{ color: '#EF4444' }} />
-                  <span>تراجع حالة الأطفال (Regression)</span>
+              <div className={styles.metadataGrid}>
+                <div className={styles.metadataItem}>
+                  بانتظار رد الأدمن
+                  <span className={styles.metadataVal} style={{ color: '#EF4444' }}>
+                    {overview.support.awaitingAdminAction}
+                  </span>
                 </div>
-                <span className={styles.alertVal} style={{ color: '#EF4444' }}>{overview.alerts.byType.regression}</span>
+                <div className={styles.metadataItem}>
+                  تم حلها بواسطة الأدمن
+                  <span className={styles.metadataVal} style={{ color: '#10B981' }}>
+                    {overview.support.handledByAdmin}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -337,101 +370,8 @@ const AdminOverview = () => {
 
       </div>
 
-      {/* ================= قسم البيانات التفصيلية السفلية المتوازية طوليًا ================= */}
-      <div className={styles.bottomSectionGrid}>
-        
-        {/* 1. كارت الدعم الفني التفصيلي */}
-        <div className={`${styles.detailCard} ${styles.detailCardSupport}`}>
-          <div className={styles.chartHeader}>
-            <h3 className={styles.chartTitle} style={{ color: '#D97706' }}>
-              <MessageSquare size={20} />
-              حالة تذاكر الدعم الفني
-            </h3>
-          </div>
-          
-          <div className={styles.supportList}>
-            <div className={styles.supportItem}>
-              <span className={styles.supportLabel}>تذاكر غير مقروءة</span>
-              <div className={styles.supportProgress}>
-                <div className={styles.supportBar}>
-                  <div 
-                    className={styles.supportBarFill} 
-                    style={{ 
-                      width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.unread / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
-                      backgroundColor: '#3B82F6' 
-                    }}
-                  ></div>
-                </div>
-                <span className={styles.supportVal}>{overview.support.byStatus.unread}</span>
-              </div>
-            </div>
-
-            <div className={styles.supportItem}>
-              <span className={styles.supportLabel}>قيد المعالجة</span>
-              <div className={styles.supportProgress}>
-                <div className={styles.supportBar}>
-                  <div 
-                    className={styles.supportBarFill} 
-                    style={{ 
-                      width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.inProgress / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
-                      backgroundColor: '#F59E0B' 
-                    }}
-                  ></div>
-                </div>
-                <span className={styles.supportVal}>{overview.support.byStatus.inProgress}</span>
-              </div>
-            </div>
-
-            <div className={styles.supportItem}>
-              <span className={styles.supportLabel}>المحلولة</span>
-              <div className={styles.supportProgress}>
-                <div className={styles.supportBar}>
-                  <div 
-                    className={styles.supportBarFill} 
-                    style={{ 
-                      width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.resolved / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
-                      backgroundColor: '#10B981' 
-                    }}
-                  ></div>
-                </div>
-                <span className={styles.supportVal}>{overview.support.byStatus.resolved}</span>
-              </div>
-            </div>
-
-            <div className={styles.supportItem}>
-              <span className={styles.supportLabel}>المغلقة نهائياً</span>
-              <div className={styles.supportProgress}>
-                <div className={styles.supportBar}>
-                  <div 
-                    className={styles.supportBarFill} 
-                    style={{ 
-                      width: animate ? `${overview.support.ticketsTotal > 0 ? (overview.support.byStatus.closed / overview.support.ticketsTotal) * 100 : 0}%` : '0%', 
-                      backgroundColor: '#6B7280' 
-                    }}
-                  ></div>
-                </div>
-                <span className={styles.supportVal}>{overview.support.byStatus.closed}</span>
-              </div>
-            </div>
-
-            <div className={styles.metadataGrid}>
-              <div className={styles.metadataItem}>
-                بانتظار رد الأدمن
-                <span className={styles.metadataVal} style={{ color: '#EF4444' }}>
-                  {overview.support.awaitingAdminAction}
-                </span>
-              </div>
-              <div className={styles.metadataItem}>
-                تم حلها بواسطة الأدمن
-                <span className={styles.metadataVal} style={{ color: '#10B981' }}>
-                  {overview.support.handledByAdmin}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. كارت تفاصيل وجلسات العلاج */}
+      {/* ================= قسم مخرجات وتفاصيل الجلسات الممتد على كامل عرض الصفحة ================= */}
+      <div className={styles.fullWidthSection}>
         <div className={`${styles.detailCard} ${styles.detailCardTherapy}`}>
           <div className={styles.chartHeader}>
             <h3 className={styles.chartTitle} style={{ color: '#059669' }}>
@@ -480,7 +420,7 @@ const AdminOverview = () => {
               </div>
             </div>
 
-            {/* شبكة البيانات الإحصائية الإضافية للجلسات */}
+            {/* شبكة البيانات الإحصائية الإضافية للجلسات الممتدة على 5 أعمدة */}
             <div className={styles.metadataGridTherapy}>
               <div className={styles.metadataItem}>
                 إجمالي التمارين
@@ -515,7 +455,6 @@ const AdminOverview = () => {
             </div>
           </div>
         </div>
-
       </div>
 
     </div>

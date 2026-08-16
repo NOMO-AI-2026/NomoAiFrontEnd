@@ -6,7 +6,7 @@ import supportTicketsReducer, {
   clearSelectedTicket,
 } from './supportTicketsSlice';
 import * as supportTicketsApi from '../../../api/supportTicketsApi';
-import type { PaginatedTicketsResponse, SupportTicketDetails, TicketActionPayload } from '../../../api/supportTicketsApi';
+import type { PaginatedTicketsResponse, SupportTicketDetails, TicketActionPayload, GetTicketsQueryParams } from '../../../api/supportTicketsApi';
 
 vi.mock('../../../api/supportTicketsApi', () => ({
   fetchSupportTickets: vi.fn(),
@@ -26,22 +26,34 @@ describe('supportTicketsSlice reducer & thunks', () => {
 
   const sampleTicket: SupportTicketDetails = {
     id: 1,
-    title: 'Test Ticket',
-    description: 'Issue',
+    subject: 'Test Ticket',
+    message: 'Issue description',
     status: 1,
-    priority: 1,
+    adminNote: null,
+    handledByAdminUserId: null,
+    handledAt: null,
     createdAt: '2026-08-16',
-    updatedAt: '2026-08-16',
-    messages: [],
-    assignedToId: null,
-    assignedToFullName: null,
+    userId: 'user-1',
     userFullName: 'User',
     userEmail: 'user@test.com',
+    userRole: 'Parent',
   };
 
   const samplePaginatedTickets: PaginatedTicketsResponse = {
-    items: [sampleTicket],
+    items: [
+      {
+        id: 1,
+        subject: 'Test Ticket',
+        status: 1,
+        createdAt: '2026-08-16',
+        userId: 'user-1',
+        userFullName: 'User',
+        userEmail: 'user@test.com',
+        userRole: 'Parent',
+      },
+    ],
     pageNumber: 1,
+    pageSize: 10,
     totalPages: 1,
     totalCount: 1,
     hasPreviousPage: false,
@@ -68,7 +80,7 @@ describe('supportTicketsSlice reducer & thunks', () => {
   });
 
   describe('getTickets thunk', () => {
-    const params = { page: 1, pageSize: 10 };
+    const params: GetTicketsQueryParams = { PageNumber: 1, PageSize: 10 };
 
     it('sets loading true on pending', () => {
       const state = supportTicketsReducer(initialState, { type: getTickets.pending.type });
@@ -150,7 +162,7 @@ describe('supportTicketsSlice reducer & thunks', () => {
   });
 
   describe('respondToTicket thunk', () => {
-    const payload: TicketActionPayload = { id: 1, action: 'respond', replyMessage: 'Hello' };
+    const payload: TicketActionPayload = { id: 1, status: 2, adminNote: 'Hello' };
 
     it('sets actionLoading true on pending', () => {
       const state = supportTicketsReducer(initialState, { type: respondToTicket.pending.type });

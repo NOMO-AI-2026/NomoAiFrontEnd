@@ -27,11 +27,16 @@ describe('paymentSlice reducer & thunks', () => {
   };
 
   const samplePaymentMethods: PaymentMethod[] = [
-    { id: '1', name: 'Method 1', type: 1, provider: 1 },
+    { id: '1', name: 'Method 1', paymentMethodType: 1 },
   ];
 
   const sampleQuickLinkResult: QuickLinkResult = {
-    url: 'https://payment.link',
+    paymentId: 10,
+    clientUrl: 'https://payment.link',
+    shortUrl: 'https://pay.link',
+    referenceId: 'ref-123',
+    expiresAt: '2026-12-31',
+    isReplay: false,
   };
 
   beforeEach(() => {
@@ -66,6 +71,7 @@ describe('paymentSlice reducer & thunks', () => {
     it('updates paymentMethods on fulfilled with successful response', async () => {
       vi.mocked(paymentApi.getPaymentMethodsApi).mockResolvedValueOnce({
         isSuccess: true,
+        isFailure: false,
         value: samplePaymentMethods,
       });
 
@@ -89,7 +95,8 @@ describe('paymentSlice reducer & thunks', () => {
     it('returns empty array on fulfilled when response value is not an array', async () => {
       vi.mocked(paymentApi.getPaymentMethodsApi).mockResolvedValueOnce({
         isSuccess: true,
-        value: null,
+        isFailure: false,
+        value: undefined as unknown as PaymentMethod[],
       });
 
       const dispatch = vi.fn();
@@ -124,7 +131,7 @@ describe('paymentSlice reducer & thunks', () => {
   });
 
   describe('createQuickLink thunk', () => {
-    const payload: CreateQuickLinkPayload = { planId: 1, methodId: '1' };
+    const payload: CreateQuickLinkPayload = { planId: 1, paymentMethodId: '1', idempotency: 'key-123', priceInEGP: 100 };
 
     it('sets isCreatingLink true on pending', () => {
       const action = { type: createQuickLink.pending.type };
@@ -136,6 +143,7 @@ describe('paymentSlice reducer & thunks', () => {
     it('updates quickLinkResult on fulfilled and clears idempotency key', async () => {
       vi.mocked(paymentApi.createQuickLinkApi).mockResolvedValueOnce({
         isSuccess: true,
+        isFailure: false,
         value: sampleQuickLinkResult,
       });
 
@@ -160,7 +168,8 @@ describe('paymentSlice reducer & thunks', () => {
     it('sets error on rejected when API returns success=false', async () => {
       vi.mocked(paymentApi.createQuickLinkApi).mockResolvedValueOnce({
         isSuccess: false,
-        error: { description: 'API Error' },
+        isFailure: true,
+        error: { code: 'ERR', description: 'API Error' },
       });
 
       const dispatch = vi.fn();
