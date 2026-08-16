@@ -62,6 +62,7 @@ const SessionSummaryPage = () => {
     | 'parent'
     | 'admin'
     | null);
+  const isDoctor = role === 'doctor';
 
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -94,7 +95,7 @@ const SessionSummaryPage = () => {
     setErrorMessage(null);
 
     try {
-      if (role === 'doctor') {
+      if (isDoctor) {
         try {
           const detailed = await getDoctorSessionSummaryApi(sessionId);
           setDoctorSummary(detailed);
@@ -129,7 +130,7 @@ const SessionSummaryPage = () => {
       setShared(generated);
       setHistoryChildId(generated.childId);
 
-      if (role === 'doctor') {
+      if (isDoctor) {
         const detailed = await getDoctorSessionSummaryApi(sessionId);
         setDoctorSummary(detailed);
         setParentSummary(null);
@@ -152,7 +153,7 @@ const SessionSummaryPage = () => {
       setErrorMessage(message);
       setLoadState('error');
     }
-  }, [loadAttempts, role, sessionId]);
+  }, [isDoctor, loadAttempts, sessionId]);
 
   useEffect(() => {
     void load();
@@ -178,7 +179,9 @@ const SessionSummaryPage = () => {
         <div className={styles.headerText}>
           <h1 className={styles.title}>نتائج الجلسة</h1>
           <p className={styles.subtitle}>
-            {historyChildId ? 'سجل متابعة نتائج الجلسة — يمكنك الرجوع إليه في أي وقت' : 'عرض شامل ومبسط لأداء الطفل في الجلسة'}
+            {isDoctor
+              ? 'تقرير الجلسة مع تسجيلات المحاولات للمراجعة الطبية'
+              : 'ملخص مبسّط لنتيجة الجلسة بدون تسجيلات'}
           </p>
         </div>
       </header>
@@ -201,7 +204,7 @@ const SessionSummaryPage = () => {
         </div>
       )}
 
-      {loadState === 'ready' && role === 'doctor' && doctorSummary && (
+      {loadState === 'ready' && isDoctor && doctorSummary && (
         <div className={styles.stack}>
           <section className={styles.card}>
             <div className={styles.cardHeader}>
@@ -388,7 +391,7 @@ const SessionSummaryPage = () => {
         </div>
       )}
 
-      {loadState === 'ready' && role !== 'doctor' && parentSummary && (
+      {loadState === 'ready' && !isDoctor && parentSummary && (
         <div className={styles.stack}>
           <section className={styles.card}>
             <div className={styles.cardHeader}>
