@@ -7,7 +7,7 @@ import {
   type GetTicketsQueryParams,
   type SupportTicketDetails,
   type TicketActionPayload
-} from '../../api/supportTicketsApi';
+} from '../../../api/supportTicketsApi';
 
 // Thunk لجلب قائمة التذاكر
 export const getTickets = createAsyncThunk(

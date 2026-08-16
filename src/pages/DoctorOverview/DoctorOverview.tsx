@@ -8,7 +8,7 @@ import {
   PlusCircle
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchDoctorDashboard, getProfile } from '../../store/slices/profileSlice';
+import { fetchDoctorDashboard, getProfile } from '../../store/slices/profileSlice/profileSlice';
 import { useModal } from '../../context/ModalContext';
 import styles from './DoctorOverview.module.css';
 
@@ -228,3 +228,4 @@ const DoctorOverview = () => {
 };
 
 export default DoctorOverview;
+

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CreditCard } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchPlansAndRate } from '../../store/slices/plansSlice';
+import { fetchPlansAndRate } from '../../store/slices/plansSlice/plansSlice';
 import PlanCard from '../../components/PlanCard/PlanCard';
 import PaymentModal from '../../components/Modals/PaymentModal/PaymentModal';
 import { type SubscriptionPlan } from '../../types/plan.types';
@@ -80,3 +80,4 @@ const DoctorSubscriptions = () => {
 };
 
 export default DoctorSubscriptions;
+

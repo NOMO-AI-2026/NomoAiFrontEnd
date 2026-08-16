@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, Mail, User, Shield, Calendar, CheckCircle } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { getTicketDetails, respondToTicket, clearSelectedTicket } from '../../../store/slices/supportTicketsSlice';
+import { getTicketDetails, respondToTicket, clearSelectedTicket } from '../../../store/slices/supportTicketsSlice/supportTicketsSlice';
 import toast from 'react-hot-toast';
 import styles from './TicketDetailsModal.module.css';
 

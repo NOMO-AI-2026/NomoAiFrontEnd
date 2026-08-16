@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { fetchPlansAndRate, deletePlan } from '../../../store/slices/plansSlice';
+import { fetchPlansAndRate, deletePlan } from '../../../store/slices/plansSlice/plansSlice';
 import PlanModal from '../../../components/Modals/PlanModal/PlanModal';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal';
 import PlanCard from '../../../components/PlanCard/PlanCard';
@@ -142,3 +142,4 @@ const AdminSubscriptions = () => {
 };
 
 export default AdminSubscriptions;
+

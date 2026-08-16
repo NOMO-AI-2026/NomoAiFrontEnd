@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Search, ChevronRight, ChevronLeft, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { getTickets } from '../../../store/slices/supportTicketsSlice';
+import { getTickets } from '../../../store/slices/supportTicketsSlice/supportTicketsSlice';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal/DeleteConfirmModal'; 
 import TicketDetailsModal from '../../../components/Modals/TicketDetailsModal/TicketDetailsModal';
 import { deleteTicket } from '../../../api/supportTicketsApi'; 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks'; 
-import { getProfile, clearProfile } from '../../store/slices/profileSlice';
+import { getProfile, clearProfile } from '../../store/slices/profileSlice/profileSlice';
 import styles from './Profile.module.css';
 import { Edit2, UploadCloud, AlertCircle } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Edit2, X } from 'lucide-react';
 import { useAppDispatch } from '../../../store/hooks';
-import { updateProfile, type ProfileData } from '../../../store/slices/profileSlice';
+import { updateProfile, type ProfileData } from '../../../store/slices/profileSlice/profileSlice';
 import styles from './EditProfileModal.module.css';
 
 interface Props {

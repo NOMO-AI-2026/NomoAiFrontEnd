@@ -3,7 +3,7 @@ import { Search, Settings, Menu, User, Sparkles } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom"; 
 import styles from "./Navbar.module.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { getProfile } from "../../store/slices/profileSlice";
+import { getProfile } from "../../store/slices/profileSlice/profileSlice";
 import { setSearchQuery } from "../../store/slices/childrenSlice/childrenSlice";
 
 interface NavbarProps {

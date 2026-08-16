@@ -15,7 +15,7 @@ import styles from "./Sidebar.module.css";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAppDispatch } from "../../store/hooks"; 
 import { logout } from "../../store/slices/authSlice/authSlice"; 
-import { clearProfile } from "../../store/slices/profileSlice"; 
+import { clearProfile } from "../../store/slices/profileSlice/profileSlice"; 
 import { useModal } from "../../context/ModalContext";
 import { logoutApi } from "../../api/authApi";
 

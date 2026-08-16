@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../layouts/AuthLayout/AuthLayout';
 import { registerApi } from '../../api/authApi'; 
 import styles from '../../layouts/AuthLayout/SharedAuth.module.css';
-import { validateSignup } from '../../utils/validations'; 
+import { validateSignup } from '../../utils/validations/validations'; 
 
 interface ApiError {
   response?: {

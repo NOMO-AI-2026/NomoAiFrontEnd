@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getPlansApi, getUsdToEgpRateApi, createPlanApi, updatePlanApi, deletePlanApi, type CreateUpdatePlanPayload } from '../../api/plansApi';
-import { type SubscriptionPlan } from '../../types/plan.types';
+import { getPlansApi, getUsdToEgpRateApi, createPlanApi, updatePlanApi, deletePlanApi, type CreateUpdatePlanPayload } from '../../../api/plansApi';
+import { type SubscriptionPlan } from '../../../types/plan.types';
 
 interface PlansState {
   plans: SubscriptionPlan[];
@@ -148,3 +148,4 @@ const plansSlice = createSlice({
 });
 
 export default plansSlice.reducer;
+

@@ -9,7 +9,7 @@ import {
   Target
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchParentDashboard, getProfile, type ParentDashboardChild } from '../../store/slices/profileSlice';
+import { fetchParentDashboard, getProfile, type ParentDashboardChild } from '../../store/slices/profileSlice/profileSlice';
 import styles from './ParentOverview.module.css';
 
 interface FormattedLatestNote {
@@ -265,3 +265,4 @@ const ParentOverview = () => {
 };
 
 export default ParentOverview;
+

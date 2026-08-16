@@ -3,7 +3,7 @@ import { X, CreditCard, ShieldCheck, ExternalLink, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast';
 import styles from './PaymentModal.module.css';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { fetchPaymentMethods, createQuickLink, resetPaymentState } from '../../../store/slices/paymentSlice';
+import { fetchPaymentMethods, createQuickLink, resetPaymentState } from '../../../store/slices/paymentSlice/paymentSlice';
 import { type SubscriptionPlan } from '../../../types/plan.types';
 import { getOrCreateIdempotencyKey } from '../../../utils/idempotency/idempotency';
 
@@ -190,3 +190,4 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 };
 
 export default PaymentModal;
+

@@ -3,7 +3,7 @@ import { X, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './PlanModal.module.css';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { createPlan, updatePlan } from '../../../store/slices/plansSlice';
+import { createPlan, updatePlan } from '../../../store/slices/plansSlice/plansSlice';
 import { type SubscriptionPlan } from '../../../types/plan.types';
 
 interface PlanModalProps {
@@ -196,3 +196,4 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, planToEdit }) =>
 };
 
 export default PlanModal;
+

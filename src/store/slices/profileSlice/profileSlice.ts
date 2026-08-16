@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchProfileApi, updateProfileApi } from '../../api/profileApi';
-import { getDoctorDashboardApi } from '../../api/doctorApi';
-import { getParentDashboardApi } from '../../api/parentApi';
+import { fetchProfileApi, updateProfileApi } from '../../../api/profileApi';
+import { getDoctorDashboardApi } from '../../../api/doctorApi';
+import { getParentDashboardApi } from '../../../api/parentApi';
 
 export interface DoctorSpecificData {
   yearsOfExperience: number | null;

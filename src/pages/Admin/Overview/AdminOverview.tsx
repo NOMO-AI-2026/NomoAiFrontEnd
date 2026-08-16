@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchAdminAnalyticsOverview } from '../../../store/slices/adminAnalyticsSlice/adminAnalyticsSlice';
-import { getProfile } from '../../../store/slices/profileSlice';
+import { getProfile } from '../../../store/slices/profileSlice/profileSlice';
 import styles from './AdminOverview.module.css';
 
 const AdminOverview = () => {
@@ -523,3 +523,4 @@ const AdminOverview = () => {
 };
 
 export default AdminOverview;
+
