@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { UserCheck, UserX, Trash2, Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import styles from './AdminDoctors.module.css';
@@ -60,46 +60,44 @@ const AdminDoctors = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      setLoading(true);
-      try {
-        const params: GetDoctorsParams = {
-          pageNumber: page,
-          pageSize: 10,
-        };
-        
-        if (debouncedSearch) {
-          params.name = debouncedSearch;
-        }
-
-        // الفلترة حسب الاعتماد أومستندات التعديل المعلقة
-        if (filter === 'APPROVED') params.isApproved = true;
-        if (filter === 'PENDING') params.isApproved = false;
-        if (filter === 'DOCS_PENDING') params.hasPendingDocuments = true;
-
-        const response = await getAdminDoctorsApi(params);
-        
-        if (response?.value?.items && Array.isArray(response.value.items)) {
-          setDoctors(response.value.items);
-          setTotalPages(response.value.totalPages || 1); 
-        } else {
-          setDoctors([]);
-          setTotalPages(1);
-        }
-
-      } catch (error: unknown) {
-        console.error("Error fetching doctors:", error);
-        setDoctors([]); 
-      } finally {
-        setLoading(false);
+  const fetchDoctors = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params: GetDoctorsParams = {
+        pageNumber: page,
+        pageSize: 10,
+      };
+      
+      if (debouncedSearch) {
+        params.name = debouncedSearch;
       }
-    };
 
-    fetchDoctors();
+      // الفلترة حسب الاعتماد أومستندات التعديل المعلقة
+      if (filter === 'APPROVED') params.isApproved = true;
+      if (filter === 'PENDING') params.isApproved = false;
+      if (filter === 'DOCS_PENDING') params.hasPendingDocuments = true;
+
+      const response = await getAdminDoctorsApi(params);
+      
+      if (response?.value?.items && Array.isArray(response.value.items)) {
+        setDoctors(response.value.items);
+        setTotalPages(response.value.totalPages || 1); 
+      } else {
+        setDoctors([]);
+        setTotalPages(1);
+      }
+
+    } catch (error: unknown) {
+      console.error("Error fetching doctors:", error);
+      setDoctors([]); 
+    } finally {
+      setLoading(false);
+    }
   }, [page, debouncedSearch, filter]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    fetchDoctors();
+  }, [fetchDoctors]);
 
   const handleDoctorRowClick = (userId: string) => {
     dispatch(fetchDoctorDetailsByAdmin(userId));
@@ -115,7 +113,7 @@ const AdminDoctors = () => {
     const res = await dispatch(acceptPendingDoctorDocuments(userId));
     if (acceptPendingDoctorDocuments.fulfilled.match(res)) {
       toast.success("تم قبول المستندات الجديدة وتفعيلها بنجاح!");
-      setDoctors((prev) => prev.map((doc) => doc.userId === userId ? { ...doc, hasPendingDocuments: false } : doc));
+      fetchDoctors();
     } else {
       toast.error((res.payload as string) || "حدث خطأ أثناء قبول المستندات");
     }
@@ -125,7 +123,7 @@ const AdminDoctors = () => {
     const res = await dispatch(rejectPendingDoctorDocuments(userId));
     if (rejectPendingDoctorDocuments.fulfilled.match(res)) {
       toast.success("تم رفض المستندات الجديدة وإلغاؤها بنجاح!");
-      setDoctors((prev) => prev.map((doc) => doc.userId === userId ? { ...doc, hasPendingDocuments: false } : doc));
+      fetchDoctors();
     } else {
       toast.error((res.payload as string) || "حدث خطأ أثناء رفض المستندات");
     }
@@ -135,7 +133,7 @@ const AdminDoctors = () => {
     if (e) e.stopPropagation();
     try {
       await handleDoctorApprovalApi({ userId, approveStatus: true });
-      setDoctors((prev) => prev.map((doc) => doc.userId === userId ? { ...doc, isApproved: true } : doc));
+      fetchDoctors();
       
       if (selectedDoctor && selectedDoctor.userId === userId) {
         dispatch(fetchDoctorDetailsByAdmin(userId));
@@ -159,7 +157,7 @@ const AdminDoctors = () => {
     setIsRejectLoading(true);
     try {
       await handleDoctorApprovalApi({ userId: doctorToReject, approveStatus: false });
-      setDoctors((prev) => prev.map((doc) => doc.userId === doctorToReject ? { ...doc, isApproved: false } : doc));
+      fetchDoctors();
       
       if (selectedDoctor && selectedDoctor.userId === doctorToReject) {
         dispatch(fetchDoctorDetailsByAdmin(doctorToReject));
@@ -187,7 +185,7 @@ const AdminDoctors = () => {
     setIsActionLoading(true);
     try {
       await deleteDoctorByAdminApi({ userId: selectedDoctorId });
-      setDoctors((prev) => prev.filter((doc) => doc.userId !== selectedDoctorId));
+      fetchDoctors();
       setIsDeleteModalOpen(false);
       if (isDetailsModalOpen && selectedDoctor?.userId === selectedDoctorId) {
         handleCloseDetailsModal();
