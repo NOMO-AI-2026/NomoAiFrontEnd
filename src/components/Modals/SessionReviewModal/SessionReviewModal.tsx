@@ -42,11 +42,16 @@ const SessionReviewModal = ({ isOpen, onClose, onSubmit, initialData, sessionTit
       return;
     }
     
+    if (!comment.trim()) {
+      setError('يرجى كتابة تعليق التقييم أولاً');
+      return;
+    }
+    
     setIsSubmitting(true);
     setError('');
     
     try {
-      await onSubmit({ rating, comment, repeatSession });
+      await onSubmit({ rating, comment: comment.trim(), repeatSession });
       onClose();
     } catch (err: any) {
       setError(err.response?.data?.message || 'حدث خطأ أثناء حفظ التقييم');
@@ -69,7 +74,9 @@ const SessionReviewModal = ({ isOpen, onClose, onSubmit, initialData, sessionTit
           {error && <div className={styles.errorMsg}>{error}</div>}
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>التقييم</label>
+            <label className={styles.label}>
+              التقييم <span style={{ color: '#EF4444' }}>*</span>
+            </label>
             <div className={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -87,12 +94,15 @@ const SessionReviewModal = ({ isOpen, onClose, onSubmit, initialData, sessionTit
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>التعليق (ملاحظات للطبيب وولي الأمر)</label>
+            <label className={styles.label}>
+              التعليق (ملاحظات للطبيب وولي الأمر) <span style={{ color: '#EF4444' }}>*</span>
+            </label>
             <textarea
               className={styles.textarea}
               placeholder="اكتب تعليقك هنا..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
+              required
             />
           </div>
 
